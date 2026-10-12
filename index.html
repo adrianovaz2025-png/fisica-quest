@@ -290,8 +290,8 @@ select.inp{appearance:none;-webkit-appearance:none}
    Com os campos vazios o jogo roda em MODO DEMO (salva só no aparelho).
    ===================================================================== */
 const CONFIG={
-  SUPABASE_URL:'',            // ex.: 'https://abcdefgh.supabase.co'
-  SUPABASE_KEY:'',            // chave anon public (pode ficar no código)
+  SUPABASE_URL:'https://deebihpvewibzciwwpyc.supabase.co',            // ex.: 'https://abcdefgh.supabase.co'
+  SUPABASE_KEY:'sb_publishable_3ecbKUEKBCeC5_FtNTkXvw_0Zts6nxO',            // chave anon public (pode ficar no código)
   EMAIL_DOMAIN:'fisicaquest.app',
   ENEM_DATA:'2026-11-08',          // 1º dia do ENEM (contagem regressiva da Torre ENEM)   // e-mail interno: nick@dominio (nenhum e-mail é enviado)
   NIVEIS:[0,150,600,1500,3000,5000], // pontos da TRIBO para cada nível (1 a 6)
@@ -1811,7 +1811,7 @@ function loadScript(src){return new Promise((ok,err)=>{const s=document.createEl
 const Supa={
  sb:null,uid:null,
  email(n){return n.toLowerCase()+'@'+CONFIG.EMAIL_DOMAIN},
- async init(){await loadScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js');this.sb=window.supabase.createClient(CONFIG.SUPABASE_URL,CONFIG.SUPABASE_KEY);const{data}=await this.sb.auth.getSession();if(!data.session)return null;this.uid=data.session.user.id;try{return await this.profile()}catch(e){return null}},
+ async init(){await loadScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js');this.sb=window.supabase.createClient(CONFIG.SUPABASE_URL,CONFIG.SUPABASE_KEY);const{data}=await this.sb.auth.getSession();if(!data.session)return null;this.uid=data.session.user.id;try{return await this.profile()}catch(e){return null}},
  async profile(){const{data,error}=await this.sb.from('perfis').select('nick,nome,admin,personagem,turma,fases,pontos,equip,visual').eq('id',this.uid).single();if(error)throw error;return data},
  async check(turma,codigo,nick){const{data,error}=await this.sb.rpc('validar_cadastro',{p_turma:turma,p_codigo:codigo,p_nick:nick});if(error)throw error;return data},
  async signup(d){const{data,error}=await this.sb.auth.signUp({email:this.email(d.nick),password:d.senha,options:{data:{nick:d.nick,nome:d.nome||'',turma:d.turma,codigo:d.codigo,personagem:d.personagem,visual:d.visual}}});if(error)throw error;if(!data.session)throw new Error('Conta criada, mas sem login automático. Professor: desligue "Confirm email" no Supabase.');this.uid=data.user.id;return this.profile()},
