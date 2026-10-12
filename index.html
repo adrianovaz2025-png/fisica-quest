@@ -491,7 +491,10 @@ const css=a=>`rgb(${clamp(a[0]|0,0,255)},${clamp(a[1]|0,0,255)},${clamp(a[2]|0,0
 const shade=(h,f)=>css(hx(h).map(v=>v*f));
 const BAYER=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5].map(v=>(v+.5)/16);
 function segDist(X,Y,s){const dx=s[2]-s[0],dy=s[3]-s[1],L=dx*dx+dy*dy;let t=L?((X-s[0])*dx+(Y-s[1])*dy)/L:0;t=clamp(t,0,1);return Math.hypot(X-s[0]-t*dx,Y-s[1]-t*dy)}
-function polyDist(X,Y,p){let m=1e9;for(let i=0;i<p.length-1;i++){const d=segDist(X,Y,[p[i][0],p[i][1],p[i+1][0],p[i+1][1]]);if(d<m)m=d}return m}
+const PDI=new WeakMap();
+function pdIndex(p){let ix=PDI.get(p);if(ix)return ix;const C=3,m=new Map();for(let i=0;i<p.length-1;i++){const a=p[i],b=p[i+1],x0=Math.floor(Math.min(a[0],b[0])/C),x1=Math.floor(Math.max(a[0],b[0])/C),y0=Math.floor(Math.min(a[1],b[1])/C),y1=Math.floor(Math.max(a[1],b[1])/C);for(let gx=x0;gx<=x1;gx++)for(let gy=y0;gy<=y1;gy++){const k=gx*100003+gy;let l=m.get(k);if(!l)m.set(k,l=[]);l.push(i)}}ix={C,m};PDI.set(p,ix);return ix}
+function segD2(X,Y,a,b,m2){const ax=a[0],ay=a[1],bx=b[0],by=b[1];let ex=0,ey=0;if(X<ax&&X<bx)ex=(ax<bx?ax:bx)-X;else if(X>ax&&X>bx)ex=X-(ax>bx?ax:bx);if(Y<ay&&Y<by)ey=(ay<by?ay:by)-Y;else if(Y>ay&&Y>by)ey=Y-(ay>by?ay:by);if(ex*ex+ey*ey>=m2)return m2;const dx=bx-ax,dy=by-ay,L=dx*dx+dy*dy;let t=L?((X-ax)*dx+(Y-ay)*dy)/L:0;t=t<0?0:t>1?1:t;const qx=X-ax-t*dx,qy=Y-ay-t*dy,d2=qx*qx+qy*qy;return d2<m2?d2:m2}
+function polyDist(X,Y,p,cap){let m2=cap?cap*cap:1e18;if(cap&&p.length>12){const{C,m}=pdIndex(p),x0=Math.floor((X-cap)/C),x1=Math.floor((X+cap)/C),y0=Math.floor((Y-cap)/C),y1=Math.floor((Y+cap)/C);for(let gx=x0;gx<=x1;gx++)for(let gy=y0;gy<=y1;gy++){const l=m.get(gx*100003+gy);if(l)for(const i of l)m2=segD2(X,Y,p[i],p[i+1],m2)}return Math.sqrt(m2)}for(let i=0,n=p.length-1;i<n;i++)m2=segD2(X,Y,p[i],p[i+1],m2);return Math.sqrt(m2)}
 
 const R=(x,a,b,w,h,col)=>{x.fillStyle=col;x.fillRect(Math.floor(a),Math.floor(b),Math.ceil(w),Math.ceil(h))};
 function disc(x,cx,cy,r,col){x.fillStyle=col;for(let dy=-Math.ceil(r);dy<=Math.ceil(r);dy++){const q=r*r-dy*dy+r*.6;if(q<0)continue;const w=Math.min(Math.ceil(r),Math.round(Math.sqrt(q)));x.fillRect(Math.floor(cx)-w,Math.floor(cy)+dy,2*w+1,1)}}
@@ -1130,11 +1133,11 @@ function genTerrain(Wd,o){
  const N=Wd.N,G=4,S=N*G+1,sd=o.seed,MB=!!o.pals,PLS=MB?o.pals:[o.pal],P=PLS[0];Wd.pal=P;
  const fbi=new Uint8Array(S*S),fwi=new Uint8Array(S*S);
  const A=()=>new Float32Array(S*S),fh=A(),fr=A(),fdi=A(),ffo=A(),fn=A(),fd=A(),fsl=A(),fsh=A();
- const segs=[];for(const p of o.roads||[])for(let i=0;i<p.length-1;i++)segs.push([p[i][0],p[i][1],p[i+1][0],p[i+1][1]]);
+ const segs=[];for(const p of o.roads||[])for(let i=0;i<p.length-1;i++)segs.push([p[i][0],p[i][1],p[i+1][0],p[i+1][1]]);const SGC=4,SGM=new Map();segs.forEach((q,ii)=>{const x0=Math.floor((Math.min(q[0],q[2])-9)/SGC),x1=Math.floor((Math.max(q[0],q[2])+9)/SGC),y0=Math.floor((Math.min(q[1],q[3])-9)/SGC),y1=Math.floor((Math.max(q[1],q[3])+9)/SGC);for(let gx=x0;gx<=x1;gx++)for(let gy=y0;gy<=y1;gy++){const kk=gx*100003+gy;let l=SGM.get(kk);if(!l)SGM.set(kk,l=[]);l.push(q)}});const NOSEG=[];
  let maxH=0;
  for(let j=0;j<S;j++)for(let i=0;i<S;i++){const X=i/G,Y=j/G,k=j*S+i,hh=o.height(X,Y);fh[k]=hh;if(hh>maxH)maxH=hh;
   fn[k]=fbm(X*.16,Y*.16,sd,3);if(MB){fbi[k]=o.biome(X,Y);fwi[k]=o.wbiome?o.wbiome(X,Y):fbi[k]}fd[k]=vnoise(X*.9,Y*.9,sd+5);fdi[k]=o.dirt?o.dirt(X,Y):-1;ffo[k]=o.forest?o.forest(X,Y):0;
-  let m=9;for(const s2 of segs){if(Math.abs(X-s2[0])>m+3&&Math.abs(X-s2[2])>m+3)continue;const dd=segDist(X,Y,s2);if(dd<m)m=dd}fr[k]=m}
+  let m2=81;for(const s2 of (SGM.get(Math.floor(X/SGC)*100003+Math.floor(Y/SGC))||NOSEG)){const ax=s2[0],ay=s2[1],bx=s2[2],by=s2[3];let ex=0,ey=0;if(X<ax&&X<bx)ex=(ax<bx?ax:bx)-X;else if(X>ax&&X>bx)ex=X-(ax>bx?ax:bx);if(Y<ay&&Y<by)ey=(ay<by?ay:by)-Y;else if(Y>ay&&Y>by)ey=Y-(ay>by?ay:by);if(ex*ex+ey*ey>=m2)continue;const dx=bx-ax,dy=by-ay,L=dx*dx+dy*dy;let t=L?((X-ax)*dx+(Y-ay)*dy)/L:0;t=t<0?0:t>1?1:t;const qx=X-ax-t*dx,qy=Y-ay-t*dy,d2=qx*qx+qy*qy;if(d2<m2)m2=d2}fr[k]=Math.sqrt(m2)}
  const Lx=-.8,Ly=.3,Lz=.9,Ln=Math.hypot(Lx,Ly,Lz),Lh=Math.hypot(Lx,Ly),lhx=Lx/Lh,lhy=Ly/Lh;
  const Hs=(X,Y)=>{const gx=clamp(X*G,0,S-1.001),gy=clamp(Y*G,0,S-1.001),ix=gx|0,iy=gy|0;return bil(fh,iy*S+ix,gx-ix,gy-iy,S)};
  for(let j=0;j<S;j++)for(let i=0;i<S;i++){const k=j*S+i,i0=Math.max(0,i-1),i1=Math.min(S-1,i+1),j0=Math.max(0,j-1),j1=Math.min(S-1,j+1),h0=Math.max(0,fh[k]);
@@ -1238,7 +1241,7 @@ function buildTribeWorld(levels){
   for(const q of POD){const w=sstep(4.6,3,Math.hypot(X-q[0],Y-q[1]));if(w>0)h=Math.max(h,lerp(h,9,w))}
   {const w=sstep(11.5,9,dC);if(w>0)h=lerp(h,8,w)}
   {const lw=sstep(4.9,3.8,dC+(fbm(X*.4,Y*.4,sd+3)-.5)*1.1);if(lw>0)h=lerp(h,-6,lw);const iw=sstep(2.2,1.6,dC);if(iw>0)h=lerp(h,8,iw)}
-  {const rd=polyDist(X,Y,riv)+(fbm(X*.5,Y*.5,sd+8)-.5)*.5;if(rd<2.2)h=Math.min(h,lerp(-5,h,sstep(.85,2,rd)))}
+  {const rd=polyDist(X,Y,riv,3.5)+(fbm(X*.5,Y*.5,sd+8)-.5)*.5;if(rd<2.2)h=Math.min(h,lerp(-5,h,sstep(.85,2,rd)))}
   {const dd=Math.hypot(X-ISL[0],Y-ISL[1])+(fbm(X*.4,Y*.4,sd+40)-.5)*1.2;if(dd<7.5)h=Math.max(h,dd<4.6?11+(fbm(X*.5,Y*.5,sd+41)-.5)*2:lerp(-8,11,sstep(6.8,4.6,dd)))}
   {const da=Math.hypot(X-BRA[0],Y-BRA[1]);if(da<2.8)h=Math.max(h,6*sstep(2.8,1.2,da))}
   return h};
@@ -1256,7 +1259,7 @@ function buildTribeWorld(levels){
  // natureza
  const r=rng(sd+50),P=Wd.pal;
  for(let Y=1;Y<N-1;Y+=.78)for(let X=1;X<N-1;X+=.78){const x=X+r()*.6,y=Y+r()*.6,hh=Wd.q('fh',x,y);if(hh<1)continue;
-  if(Wd.q('fr',x,y)<1.3)continue;if(inPod(x,y,4.4,3))continue;if(Math.hypot(x-ISL[0],y-ISL[1])<7.6||polyDist(x,y,[BRA,BRB])<1.6||Math.hypot(x-BRA[0],y-BRA[1])<2.4)continue;const tcd=Math.min(...TP.map(T=>Math.max(Math.abs(x-T[0]),Math.abs(y-T[1]))));if(tcd<7.4)continue;if(tcd<11&&r()>.08)continue;if(Math.hypot(x-C[0],y-C[1])<9.4)continue;
+  if(Wd.q('fr',x,y)<1.3)continue;if(inPod(x,y,4.4,3))continue;if(Math.hypot(x-ISL[0],y-ISL[1])<7.6||polyDist(x,y,[BRA,BRB],2)<1.6||Math.hypot(x-BRA[0],y-BRA[1])<2.4)continue;const tcd=Math.min(...TP.map(T=>Math.max(Math.abs(x-T[0]),Math.abs(y-T[1]))));if(tcd<7.4)continue;if(tcd<11&&r()>.08)continue;if(Math.hypot(x-C[0],y-C[1])<9.4)continue;
   const sl=Wd.q('fsl',x,y),fo=Wd.q('ffo',x,y);let sp=null,hg=10;
   if(hh<P.beachH+.6){if(r()<.07){sp=palmS(r()*6|0);hg=34}}
   else if(sl>P.rockS){if(r()<.07){sp=rockS(r()*8|0,ROCKP.gray);hg=8}}
@@ -1338,9 +1341,9 @@ function buildVolWorld(v){
   const rid=1-Math.abs(2*fbm(X*.35,Y*.35,sd+7)-1);for(const m of L.mtn){const q=((X-m[0])**2+(Y-m[1])**2)/(m[2]*m[2]);if(q<7)h+=Math.exp(-q*1.25)*m[3]*(.55+rid*.6)*land}
   if(th==='desert'){h+=sstep(.52,.6,fbm(X*.2,Y*.2,sd+4))*20*land;if(h>7)h=7+Math.floor((h-7)/6)*6}
   if(th==='lava'){const dv=Math.hypot(X-5,Y-5);h+=80*Math.pow(Math.max(0,1-dv/5.8),1.5)*land;if(dv<1.5)h-=(1.5-dv)*26}
-  const pd=polyDist(X,Y,pathS);{const ww=sstep(2.6,1.15,pd);if(ww>0)h=lerp(h,6.5+(fbm(X*.3,Y*.3,sd+6)-.5)*2,ww)}
+  const pd=polyDist(X,Y,pathS,3.5);{const ww=sstep(2.6,1.15,pd);if(ww>0)h=lerp(h,6.5+(fbm(X*.3,Y*.3,sd+6)-.5)*2,ww)}
   nodes.forEach((n,i)=>{const dd=i===5?Math.max(Math.abs(X-n[0]),Math.abs(Y-n[1])):Math.hypot(X-n[0],Y-n[1]),ww=i===5?sstep(4.9,3.5,dd):sstep(2.2,1.4,dd);if(ww>0)h=lerp(h,i===5?7:6.5,ww)});
-  if(w.t==='river'){const rd=polyDist(X,Y,w.pts)+(fbm(X*.5,Y*.5,sd+8)-.5)*.5;if(rd<2)h=Math.min(h,lerp(-4,h,sstep(.8,1.8,rd)))}
+  if(w.t==='river'){const rd=polyDist(X,Y,w.pts,3.5)+(fbm(X*.5,Y*.5,sd+8)-.5)*.5;if(rd<2)h=Math.min(h,lerp(-4,h,sstep(.8,1.8,rd)))}
   else{const dd=Math.hypot(X-w.c[0],Y-w.c[1])+(fbm(X*.5,Y*.5,sd+8)-.5)*.8;if(dd<w.r+1)h=Math.min(h,lerp(-4,h,sstep(w.r-.6,w.r+.7,dd)))}
   return h};
  const ff=(X,Y)=>sstep(.5,.62,fbm(X*.18,Y*.18,sd+33,3));
@@ -1696,9 +1699,9 @@ function buildMundo(){
   if(w[1]>.01){let dh=(fbm(X*.12,Y*.12,sd+3)-.45)*7+Math.sin(X*.9+Y*.35+fbm(X*.2,Y*.2,sd+4)*4)*1.4;dh+=sstep(.56,.64,fbm(X*.16,Y*.16,sd+5))*22;if(dh>6)dh=6+Math.floor((dh-6)/6)*6;h+=w[1]*dh*land}
   if(w[2]>.01){let dh=(fbm(X*.18,Y*.18,sd+6)-.4)*16;const rid=1-Math.abs(2*fbm(X*.3,Y*.3,sd+7)-1);for(const m of PEAKS){const q=((X-m[0])**2+(Y-m[1])**2)/(m[2]*m[2]);if(q<8)dh+=Math.exp(-q*1.1)*m[3]*(.55+rid*.6)}h+=w[2]*dh*land}
   if(w[3]>.01){let dh=(fbm(X*.2,Y*.2,sd+8)-.45)*10;const dv=Math.hypot(X-VOLC[0],Y-VOLC[1]);dh+=150*Math.pow(Math.max(0,1-dv/12.5),1.7)*(.9+(fbm(X*.4,Y*.4,sd+14)-.5)*.3);if(dv<2.8)dh-=(2.8-dv)*26;h+=w[3]*dh*land}
-  const pd=polyDist(X,Y,pathS);{const ww=sstep(2.4,1.1,pd);if(ww>0)h=lerp(h,7+(fbm(X*.3,Y*.3,sd+9)-.5)*2,ww)}
+  const pd=polyDist(X,Y,pathS,3.5);{const ww=sstep(2.4,1.1,pd);if(ww>0)h=lerp(h,7+(fbm(X*.3,Y*.3,sd+9)-.5)*2,ww)}
   BIM.forEach(b=>{const dd=Math.max(Math.abs(X-b.F[0]),Math.abs(Y-b.F[1])),ww=sstep(6.4,4.2,dd);if(ww>0)h=lerp(h,7.5,ww)});
-  {const rd=polyDist(X,Y,RIV)+(fbm(X*.5,Y*.5,sd+10)-.5)*.6;if(rd<2.2)h=Math.min(h,lerp(-4,h,sstep(.9,2.1,rd)))}
+  {const rd=polyDist(X,Y,RIV,3.5)+(fbm(X*.5,Y*.5,sd+10)-.5)*.6;if(rd<2.2)h=Math.min(h,lerp(-4,h,sstep(.9,2.1,rd)))}
   {const dd=Math.hypot(X-LPOOL[0],Y-LPOOL[1])+(fbm(X*.5,Y*.5,sd+15)-.5)*.8;if(dd<2.6)h=Math.min(h,lerp(-3,h,sstep(1.3,2.5,dd)))}
   {const dd=Math.hypot(X-OAS[0],Y-OAS[1])+(fbm(X*.5,Y*.5,sd+12)-.5)*.8;if(dd<3.2)h=Math.min(h,lerp(-3,h,sstep(1.6,3,dd)))}
   for(const[ix,iy,ir,ih]of[[69,66,3.4,14],[7,67,2.8,10],[70,11,3,12],[61,74,1.8,7]]){const dd=Math.hypot(X-ix,Y-iy)+(fbm(X*.3,Y*.3,sd+16)-.5)*1.6;if(dd<ir+2.5)h=Math.max(h,dd<ir?1.4+(1-dd/ir)*ih*(.7+fbm(X*.4,Y*.4,sd+17)*.6):-(dd-ir)*3.2)}
