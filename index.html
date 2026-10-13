@@ -1841,7 +1841,7 @@ let tribeData=null,tribeWorld=null,tribeDirty=true,building=false;
 let T0=0,last=performance.now(),btns=[],mouse={x:-1,y:-1},toastM='',toastT=0;
 const hero={X:0,Y:0,walking:false,route:[],ri:0,target:0,node:{}};
 const CH=()=>me&&me.visual&&me.visual.hair?me.visual:LOOKS[me?(me.personagem||0)%4:selIdx%4];
-const serie=()=>TURMA(me.turma).serie;
+const serie=()=>TURMA(me.turma).serie||3;
 const vols=()=>CONTEUDO[serie()];
 const isDone=(v,i)=>v*6+i<me.fases;
 const volOpen=v=>!CONFIG.JORNADA||v*6<=me.fases;
@@ -1997,7 +1997,7 @@ function uiJornada(){if(jView==='mundo'){uiMundo();return}const v=curVol,V=vols(
  mapBtns(W,()=>{const[px,py]=W.Pb(hero.X,hero.Y);centerOn(W,px,py)});
  if(!volOpen(v)){T('BLOQUEADO',VW/2,110,14,GOLD,'center');T(`Complete o ${v}º bimestre para liberar`,VW/2,134,7,'#fff','center')}
  panel(4,VH-25,ONLINE?VW-8:VW-82,21,'#2a1d14','#5a3a22','#1a1020');
- const h=hoverNode();let info;if(h>=0)info=`TÓPICO ${h+1}: ${V.ph[h][0]}`;else{const n=me.fases-v*6;info=!volOpen(v)?'ARRASTE PARA EXPLORAR':n>=6?'BIMESTRE CONCLUÍDO!':`PRÓXIMO: ${V.ph[n][0]}`}
+ const h=hoverNode();let info;if(h>=0)info=`TÓPICO ${h+1}: ${V.ph[h][0]}`;else{const n=me.fases-v*6;info=!CONFIG.JORNADA?'ARRASTE PARA EXPLORAR · DESAFIOS EM BREVE':!volOpen(v)?'ARRASTE PARA EXPLORAR':n>=6?'BIMESTRE CONCLUÍDO!':n<0?'ARRASTE PARA EXPLORAR':`PRÓXIMO: ${V.ph[n][0]}`}
  T(info.toUpperCase(),ONLINE?VW/2:(VW-78)/2,VH-18,6,h>=0?GOLD:'#f4e4c0','center');
  if(!ONLINE)btn('TESTE>>',VW-74,VH-25,70,21,skipVol,6);
 }
@@ -2533,7 +2533,8 @@ function drawHiWorld(){const W=screen==='game'?curW():null;if(!W||!W._hi)return;
   for(const o of h.occ)c.drawImage(o.img,Math.round(o.x-cx)*Z,Math.round(o.y-cy)*Z,o.w*Z,o.h*Z);
   if(h.tag)tagHi(vx,vy-(h.tag.up?33:33)*Z-(h.tag.up?0:0),h.tag,Z);
   if(h.arrow){const bb=Math.sin(T0/200)*2;c.fillStyle=GOLD;for(let k=0;k<4;k++)c.fillRect(vx-3*Z+k*Z,vy+(-36+bb+k)*Z,(7-2*k)*Z,Z)}}}
-function frame(now){const dt=Math.min(50,now-last);last=now;T0+=dt;update(dt);
+let FQERR=0;function frame(now){try{frameBody(now)}catch(e){if(FQERR++<20)console.error('[FQ] erro no quadro:',e&&e.stack||e)}requestAnimationFrame(frame)}
+function frameBody(now){const dt=Math.min(50,now-last);last=now;T0+=dt;update(dt);
  btns=[];g.clearRect(0,0,VW,VH);
  if(screen==='boot')R(g,0,0,VW,VH,'#0b0710');else if(screen==='title')drawTitle();else if(screen==='select')drawSelect();else drawGame();
  c.setTransform(1,0,0,1,0,0);c.imageSmoothingEnabled=false;c.drawImage(low,0,0,VW,VH,0,0,scr.width,scr.height);
@@ -2543,7 +2544,7 @@ function frame(now){const dt=Math.min(50,now-last);last=now;T0+=dt;update(dt);
  if(toastT>T0){const tw=Math.min(VW-20,Math.max(240,toastM.length*6+30));panel(VW/2-tw/2,56,tw,24,'#2a1d14','#e8c070','#5a3a22');T(toastM,VW/2,65,6,GOLD,'center')}
  drawCustPreview();if(rewOn)drawRewPreview();heroSync();if($('hero').classList.contains('on')&&HV.tab==='inv')drawHeroPreview();drawBanCanvases();enemSync();adminSync();if($('enem').classList.contains('on')&&ES.scr==='home')drawEnemHome();profTick();
  const ov=btns.some(b=>mouse.x>=b.x&&mouse.x<b.x+b.w&&mouse.y>=b.y&&mouse.y<b.y+b.h)||hoverNode()>=0;scr.style.cursor=drag&&drag.moved?'grabbing':ov?'pointer':'default';
- requestAnimationFrame(frame)}
+}
 
 async function boot(){busy(true,'CARREGANDO...');requestAnimationFrame(frame);
  try{await(document.fonts?document.fonts.load('8px "Press Start 2P"'):0)}catch(e){}
