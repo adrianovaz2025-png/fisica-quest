@@ -193,6 +193,7 @@ select.inp{appearance:none;-webkit-appearance:none}
 .adq{max-width:340px;flex-shrink:0}.adw{flex:1;min-height:0;overflow:auto;border:3px solid #1a1020;background:#1e140e}
 .adt{width:100%;border-collapse:collapse;font:13px/1.35 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}.adt th{position:sticky;top:0;background:#4a3020;color:#f8d870;font-size:11px;font-weight:700;text-align:left;padding:8px 8px;cursor:pointer;white-space:nowrap}.adt th.on{background:#6a5020}
 .adt td{padding:6px 8px;border-top:1px solid #3a2a1e;color:#fff8e8}.adt td.n{text-align:right;font-variant-numeric:tabular-nums}.adt th:nth-child(5),.adt th:nth-child(6){text-align:right}.adt tr:nth-child(even) td{background:#24180f}
+.eops.xq.row{flex-direction:row;flex-wrap:wrap;gap:6px}.eops.xq.row .eo{flex:1 1 52px;justify-content:center;padding:10px 6px}.eops.xq.row .eo span{display:none}.eops.xq.row .eo i{flex:0 0 30px;height:30px;font-size:15px}
 </style>
 </head>
 <body>
@@ -2194,7 +2195,7 @@ const rwx=$('rwc').getContext('2d');
 function drawRewPreview(){rwx.setTransform(1,0,0,1,0,0);rwx.clearRect(0,0,160,160);drawChar(rwx,CH(),rewEq,walkF(),80,150,4.5)}
 /* ============================ BANCO DE QUESTÕES (FÍSICA) ============================ */
 /* [área, enunciado, [CERTA, errada, errada, errada, errada], resolução] — as alternativas são embaralhadas na hora */
-const AREAS={MEC:'MECÂNICA',TER:'TERMOLOGIA',OPT:'ÓPTICA',OND:'ONDAS',ELE:'ELETRICIDADE',MOD:'ENERGIA E FÍSICA MODERNA'};
+const AREAS={MAT:'MATEMÁTICA',MEC:'MECÂNICA',TER:'TERMOLOGIA',OPT:'ÓPTICA',OND:'ONDAS',ELE:'ELETRICIDADE',MOD:'ENERGIA E FÍSICA MODERNA'};
 const QB_FIS=[
 ['MEC','Um ônibus percorre 120 km em 1 h 30 min. Qual é a velocidade média do ônibus nesse trajeto?',['80 km/h','60 km/h','70 km/h','90 km/h','120 km/h'],'Velocidade média = distância ÷ tempo = 120 km ÷ 1,5 h = 80 km/h.'],
 ['MEC','Um carro parte do repouso e atinge 20 m/s em 5 s. Qual é a sua aceleração média?',['4 m/s²','2 m/s²','5 m/s²','10 m/s²','100 m/s²'],'a = Δv ÷ Δt = 20 ÷ 5 = 4 m/s².'],
@@ -2248,7 +2249,7 @@ const QB_FIS=[
 ['MOD','Nos exames de raios X, os ossos aparecem claros na imagem porque:',['Absorvem mais os raios X do que os tecidos moles','Refletem os raios X como um eco','São transparentes aos raios X','Emitem luz própria','Os raios X são ondas sonoras'],'Os raios X atravessam facilmente os tecidos moles, mas são mais absorvidos pelos ossos, que ficam claros no filme.'],
 ['MOD','A energia do Sol é produzida principalmente pela:',['Fusão de núcleos de hidrogênio, formando hélio','Fissão de núcleos de urânio','Queima de carvão','Combustão do oxigênio','Atrito entre camadas de gás'],'No núcleo do Sol, núcleos leves se fundem e uma pequena parte da massa vira energia.'],
 ['MOD','O efeito fotoelétrico, explicado por Einstein, mostra que a luz:',['Pode arrancar elétrons de metais, comportando-se como partículas (fótons)','Sempre se curva ao passar perto de objetos pequenos','É uma onda mecânica','Não transporta energia','Só existe no vácuo'],'Cada fóton entrega uma quantidade definida de energia; se for suficiente, arranca um elétron do metal.']];
-const MATERIAS=[['fis','FÍSICA',QB_FIS],['qui','QUÍMICA',null],['bio','BIOLOGIA',null],['mat','MATEMÁTICA',null]];
+const MATERIAS=[['fis','FÍSICA',QB_FIS],['mat','MATEMÁTICA',[]],['qui','QUÍMICA',null],['bio','BIOLOGIA',null]];
 
 /* ============================ DIÁLOGOS DO ARQUIMAGO ============================ */
 const PROF_OI=['Olá, jovem aprendiz! Eu sou o ARQUIMAGO, guardião do Castelo da Física. Hmm... cuidado com a minha barba!','Na JORNADA você pode explorar o mapa dos 4 bimestres. Os desafios de lá chegam em breve!','Em TRIBOS, cada ponto seu faz a sua tribo crescer: de acampamento a reino. Meu castelo fica do outro lado da ponte de pedra!','Na Torre ENEM, no centro da ilha, você resolve questões reais do ENEM. Cada acerto vale 2 pontos para a sua tribo!','Agora vá! E que a FORÇA esteja com você... dividida pela massa!'];
@@ -2287,19 +2288,20 @@ function eHome(B){const st=enemState(),d=diasEnem();const L=el('div','ecol'),cv=
  R2.appendChild(eBtn('▶ SIMULADO','big2 ebig',()=>{ES.scr='mat';renderEnem()}));R2.appendChild(eBtn('MEU DESEMPENHO','sm ebig2',()=>{ES.scr='perf';renderEnem()}));B.appendChild(R2)}
 function eHead(B,t,back){const h=el('div','ehead');h.appendChild(eBtn('< VOLTAR','sm',()=>{ES.scr=back;renderEnem()}));h.appendChild(el('span','etit2',t));B.appendChild(h)}
 function eMat(B){eHead(B,'ESCOLHA A MATÉRIA','home');const g=el('div','elist');
- for(const[id,n,qb]of MATERIAS){const b=eBtn(qb?`⚡ ${n}`:`🔒 ${n} — em breve`,'eopt'+(qb?'':' off'),()=>{if(!qb)return;ES.mat=id;ES.scr='qtd';if(id==='fis')loadQX(()=>{if(ES.scr==='qtd')renderEnem()});renderEnem()});if(qb){const s=el('small',null,id==='fis'?`ENEM 2017–2025 + ${qb.length} rápidas`:`${qb.length} questões no banco`);b.appendChild(s)}g.appendChild(b)}B.appendChild(g)}
+ for(const[id,n,qb]of MATERIAS){const b=eBtn(qb?`⚡ ${n}`:`🔒 ${n} — em breve`,'eopt'+(qb?'':' off'),()=>{if(!qb)return;ES.mat=id;ES.scr='qtd';ES.ano='all';QX=QXS[id]||null;if(id!=='fis')ES.src='enem';loadQX(()=>{if(ES.scr==='qtd')renderEnem()},id);renderEnem()});if(qb){const s=el('small',null,id==='fis'?`ENEM 2017–2025 + ${qb.length} rápidas`:id==='mat'?'ENEM 2020–2025':`${qb.length} questões no banco`);b.appendChild(s)}g.appendChild(b)}B.appendChild(g)}
 function eQtd(B){eHead(B,'QUANTIDADE DE QUESTÕES','mat');
  if(ES.mat==='fis'){B.appendChild(el('div','elab','FONTE'));const fs=el('div','elist two');
   for(const[k,l,d]of[['enem','ENEM REAL',QX?`${QX.length} questões de 2017 a 2025`:'carregando...'],['rap','QUESTÕES RÁPIDAS',`${QB_FIS.length} questões curtas do Arquimago`]]){const b=eBtn('','eopt'+(ES.src===k?' on':''),()=>{ES.src=k;if(k==='enem')loadQX(()=>renderEnem());renderEnem()});b.innerHTML=`<b>${l}</b><small>${d}</small>`;fs.appendChild(b)}B.appendChild(fs);
-  if(ES.src==='enem'&&QX){B.appendChild(el('div','elab','ANO DA PROVA'));const an=el('div','echips'),A=qAnos();
-   for(const a of['all',...Object.keys(A).map(Number).sort()]){an.appendChild(eBtn(a==='all'?'TODOS':String(a),'echip'+(ES.ano===a?' on':''),()=>{ES.ano=a;renderEnem()}))}B.appendChild(an)}}
- else ES.src='rap';
+}
+ else if(QXF[ES.mat])ES.src='enem';else ES.src='rap';
+ if(ES.src==='enem'&&QX){B.appendChild(el('div','elab','ANO DA PROVA'+(ES.mat!=='fis'?` · ${QX.length} QUESTÕES`:'')));const an=el('div','echips'),A=qAnos();
+   for(const a of['all',...Object.keys(A).map(Number).sort()]){an.appendChild(eBtn(a==='all'?'TODOS':String(a),'echip'+(ES.ano===a?' on':''),()=>{ES.ano=a;renderEnem()}))}B.appendChild(an)}
  const qb=qPool(),mx=qb.length;B.appendChild(el('div','elab','QUANTIDADE'));const g=el('div','elist two');
  for(const[n,l]of[[5,'AQUECIMENTO'],[10,'TREINO'],[20,'DESAFIO'],[45,'PROVA COMPLETA']]){const nn=Math.min(n,mx||n);const b=eBtn('','eopt'+(ES.n===n?' on':'')+(mx&&n>mx&&n!==5?' off':''),()=>{ES.n=n;renderEnem()});b.innerHTML=`<b>${nn}</b> ${l}<small>~${nn*3>=60?Math.floor(nn*3/60)+' h '+(nn*3%60?(nn*3%60)+' min':''):nn*3+' min'}</small>`;g.appendChild(b)}B.appendChild(g);
  B.appendChild(el('div','elab','MODO'));const m=el('div','elist two');
  for(const[k,l,d]of[['treino','TREINO','resposta a cada questão'],['prova','PROVA','cronômetro e gabarito só no final']]){const b=eBtn('','eopt'+(ES.mode===k?' on':''),()=>{ES.mode=k;renderEnem()});b.innerHTML=`<b>${l}</b><small>${d}</small>`;m.appendChild(b)}B.appendChild(m);
  const ready=ES.src!=='enem'||QX;const go=eBtn(ready?`COMEÇAR · ${Math.min(ES.n,mx)} QUESTÕES${ES.src==='enem'?' DO ENEM'+(ES.ano==='all'?'':' '+ES.ano):''}`:'CARREGANDO BANCO ENEM...','big2 ego'+(ready&&mx?'':' dis'),()=>{if(ready&&mx)startSim(qb)});B.appendChild(go)}
-function startSim(qb){profHide();const idx=shuf(qb.map((_,i)=>i),(Date.now()&0xffff)).slice(0,Math.min(ES.n,qb.length)),en=ES.src==='enem'&&ES.mat==='fis';
+function startSim(qb){profHide();const idx=shuf(qb.map((_,i)=>i),(Date.now()&0xffff)).slice(0,Math.min(ES.n,qb.length)),en=ES.src==='enem'&&!!QXF[ES.mat];
  ES.qs=idx.map(i=>en?{e:1,X:qb[i],i,ord:[0,1,2,3,4],sel:null,conf:false,mark:false}:{i,ord:shuf([0,1,2,3,4],(Date.now()+i*977)&0xffff),sel:null,conf:false,mark:false});ES.cur=0;ES.t0=Date.now();ES.confirmEnd=false;ES.confirmExit=false;ES.scr='quiz';ES.bank=qb;renderEnem()}
 function updTimer(){const t=$('eTime');if(!t)return;const el2=(Date.now()-ES.t0)/1000,lim=ES.qs.length*180;t.textContent='⏱ '+fmtT(el2)+(ES.mode==='prova'?' / '+fmtT(lim):'');t.classList.toggle('late',ES.mode==='prova'&&el2>lim)}
 function eQuiz(B){const q=ES.qs[ES.cur],Q2=q.e?null:ES.bank[q.i],n=ES.qs.length,mat=MATERIAS.find(m=>m[0]===ES.mat)[1];
@@ -2339,9 +2341,9 @@ function eRes(B){const r=ES.res;eHead(B,'RESULTADO DO SIMULADO','home');const sc
   else{const Q2=ES.bank[q.i];d.appendChild(el('b',null,`${ok?'✔':'✘'} QUESTÃO ${k+1} · ${AREAS[Q2[0]]}`));d.appendChild(el('p',null,Q2[1]));
   d.appendChild(el('p','eans',`Sua resposta: ${q.sel===null?'—':'ABCDE'[q.sel]+') '+Q2[2][q.ord[q.sel]]}`));if(!ok)d.appendChild(el('p','eans ok',`Correta: ${'ABCDE'[q.ord.indexOf(0)]}) ${Q2[2][0]}`));d.appendChild(el('p','eres',Q2[3]))}L.appendChild(d)});B.appendChild(L)}}
 /* ============================ BANCO ENEM REAL (2017–2025) ============================ */
-let QX=null,QXload=null;
+const QXF={fis:'questoes.json',mat:'matematica.json'},QXS={},QXL={};let QX=null;
 const QDIR='q/';
-function loadQX(cb){if(QX){cb&&cb();return}if(!QXload)QXload=fetch(QDIR+'questoes.json').then(r=>r.json()).then(a=>{QX=a.filter(q=>q.gab&&!q.anulada);return QX}).catch(e=>{QXload=null;throw e});QXload.then(()=>cb&&cb()).catch(()=>toast('NÃO FOI POSSÍVEL CARREGAR O BANCO ENEM'))}
+function loadQX(cb,m){m=m||ES.mat;if(!QXF[m]){cb&&cb();return}if(QXS[m]){if(m===ES.mat)QX=QXS[m];cb&&cb();return}if(!QXL[m])QXL[m]=fetch(QDIR+QXF[m]).then(r=>r.json()).then(a=>{QXS[m]=a.filter(q=>q.gab&&!q.anulada);return QXS[m]}).catch(e=>{QXL[m]=null;throw e});QXL[m].then(()=>{if(m===ES.mat)QX=QXS[m];cb&&cb()}).catch(()=>toast('NÃO FOI POSSÍVEL CARREGAR O BANCO ENEM'))}
 const fracH=t=>String(t||'').replace(/\[\[(.*?)\|(.*?)\]\]/g,'<span class="fr"><span>$1</span><span>$2</span></span>');
 function qAnos(){const s={};for(const q of QX||[])s[q.ano]=(s[q.ano]||0)+1;return s}
 function qPool(){if(ES.src!=='enem')return MATERIAS.find(m=>m[0]===ES.mat)[2];return (QX||[]).filter(q=>ES.ano==='all'||q.ano===ES.ano)}
@@ -2380,9 +2382,9 @@ function renderEnemQ(qa,q,showAns){const X=q.X,cap=`ENEM ${X.ano} · Q${X.num}`,
  if(X.modo==='img'){const f={img:null};const w=el('button','efig orig');const im=new Image();im.src=QDIR+'orig/'+X.orig;im.style.aspectRatio=X.osz[0]+'/'+X.osz[1];w.appendChild(im);w.appendChild(el('i','ezm','🔍'));w.onclick=()=>zoomOpen(QDIR+'orig/'+X.orig,cap);L.appendChild(w);
   Rt.appendChild(el('p','eqp esrc','Questão exibida como na prova. Toque na imagem para ampliar e escolha a alternativa abaixo.'))}
  else{for(const p of X.parts){if(p.img){const f=qImg(p,cap);(box.classList.contains('split')?L:Rt).appendChild(f)}else{const e=el('p','eqp'+(p.src?' esrc':'')+(p.h?' eh':''));e.innerHTML=fracH(p.t);Rt.appendChild(e)}}}
- const ops=el('div','eops xq');const ok=qOk(q);
+ const ops=el('div','eops xq'+(X.alts.every(a=>!a.h&&!a.imgs)?' row':''));const ok=qOk(q);
  X.alts.forEach((a,k)=>{const b=el('button','eo xq');b.innerHTML=`<i>${a.l}</i>`;const s=el('span');
-  if(X.modo==='img')s.innerHTML=a.imgs&&!a.h?'<em>(ver figura)</em>':fracH(a.h);else{if(a.h)s.innerHTML=fracH(a.h);if(a.imgs)for(const f of a.imgs)s.appendChild(qImg(f,`${cap} · alternativa ${a.l}`,'alt'))}
+  if(X.modo==='img')s.innerHTML=a.imgs&&!a.h?'<em>(ver figura)</em>':a.h?fracH(a.h):'';else{if(a.h)s.innerHTML=fracH(a.h);if(a.imgs)for(const f of a.imgs)s.appendChild(qImg(f,`${cap} · alternativa ${a.l}`,'alt'))}
   b.appendChild(s);if(q.sel===k)b.classList.add('sel');if(showAns){if(k===ok)b.classList.add('ok');else if(q.sel===k)b.classList.add('bad');b.disabled=true}
   b.onclick=()=>{if(showAns)return;q.sel=k;renderEnem()};ops.appendChild(b)});
  Rt.appendChild(ops);if(box.classList.contains('split'))box.appendChild(L);box.appendChild(Rt);return Rt}
