@@ -1480,8 +1480,8 @@ function buildTribeWorld(levels){
  const at=(a,r)=>({x:C[0]+Math.cos(a)*r,y:C[1]+Math.sin(a)*r,ur:[Math.cos(a),Math.sin(a)]});
  const MT=MAS.map((m,i)=>({...at(m.m,34.5),ph:13,i}));
  const HM=ang.map((a,i)=>({...at(a+(i===0?.32:0),40.5),ph:10,i}));
- const POI={santuario:{...at(MAS[0].m,42),ph:11,r:4.6},arena:{...at(MAS[1].m,42),ph:9,r:5},neon:{...at(MAS[3].m,42),ph:9,r:5},porto:{...at(MAS[4].m,47.5),ph:5,r:4},ilha:{...at(MAS[4].m,60),r:5.6}};
- Wd.MT=MT;Wd.HM=HM;Wd.POI=POI;const PL=[...MT.map(m=>[m,4.2]),...HM.map(m=>[m,3.4]),...['santuario','arena','neon','porto'].map(k=>[POI[k],POI[k].r])];
+ const POI={santuario:{...at(MAS[0].m,42),ph:11,r:4.6},arena:{...at(MAS[1].m,42),ph:9,r:5},neon:{...at(MAS[3].m+.2,41),r:4.4},lago2:{...at(MAS[2].m+.2,41),r:3.6},lago3:{...at(MAS[0].m-.62,30),r:2.8},porto:{...at(MAS[4].m,47.5),ph:5,r:4},ilha:{...at(MAS[4].m,60),r:5.6}};
+ Wd.MT=MT;Wd.HM=HM;Wd.POI=POI;const PL=[...MT.map(m=>[m,3.2]),...HM.map(m=>[m,2.4]),...['santuario','arena','porto'].map(k=>[POI[k],POI[k].r])];
  const hf=(X,Y)=>{const dC=Math.hypot(X-C[0],Y-C[1]),d=dC/IR;if(dC>58.5&&Math.hypot(X-POI.ilha.x,Y-POI.ilha.y)>POI.ilha.r+3)return -24;
   const coast=1-d+(fbm(X*.06,Y*.06,sd)-.5)*.34+(fbm(X*.2,Y*.2,sd+1)-.5)*.1-sstep(52,57,dC)*1.6;let h=coast>0?2+coast*22:Math.max(-24,coast*44);const land=clamp(coast*5,0,1);
   h+=(fbm(X*.12,Y*.12,sd+2)-.5)*16*land;
@@ -1494,6 +1494,7 @@ function buildTribeWorld(levels){
   {const dd=Math.hypot(X-ISL[0],Y-ISL[1])+(fbm(X*.4,Y*.4,sd+40)-.5)*1.2;if(dd<7.5)h=Math.max(h,dd<4.6?11+(fbm(X*.5,Y*.5,sd+41)-.5)*2:lerp(-8,11,sstep(6.8,4.6,dd)))}
   {const da=Math.hypot(X-BRA[0],Y-BRA[1]);if(da<2.8)h=Math.max(h,6*sstep(2.8,1.2,da))}
   for(const[p,rr]of PL){const w=sstep(rr+1.4,rr,Math.hypot(X-p.x,Y-p.y));if(w>0)h=lerp(h,p.ph,w)}
+  for(const k of['neon','lago2','lago3']){const L=POI[k],dd=Math.hypot(X-L.x,Y-L.y)+(fbm(X*.35,Y*.35,sd+80)-.5)*1.6;if(dd<L.r+2.2)h=lerp(h,dd<L.r?-4:Math.min(h,6),sstep(L.r+2.2,L.r,dd))}
   {const I=POI.ilha,dd=Math.hypot(X-I.x,Y-I.y)+(fbm(X*.4,Y*.4,sd+60)-.5)*1.2;if(dd<I.r+1.5)h=Math.max(h,dd<I.r-1.6?10+(fbm(X*.5,Y*.5,sd+61)-.5)*2:lerp(-8,10,sstep(I.r+.8,I.r-1.6,dd)))}
   return h};
  const RADS=[2.8,4.4,5.8,7,7.2,7.4];
@@ -1503,7 +1504,7 @@ function buildTribeWorld(levels){
  const coast=[];for(let i=0;i<=80;i++){const a=i/80*Math.PI*2;coast.push([C[0]+Math.cos(a)*44,C[1]+Math.sin(a)*44])}
  const nearC=p=>{const a=Math.atan2(p.y-C[1],p.x-C[0]);return[C[0]+Math.cos(a)*44,C[1]+Math.sin(a)*44]};
  const mroads=[];MT.forEach((m,i)=>{const ti=i,T=TP[ti],a=AX[ti],ma=MAS[i].m,mid=at(ma-.42,25);mroads.push([[T[0],T[1]],[mid.x,mid.y],[m.x,m.y]]);mroads.push([[m.x,m.y],nearC(m)])});
- HM.forEach(m=>mroads.push([[m.x,m.y],nearC(m)]));['santuario','arena','neon','porto'].forEach(k=>mroads.push([[POI[k].x,POI[k].y],nearC(POI[k])]));
+ HM.forEach(m=>mroads.push([[m.x,m.y],nearC(m)]));['santuario','arena','porto'].forEach(k=>mroads.push([[POI[k].x,POI[k].y],nearC(POI[k])]));
  const ff2=(X,Y)=>{const dC=Math.hypot(X-C[0],Y-C[1]);if(dC>57&&Math.hypot(X-POI.ilha.x,Y-POI.ilha.y)>POI.ilha.r+2)return 0;let v=ff(X,Y);if(dC>36&&dC<49)v=Math.max(v,sstep(.42,.6,fbm(X*.09,Y*.09,sd+71,3))*.9);for(const[p,rr]of PL)if(Math.hypot(X-p.x,Y-p.y)<rr+1.6)return 0;if(Math.abs(dC-44)<1.2)return 0;return v};
  genTerrain(Wd,{pal:PAL.grass,height:hf,dirt:df,forest:ff2,roads:[...roads,ring,coast,...mroads],roadW:.5,seed:sd});
  Wd.TP=TP;Wd.levels=levels.slice();Wd.C=C;
@@ -1519,10 +1520,10 @@ function buildTribeWorld(levels){
   if(Wd.q('fr',x,y)<1.3)continue;if(inPod(x,y,4.4,3))continue;if(Math.hypot(x-ISL[0],y-ISL[1])<7.6||polyDist(x,y,[BRA,BRB],2)<1.6||Math.hypot(x-BRA[0],y-BRA[1])<2.4)continue;const tcd=Math.min(...TP.map(T=>Math.max(Math.abs(x-T[0]),Math.abs(y-T[1]))));if(tcd<7.4)continue;if(tcd<11&&r()>.08)continue;if(Math.hypot(x-C[0],y-C[1])<9.4)continue;if(PL.some(([p,rr])=>Math.hypot(x-p.x,y-p.y)<rr+1.2)||Math.hypot(x-POI.ilha.x,y-POI.ilha.y)<3.6)continue;
   const sl=Wd.q('fsl',x,y),fo=Wd.q('ffo',x,y);let sp=null,hg=10;
   if(hh<P.beachH+.6){if(r()<.07){sp=palmS(r()*6|0);hg=34}}
-  else if(sl>P.rockS){if(r()<.07){sp=rockS(r()*8|0,ROCKP.gray);hg=8}}
+  else if(sl>P.rockS){if(r()<.13){sp=rockS(r()*8|0,ROCKP.gray);hg=8}}
   else if(hh>P.snowH-6){if(r()<.03){sp=rockS(r()*8|0,ROCKP.snow);hg=8}}
-  else if(fo>.3?r()<.88*fo+.08:r()<.022){const pine=hh>26||sl>7||r()<.4;if(pine){sp=pineS(r()*6|0,hh>P.snowH-16);hg=42}else{const q=r();sp=oakS(r()*8|0,q<.08?LEAF.fall:q<.2?LEAF.birch:q<.6?LEAF.oak:LEAF.dark);hg=34}}
-  else if(r()<.012){sp=bushS(r()*5|0,r()<.3);hg=8}else if(r()<.004){sp=rockS(r()*8|0,ROCKP.gray);hg=8}
+  else if(fo>.3?r()<.9*fo+.1:r()<.06){const pine=hh>26||sl>7||r()<.4;if(pine){sp=pineS(r()*6|0,hh>P.snowH-16);hg=42}else{const q=r();sp=oakS(r()*8|0,q<.08?LEAF.fall:q<.2?LEAF.birch:q<.6?LEAF.oak:LEAF.dark);hg=34}}
+  else if(r()<.035){sp=bushS(r()*5|0,r()<.45);hg=8}else if(r()<.01){sp=rockS(r()*8|0,ROCKP.gray);hg=8}
   if(sp&&Wd.vis(x,y))addTree(Wd,sp,x,y,hg)}
  for(let i=0,n=0;i<400&&n<10;i++){const x=3+r()*(N-6),y=3+r()*(N-6);if(Wd.q('fh',x,y)<4||Wd.q('fsl',x,y)>8||Wd.q('fr',x,y)<1.5||TP.some(T=>Math.max(Math.abs(x-T[0]),Math.abs(y-T[1]))<12)||Math.hypot(x-C[0],y-C[1])<10||!Wd.vis(x,y))continue;addTree(Wd,rockS(n,ROCKP.gold,n%2?0:1),x,y,10);n++}
  tufts(Wd,'grass',sd+9);
@@ -1530,7 +1531,7 @@ function buildTribeWorld(levels){
  for(let i=0;i<8;i++)Wd.birds.push({x:r()*Wd.w,y:r()*Wd.h,vx:(.018+r()*.012)*(r()<.5?1:-1),vy:(r()-.5)*.008,ph:r()*9});
  for(let i=0;i<5;i++)Wd.clouds.push({x:r()*Wd.w,y:r()*Wd.h,vx:.006+r()*.004});
  finalize(Wd);nightTint(Wd,ISL);bridges(Wd,resample([BRA,BRB],.15),true);Wd.minZ=.5;
- Wd.GUARD=mkGuards(TP,AX,MT,HM);bridges(Wd,resample([[POI.porto.x+POI.porto.ur[0]*3,POI.porto.y+POI.porto.ur[1]*3],[POI.ilha.x-POI.ilha.ur[0]*4.6,POI.ilha.y-POI.ilha.ur[1]*4.6]],.15),true);
+ Wd.GUARD=mkGuards(TP,AX,MT,HM);placeGuards(Wd,[BRA[0]+2.6,BRA[1]-.4]);bridges(Wd,resample([[POI.porto.x+POI.porto.ur[0]*3,POI.porto.y+POI.porto.ur[1]*3],[POI.ilha.x-POI.ilha.ur[0]*4.6,POI.ilha.y-POI.ilha.ur[1]*4.6]],.15),true);
  Wd.cam={x:Wd.P(...TP[0])[0]-VW/2,y:Wd.P(...TP[0])[1]-VH/2-20};
  return Wd}
 /* ===== construções das regiões novas do Reino ===== */
@@ -1539,13 +1540,13 @@ const spSort=items=>items.sort((a,b)=>(a[1]+a[2])-(b[1]+b[2]));
 /* cidade da montanha: no platô ao pé da cordilheira, casas em volta de uma praça, salão e torre */
 function buildMountTown(Wd,m){const X=m.x,Y=m.y,rc=MT_ROOF[m.i%5],items=[];
  const H=(w,d,h,wall,col,sd,mat='plaster',roof='gx')=>bldg({w,d,h,wall,mat,roof,rc:[0,col,0],rh:Math.round(h*.8),door:1,chim:sd%2,shut:hx('#5a3a22'),box:sd%3===0,seed:sd});
- const slots=[[-2.6,-2.4],[0,-2.9],[2.4,-2.4],[-2.9,0],[2.8,.1],[-2.3,2.4],[2.2,2.3]];
+ const slots=[[-1.9,-.9],[1.6,.6]];
  slots.forEach(([dx,dy],k)=>items.push([H(k%3?1.4:1.6,1.3,k%3?10:12,k%2?'#ece0c0':'#e0d0b0',k%2?rc:MT_ROOF[(m.i+k+1)%5],300+m.i*10+k),X+dx-.7,Y+dy-.6]));
- items.push([wellS(),X-.5,Y-.5]);items.push([towerS({r:.4,h:30,col:'#aaa292',roof:'cone',rh:16,rc:[0,rc,0]}),X+.2-.7,Y-1.7-.7]);
+ items.push([towerS({r:.4,h:30,col:'#aaa292',roof:'cone',rh:16,rc:[0,rc,0]}),X+.2-.7,Y-1.7-.7]);
  spSort(items).forEach(([sp,x0,y0])=>addSpr(Wd,sp,x0,y0))}
 /* vilarejo: três casinhas, palheiro e plantação */
 function buildHamlet(Wd,m){const r=rng(hstr('hm'+m.i)),X=m.x,Y=m.y,items=[];
- for(let k=0;k<3;k++){const a=k/3*6.283+r()*.6,cx=X+Math.cos(a)*1.6,cy=Y+Math.sin(a)*1.6;items.push([bldg({w:1.4,d:1.2,h:9,wall:'#8a6038',mat:'log',roof:k%2?'gx':'gy',rc:THATCH,rh:9,rk:'thatch',door:1,seed:400+m.i*7+k}),cx-.7,cy-.6])}
+ for(let k=0;k<1;k++){const a=k/3*6.283+r()*.6,cx=X+Math.cos(a)*1.6,cy=Y+Math.sin(a)*1.6;items.push([bldg({w:1.4,d:1.2,h:9,wall:'#8a6038',mat:'log',roof:k%2?'gx':'gy',rc:THATCH,rh:9,rk:'thatch',door:1,seed:400+m.i*7+k}),cx-.7,cy-.6])}
  items.push([hayS(),X+.2,Y+.3]);spSort(items).forEach(([sp,x0,y0])=>addSpr(Wd,sp,x0,y0))}
 /* Santuário: templo dourado + 7 pequenos altares (um por armadura) */
 const ALT=['#7a8290','#8a5a34','#a0aabc','#c8b070','#d8a024','#258a5a','#cc4412'];
@@ -1559,7 +1560,7 @@ function chainS(){if(BC.chain)return BC.chain;const s=SB(1.2,1.2,40,8);box(s,0,0
 function buildPOIs(Wd,P){
  {const S=P.santuario,items=[[bldg({w:2.2,d:2.2,h:16,wall:'#e8e0c8',mat:'ashlar',roof:'hip',rc:[0,'#d8a020',0],rh:18,door:1,banner:'#d8a020',seed:501}),S.x-1.1,S.y-1.6]];ALT.forEach((c,k)=>{const a=-1.2+k*.4;items.push([altarS(c),S.x+Math.cos(a+1.2)*3.2-.35,S.y+Math.sin(a+1.2)*3.2-.35])});spSort(items).forEach(([sp,x0,y0])=>addSpr(Wd,sp,x0,y0))}
  {const A=P.arena;addSpr(Wd,arenaS(),A.x-2,A.y-2);TURMAS.forEach((t,i)=>{const a=i/5*6.283,X=A.x+Math.cos(a)*2.6,Y=A.y+Math.sin(a)*2.6;Wd.spr.push({x:Wd.P(X,Y)[0]-4,y:Wd.P(X,Y)[1]-26,w:16,h:28,dep:X+Y,draw:(x,cx,cy,tt)=>{const[px,py]=Wd.P(X,Y);R(x,px-cx,py-cy-24,1,24,'#3a2a1a');drawFlag(x,px-cx,py-cy-24,t.cor.f,tt+i*300,false)}})})}
- {const N2=P.neon,items=[];const NC=['#ff3a8a','#3af0ff','#c060ff','#ffe040'];[[-1.8,-1.4],[.4,-1.9],[1.9,.2],[-1.6,1.3],[.6,1.6]].forEach(([dx,dy],k)=>items.push([bldg({w:1.5,d:1.4,h:16+k*3,wall:'#3a3448',mat:'stone',roof:'flat',door:1,rows:2,banner:NC[k%4],seed:600+k}),N2.x+dx-.75,N2.y+dy-.7]));spSort(items).forEach(([sp,x0,y0])=>addSpr(Wd,sp,x0,y0))}
+ for(const k of['neon','lago2','lago3']){const L=P[k],rr=rng(hstr(k));for(let j=0;j<5;j++){const a=rr()*6.283,d=L.r+1+rr()*.8;addSpr(Wd,rockS(rr()*8|0,ROCKP.gray),L.x+Math.cos(a)*d-.3,L.y+Math.sin(a)*d-.3)}}
  {const Pt=P.porto,ux=Pt.ur[0],uy=Pt.ur[1];addSpr(Wd,pierS(),Pt.x+ux*2.4-1.7,Pt.y+uy*2.4-.5);addSpr(Wd,stallS('#2a6a9a'),Pt.x-.7,Pt.y-.5);addSpr(Wd,barrelS(),Pt.x+.9,Pt.y+.6);addSpr(Wd,chainS(),Pt.x+ux*3.4-.6,Pt.y+uy*3.4-.6)}
  {const I=P.ilha;addSpr(Wd,rockS(3,ROCKP.gray),I.x,I.y);addSpr(Wd,pineS(2,false),I.x+1.4,I.y-.8);addSpr(Wd,pineS(4,false),I.x-1.2,I.y+1);addSpr(Wd,totemS('#c8a020'),I.x-.3,I.y-.3)}}
 /* guardiões das vilas: cavaleiros de armadura avançada com nome de cientista */
@@ -1569,17 +1570,30 @@ function gEq(t){const p={bronze:['elmo','armadura','botas_bronze'],prata:['elmo_
 function mkGuards(TP,AX,MT,HM){const out=[],HS=['topete','assim','coque','rabo','raspado','chanel','moicano','trancas','franjao','afro','dreads'],SK=['#e0a870','#7a4a2c','#f6cfa6','#c08052','#5e3820','#ecbe90','#a06640','#ffe2c8'],HC=['#1e1614','#3a2418','#dcdce8','#a83a2a','#e8c060','#2a1a12'],WP=['montante','katana','nebular','gravit','prisma','magnetica','newton'];
  const look=k=>({name:'',skin:SK[k%SK.length],hair:{s:HS[k%HS.length],c1:HC[(k*3)%HC.length],c2:'#888'},top:{s:'gola',c1:'#34304a',c2:'#9a5ad8'},pants:'#3e4a5a',eyes:{s:0,c:['#4a2a14','#3a6ac8','#3a8a4a','#5a3414'][k%4]}});
  const add=(X,Y,kind,i,k)=>{const eq=gEq(GSETS[kind][i]);eq.arma=WP[k%WP.length];out.push({X,Y,L:look(k+3),eq,name:GNAMES[kind][i]})};
- TP.forEach((T,i)=>{const a=AX[i];add(T[0]+a[0]*5.4+a[1]*1.1,T[1]+a[1]*5.4-a[0]*1.1,'tribo',i,i)});
+ TP.forEach((T,i)=>{const a=AX[i];add(T[0]+a[0]*9+a[1]*1.6,T[1]+a[1]*9-a[0]*1.6,'tribo',i,i)});
  MT.forEach((m,i)=>add(m.x-m.ur[0]*3.6,m.y-m.ur[1]*3.6,'mt',i,i+5));
  HM.forEach((m,i)=>add(m.x-m.ur[0]*2.4,m.y-m.ur[1]*2.4,'hm',i,i+10));return out}
+/* posiciona cada personagem num lugar limpo: chão firme, sem nada na frente e sem "entrar" em casas/árvores */
+const _AD=new WeakMap();function sprAlpha(cv){let a=_AD.get(cv);if(!a){const d=cv.getContext('2d').getImageData(0,0,cv.width,cv.height).data;a=new Uint8Array(cv.width*cv.height);for(let i=0;i<a.length;i++)a[i]=d[i*4+3]>40?1:0;_AD.set(cv,a)}return a}
+function hitPx(s,L,T,R,B){const a=sprAlpha(s.img),w=s.img.width,h=s.img.height;let n=0;const x0=Math.max(0,Math.floor(L-s.x)),x1=Math.min(w,Math.ceil(R-s.x)),y0=Math.max(0,Math.floor(T-s.y)),y1=Math.min(h,Math.ceil(B-s.y));for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++)n+=a[y*w+x];return n}
+function freeSpot(Wd,X,Y,taken,maxR=4.5){let best=null,bs=1e9;
+ for(let r=0;r<=maxR;r+=.3)for(let a=0;a<6.283;a+=r?Math.min(.5,.55/r):9){const x=X+Math.cos(a)*r,y=Y+Math.sin(a)*r;if(x<1||y<1||x>Wd.N-1||y>Wd.N-1)continue;if(Wd.q('fh',x,y)<1.2||Wd.q('fsl',x,y)>4.5||!Wd.vis(x,y))continue;
+  if(taken.some(t=>Math.hypot(t[0]-x,t[1]-y)<1.6))continue;const[px,py]=Wd.P(x,y),d=x+y,L=px-10,R=px+10,T=py-38,B=py+2;let bad=false;
+  for(const s of Wd.spr){if(!s.img||s.x>R||s.x+s.w<L||s.y>B||s.y+s.h<T)continue;
+   if(s.dep>d-.15){if(hitPx(s,L+3,T+3,R-3,B)>6){bad=true;break}}
+   else if(s.dep>d-1.6&&hitPx(s,L+4,py-8,R-4,B)>4){bad=true;break}}
+  if(bad)continue;const rd=Wd.q('fr',x,y),sc=r+(rd<.7?1.2:rd<2.2?-.6:0);if(sc<bs){bs=sc;best=[x,y]}}
+ return best||[X,Y]}
+function placeGuards(Wd,extra){const taken=extra?[extra]:[];(Wd.GUARD||[]).forEach(g=>{const s=freeSpot(Wd,g.X,g.Y,taken);g.X=s[0];g.Y=s[1];taken.push(s)})}
 
 function resample(p,st){const o=[];for(let i=0;i<p.length-1;i++){const a=p[i],b=p[i+1],L=Math.hypot(b[0]-a[0],b[1]-a[1]),n=Math.max(1,Math.ceil(L/st));for(let j=0;j<n;j++)o.push([lerp(a[0],b[0],j/n),lerp(a[1],b[1],j/n)])}o.push(p[p.length-1]);return o}
 
+function dracoS(){if(CAST.dr)return CAST.dr;const s=FORTS.draco();return CAST.dr={cv:s.cv,ax:s.ax,ay:s.ay,w:7.4,d:7.4,h:230,smoke:[],flags:[]}}
 function buildTown(Wd,T,tm,L,ax){
  const[tx,ty]=T,rc=tm.cor.r,fc=tm.cor.f,r=rng(hstr(tm.id)+L*13),shut=hx(shade(fc,.85));
  const roadSlot=ax[0]>0?4:ax[0]<0?3:ax[1]>0?6:1;
  const order=[0,2,5,7,1,3,4,6].filter(i=>i!==roadSlot);
- const nUsed=[4,5,6,7,7,7][L];
+ const FT=L===5&&tm.id==='3A',nUsed=FT?0:[4,5,6,7,7,7][L];
  const ti=TURMAS.indexOf(tm),flag=(X,Y)=>{const dep=X+Y+.2;addAnim(Wd,X,Y,34,64,dep,(x,cx,cy,t)=>{const[px,py]=Wd.P(X,Y);drawBanner(x,ti,L,px-cx,py-cy,t+ti*700,1)})};
  const flagsOf=(sp,X0,Y0,dep)=>{const[px,py]=Wd.P(X0,Y0);for(const f of sp.flags)Wd.spr.push({x:px+f[0]-4,y:py+f[1]-20,w:16,h:22,dep:dep+.05,draw:(x,cx,cy,t)=>drawFlag(x,px+f[0]-cx,py+f[1]-cy,fc,t,false)})};
  const PL='#ece0c0',ST='#bcb2a0';
@@ -1588,6 +1602,7 @@ function buildTown(Wd,T,tm,L,ax){
  else if(L===2){addSpr(Wd,bldg({w:3,d:3,h:16,wall:PL,mat:'plaster',roof:'gx',rc,rh:15,door:1,chim:1,shut,box:1,seed:12}),tx-1.5,ty-1.5);}
  else if(L===3){const s=bldg({w:3,d:3,h:20,wall:ST,mat:'stone',roof:'hip',rc,rh:17,door:1,rows:2,chim:1,shut,banner:fc,seed:13});const e=addSpr(Wd,s,tx-1.5,ty-1.5);flagsOf(s,tx-1.5,ty-1.5,e.dep);}
  else if(L===4){const s=bldg({w:3,d:3,h:34,wall:'#aaa292',mat:'ashlar',roof:'flat',door:1,rows:3,banner:fc,seed:14});const e=addSpr(Wd,s,tx-1.5,ty-1.5);flagsOf(s,tx-1.5,ty-1.5,e.dep)}
+ else if(FT){addSpr(Wd,dracoS(),tx-3.7,ty-3.7)}
  else{const s=castleS(rc,'#aaa292',fc);const e=addSpr(Wd,s,tx-2.2,ty-2.2);flagsOf(s,tx-2.2,ty-2.2,e.dep)}
  for(let k=0;k<nUsed;k++){const sl=HSLOTS[order[k]],X0=tx+sl[0],Y0=ty+sl[1],sv=k+1;let sp,ox=.2,oy=.2;const ridge=r()<.5?'gx':'gy';
   const hut=()=>bldg({w:1.6,d:1.6,h:9,wall:'#8a6038',mat:'log',roof:ridge,rc:THATCH,rh:10,rk:'thatch',door:1,seed:sv});
@@ -1613,10 +1628,10 @@ function buildTown(Wd,T,tm,L,ax){
  for(let i=FC.length-1;i>0;i--){const j=r()*(i+1)|0;[FC[i],FC[j]]=[FC[j],FC[i]]}
  const nf=[0,2,3,4,5,6][L];FC.slice(0,nf).forEach(([X,Y],i)=>{if(Wd.inPod(X+1.5,Y+1.3,5.8))return;drawFarm(Wd,X,Y,3,2.6,i%2,r);if(r()<.6)addSpr(Wd,hayS(),X+3.1,Y+.4)});
  if(L>=3&&FC[nf]){const[X,Y]=FC[nf],m=millS(),e=addSpr(Wd,m,X+.8,Y+.8);const[px,py]=Wd.P(X+.8,Y+.8);Wd.spr.push({x:px+m.hub[0]-17,y:py+m.hub[1]-17,w:34,h:34,dep:e.dep+.1,draw:(x,cx,cy,t)=>drawMill(x,px+m.hub[0]-cx,py+m.hub[1]-cy,t)});drawFarm(Wd,X+1.5,Y+.2,1.4,2.4,1,r)}
- if(L>=2)addSpr(Wd,wellS(),tx-2.95,ty+2.1);
+ if(L>=2&&!FT)addSpr(Wd,wellS(),tx-2.95,ty+2.1);
  if(L===1)addSpr(Wd,hayS(),tx+2.1,ty-2.9);
  const nv=[3,5,7,9,11,13][L],ns=[0,0,0,2,4,6][L];
- for(let i=0;i<nv+ns;i++){const ring=i>=nv?5.75:(r()<.55?2.55:5.75);Wd.units.push({tx,ty,ring,s:r()*ring*8,sp:(.0005+r()*.0004)*(r()<.5?1:-1),pause:r()*3000,col:fc,sold:i>=nv})}
+ for(let i=0;i<nv+ns;i++){const ring=i>=nv?5.75:(r()<.55&&!FT?2.55:5.75);Wd.units.push({tx,ty,ring,s:r()*ring*8,sp:(.0005+r()*.0004)*(r()<.5?1:-1),pause:r()*3000,col:fc,sold:i>=nv})}
 }
 function ringPos(u){const R2=u.ring,P=8*R2;let s=((u.s%P)+P)%P;if(s<2*R2)return[-R2+s,-R2];s-=2*R2;if(s<2*R2)return[R2,-R2+s];s-=2*R2;if(s<2*R2)return[R2-s,R2];s-=2*R2;return[-R2,R2-s]}
 
