@@ -2114,6 +2114,7 @@ const Demo={
  async saveLook(v,pr){const u=this.me();u.visual=v;u.personagem=pr;this.save()},
  async tribes(){return TURMAS.map(t=>{const us=Object.values(this.db.users).filter(u=>u.turma===t.id);return{id:t.id,pontos:us.reduce((a,u)=>a+u.pontos,0),membros:us.length}})},
  async members(turma){const list=[];Object.values(this.db.users).filter(u=>u.turma===turma).forEach(u=>list.push({nick:u.nick,personagem:u.personagem,pontos:u.pontos,fases:u.fases,visual:u.visual,equip:u.equip}));return list.sort((a,b)=>b.pontos-a.pontos)},
+ async mestre(){const u=Object.values(this.db.users).find(u=>u.admin);return u?{nick:u.nick,visual:u.visual,equip:(u.equip&&u.equip.s)||{}}:null},
  async alunos(){if(!this.me()||!this.me().admin)return[];return Object.values(this.db.users).filter(u=>u.turma!=='PROF').map(u=>({nome:u.nome||'',nick:u.nick,turma:u.turma,pontos:u.pontos,simulados:(u.equip&&u.equip.enem&&u.equip.enem.n)||0,criado_em:u.criado||null}))},
  setLevel(turma,L){const real=Object.values(this.db.users).filter(u=>u.turma===turma).reduce((a,u)=>a+u.pontos,0);this.db.extra[turma]=Math.max(0,CONFIG.NIVEIS[L]+20-real);this.save()}
 };
@@ -2133,6 +2134,7 @@ const Supa={
  async setChar(c){const{error}=await this.sb.from('perfis').update({personagem:c}).eq('id',this.uid);if(error)throw error},
  async saveLook(v,pr){const{error}=await this.sb.from('perfis').update({visual:v,personagem:pr}).eq('id',this.uid);if(error)throw error},
  async tribes(){const{data,error}=await this.sb.rpc('placar_tribos');if(error)throw error;return data},
+ async mestre(){const{data,error}=await this.sb.rpc('mestre');if(error)throw error;return data},
  async alunos(){const{data,error}=await this.sb.rpc('admin_alunos');if(error)throw error;return data||[]},
  async members(t){const{data,error}=await this.sb.rpc('membros_tribo',{p_turma:t});if(error)throw error;return data}
 };
@@ -2214,6 +2216,7 @@ function update(dt){
 /* ============================ DESENHO DO MUNDO ============================ */
 const FLAKES=Array.from({length:90},()=>({x:Math.random()*VW,y:Math.random()*VH,s:.4+Math.random()*.8}));
 const WB=mk(1540,VH*2+4),wb=WB.getContext('2d');wb.imageSmoothingEnabled=false;
+let MESTRE=null,mestreT=-1e9;function loadMestre(){if(T0-mestreT<90000)return;mestreT=T0;try{API.mestre().then(d=>{MESTRE=d&&d.nick?d:null}).catch(()=>{})}catch(e){}}
 function renderWorld(W,extra){
  clampCam(W);const Z=ZM(W),RW=Math.ceil(VW/Z),RH=Math.ceil(VH/Z);wb.clearRect(0,0,RW+2,RH+2);const cx=Math.round(W.cam.x),cy=Math.round(W.cam.y);
  wb.drawImage(W.dec,cx,cy,RW,RH,0,0,RW,RH);
@@ -2264,7 +2267,10 @@ function drawGame(){
   const ex=[];let meOn=false;
   TURMAS.forEach((t,ti)=>{const TT=W.TP[ti];(tribeTop[t.id]||[]).forEach((m,k)=>{const[X,Y]=W.podPos(ti,k),isMe=me&&m.nick===me.nick;if(isMe)meOn=true;
    ex.push({dep:X+Y,hi:{L:isMe?CH():m.visual&&m.visual.hair?m.visual:LOOKS[(m.personagem||0)%4],eq:isMe?eqNow():(m.equip&&m.equip.s?m.equip.s:eqFromFases(m.fases||0)),fr:idleF(k+ti),P:W.P(X,Y),tag:{nick:m.nick,rank:k,up:k===3||k===4},arrow:isMe}})})});
-  if(!meOn)ex.push({dep:hx2+hy,hi:{L:CH(),eq:eqNow(),fr:idleF(0),P:W.P(hx2,hy),arrow:1}});
+  /* o Mestre fica no alto da escadaria da Torre do Arquimago, em destaque */
+  loadMestre();const adm=isAdm();if(W.ISL&&(adm||MESTRE)){const MX=W.ISL[0]-.05,MY=W.ISL[1]+1.05,mp=W.P(MX,MY),L2=adm?CH():(MESTRE.visual&&MESTRE.visual.hair?MESTRE.visual:LOOKS[0]),E2=adm?eqNow():(MESTRE.equip||{});
+   ex.push({dep:MX+MY+.2,hi:{mestre:1,L:L2,eq:E2,fr:idleF(0),P:[mp[0],mp[1]-40],nick:adm?me.nick:MESTRE.nick,arrow:adm}})}
+  if(!meOn&&!adm)ex.push({dep:hx2+hy,hi:{L:CH(),eq:eqNow(),fr:idleF(0),P:W.P(hx2,hy),arrow:1}});
   if(W.PROF)ex.push({dep:W.PROF[0]+W.PROF[1],hi:{prof:1,P:W.P(W.PROF[0],W.PROF[1])}});
   renderWorld(W,ex)}
  else{const ox=Math.round((VW-480)/2);g.drawImage(hall(),0,0);torch(40+ox,110,T0);torch(206+ox,110,T0)}
@@ -2858,7 +2864,10 @@ const MEDAL=['#f8d040','#dfe4ee','#d8904a','#8ab0e0','#8ab0e0'];
 function tagHi(x,y,t,Z){c.font='5px "Press Start 2P", monospace';const w=c.measureText(t.nick).width+14;c.fillStyle='rgba(20,12,24,.78)';c.fillRect(x-w/2,y-8,w,9);c.fillStyle=MEDAL[t.rank];c.fillRect(x-w/2+2,y-6.5,6,6);
  c.fillStyle='#1a1020';c.textAlign='center';c.textBaseline='top';c.font='4px "Press Start 2P", monospace';c.fillText(String(t.rank+1),x-w/2+5.2,y-5.6);c.font='5px "Press Start 2P", monospace';c.textAlign='left';c.fillStyle=t.rank<3?MEDAL[t.rank]:'#ffffff';c.fillText(t.nick,x-w/2+10,y-6.5)}
 function drawHiWorld(){const W=screen==='game'?curW():null;if(!W||!W._hi)return;const Z=ZM(W),cx=W._cx,cy=W._cy;c.imageSmoothingEnabled=false;
- for(const h of W._hi){const vx=(h.px-cx)*Z,vy=(h.py-cy)*Z;if(h.prof)drawProf(c,vx,vy,Z);else drawChar(c,h.L,h.eq,h.fr,vx,vy,Z);
+ for(const h of W._hi){const vx=(h.px-cx)*Z,vy=(h.py-cy)*Z;if(h.prof)drawProf(c,vx,vy,Z);else if(h.mestre){const S=Z*1.4,pul=.55+.2*Math.sin(T0/500),g2=c.createRadialGradient(vx,vy-14*S,2,vx,vy-14*S,30*S);g2.addColorStop(0,`rgba(255,220,120,${.45*pul})`);g2.addColorStop(1,'rgba(255,220,120,0)');c.fillStyle=g2;c.beginPath();c.arc(vx,vy-14*S,30*S,0,6.283);c.fill();
+   c.fillStyle='rgba(255,230,150,.35)';c.beginPath();c.ellipse(vx,vy+S,12*S,3*S,0,0,6.283);c.fill();drawChar(c,h.L,h.eq,h.fr,vx,vy,S);
+   const nm='MESTRE '+String(h.nick||'').toUpperCase(),w=Math.max(70,nm.length*5+16);panel(vx-w/2,vy-48*S,w,13,'#3a2a08','#f8d060','#5a4010');T(nm,vx,vy-48*S+3.5,5,'#ffe9a0','center')}
+  else drawChar(c,h.L,h.eq,h.fr,vx,vy,Z);
   for(const o of h.occ)c.drawImage(o.img,Math.round(o.x-cx)*Z,Math.round(o.y-cy)*Z,o.w*Z,o.h*Z);
   if(h.tag)tagHi(vx,vy-(h.tag.up?33:33)*Z-(h.tag.up?0:0),h.tag,Z);
   if(h.arrow){const bb=Math.sin(T0/200)*2;c.fillStyle=GOLD;for(let k=0;k<4;k++)c.fillRect(vx-3*Z+k*Z,vy+(-36+bb+k)*Z,(7-2*k)*Z,Z)}}}
