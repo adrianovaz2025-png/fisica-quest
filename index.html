@@ -278,7 +278,7 @@ select.inp{appearance:none;-webkit-appearance:none}
  </div>
 </div>
 <div id="enem"><div class="ebody" id="eBody"></div></div><div id="admin"><div class="ebody" id="adBody"></div></div>
-<div id="prof"><canvas id="pfCv" width="200" height="200"></canvas><div class="pfb"><b>ARQUIMAGO</b><span id="pfX" class="pfx">✕</span><p id="pfT"></p><span class="pfn" id="pfN">▶ TOQUE PARA CONTINUAR</span></div></div>
+<div id="prof"><canvas id="pfCv" width="200" height="200"></canvas><div class="pfb"><b id="pfNm">ARQUIMAGO</b><span id="pfX" class="pfx">✕</span><p id="pfT"></p><span class="pfn" id="pfN">▶ TOQUE PARA CONTINUAR</span></div></div>
 <div class="ov" id="busy"><div class="busy" id="busyT">CARREGANDO...</div></div>
 
 <script>
@@ -2445,7 +2445,7 @@ function drawGame(){
   const W=tribeWorld,i=TURMAS.findIndex(t=>t.id===me.turma),T=i>=0?W.TP[i]:[W.PROF[0]-1.3,W.PROF[1]+1.2],hx2=T[0]+2.5,hy=T[1]-.4;
   const ex=[];let meOn=false;
   TURMAS.forEach((t,ti)=>{const TT=W.TP[ti];(tribeTop[t.id]||[]).forEach((m,k)=>{const RR=5.75,dir=k%2?1:-1,s0=k/5*8*RR+dir*T0*.00055,q0=ringPos({ring:RR,s:s0}),q1=ringPos({ring:RR,s:s0+dir*.05}),X=TT[0]+q0[0],Y=TT[1]+q0[1],isMe=me&&m.nick===me.nick;if(isMe)meOn=true;
-   ex.push({dep:X+Y,hi:{L:isMe?CH():m.visual&&m.visual.hair?m.visual:LOOKS[(m.personagem||0)%4],eq:isMe?eqNow():(m.equip&&m.equip.s?m.equip.s:eqFromFases(m.fases||0)),fr:[1,0,2,0][Math.floor(T0/130+k*1.3+ti)%4],back:(q1[0]+q1[1])<(q0[0]+q0[1]),P:W.P(X,Y),tag:{nick:m.nick,rank:k,up:k===3||k===4},arrow:isMe}})})});
+   ex.push({dep:X+Y,hi:{L:isMe?CH():m.visual&&m.visual.hair?m.visual:LOOKS[(m.personagem||0)%4],eq:isMe?eqNow():(m.equip&&m.equip.s?m.equip.s:eqFromFases(m.fases||0)),fr:[1,0,2,0][Math.floor(T0/130+k*1.3+ti)%4],back:(q1[0]+q1[1])<(q0[0]+q0[1]),P:W.P(X,Y),who:{nick:m.nick,tribo:t.tribo,rank:k,me:!!isMe},tag:{nick:m.nick,rank:k,up:k===3||k===4},arrow:isMe}})})});
   /* o Mestre fica numa clareira perto da ponte da Torre do Arquimago (discreto) */
   loadMestre();const adm=isAdm();if(W.BRA&&(adm||MESTRE)){if(W.RG&&!W.MW)W.MW=mkWalker(W,W.RG,W.MS);const MWp=W.MW?W.MW(T0):null,MX=MWp?MWp.X:W.BRA[0]+MSPOT[0],MY=MWp?MWp.Y:W.BRA[1]+MSPOT[1],mp=W.P(MX,MY),L2=adm?CH():(MESTRE.visual&&MESTRE.visual.hair?MESTRE.visual:LOOKS[0]),E2=adm?eqNow():(MESTRE.equip||{});
    ex.push({dep:MX+MY+.2,hi:{mestre:1,L:L2,eq:E2,fr:MWp?walkF():idleF(0),back:MWp&&MWp.back,P:mp,nick:adm?me.nick:MESTRE.nick,arrow:0}})}
@@ -2562,6 +2562,7 @@ function click(mx,my){for(let i=btns.length-1;i>=0;i--){const b=btns[i];if(mx>=b
   const i=hoverNode();if(i<0)return;if(!nodeOpen(v,i)){toast('COMPLETE O TÓPICO ANTERIOR');return}
   const a=curNodeFor(v);if(a===i){openQuiz(v,i);return}hero.route=route(W,a,i);hero.ri=0;hero.target=i;hero.walking=true}
  else if(tab==='tribos'&&tribeWorld){const W=tribeWorld,Z=ZM(W);
+  if(W._hi){for(let k=W._hi.length-1;k>=0;k--){const h=W._hi[k];if(h.prof||!h.L)continue;const dx=mx/Z+W._cx-h.px,dy=my/Z+W._cy-h.py;if(Math.abs(dx)<11&&dy<3&&dy>-34&&(h.guard||h.mestre||h.who)){talkTo(h);return}}}
   if(W.PROF){const[px,py]=W.P(...W.PROF),dx=mx/Z+W.cam.x-px,dy=my/Z+W.cam.y-py;if(Math.abs(dx)<12&&dy<4&&dy>-34){profTalk();return}}
   if(W.ENEMT){const[px,py,sp]=W.ENEMT,dx=mx/Z+W.cam.x-px,dy=my/Z+W.cam.y-py-sp.d*8;if(Math.abs(dx)<26&&dy<10&&dy>-190){setTab('enem');return}}
   if(W.ISL){const[px,py]=W.P(...W.ISL),dx=mx/Z+W.cam.x-px,dy=my/Z+W.cam.y-py;if(Math.abs(dx)<70&&dy<50&&dy>-250){profSay(['Este é o meu castelo! Lá dentro guardo a maior biblioteca de Física do reino... e uma coleção de chapéus.','Volte sempre que precisar de uma dica: estou ali na ponte de pedra.']);return}}
@@ -2769,14 +2770,29 @@ const PROF_OI=['Olá, jovem aprendiz! Eu sou o ARQUIMAGO, guardião do Castelo d
 const PROF_ENEM=['Bem-vindo à Torre ENEM! Aqui você treina para o grande dia.','Escolha a matéria e quantas questões quer encarar. No modo TREINO eu mostro a resposta na hora; no modo PROVA, só no final, como no dia de verdade.','Cada acerto vale 2 pontos para a sua tribo. Quanto mais você treina, mais a sua tribo cresce. Boa sorte!'];
 const PROF_DICAS=['Inércia é a preguiça dos corpos: parados querem ficar parados!','Antes de calcular, anote as unidades. Metade dos erros mora nelas!','No ENEM, leia o comando da questão duas vezes. A pegadinha adora pressa.','Energia não se cria nem se perde... ao contrário dos meus óculos.','Um bom estudante revisa os erros. Um ótimo estudante revisa os acertos também!','Sabia que a luz do Sol leva uns 8 minutos para chegar aqui?','Pressão é força dividida pela área. Por isso ninguém gosta de pisar em peça de montar!','Desenhe a situação! Um esquema simples resolve meio problema.','Hmm... esse chapéu? Presente do próprio Newton. Ou foi uma maçã? Não lembro.'];
 let pfQ=[],pfI=0,pfN=0,pfCb=null;
-function profSay(lines,cb){pfQ=lines.slice();pfI=0;pfN=0;pfCb=cb||null;$('prof').classList.add('on');placePanel($('prof'),'prof');$('pfT').textContent=''}
+function profSay(lines,cb){PFS=null;$('pfNm').textContent='ARQUIMAGO';pfQ=lines.slice();pfI=0;pfN=0;pfCb=cb||null;$('prof').classList.add('on');placePanel($('prof'),'prof');$('pfT').textContent=''}
 function profNext(){const L=pfQ[pfI]||'';if(pfN<L.length){pfN=L.length;return}pfI++;pfN=0;if(pfI>=pfQ.length){$('prof').classList.remove('on');const cb=pfCb;pfCb=null;if(cb)cb()}}
 function profHide(){$('prof').classList.remove('on');pfCb=null}
 $('prof').onclick=e=>{if(e.target.id==='pfX'){profHide();return}profNext()};
 const pfx=$('pfCv').getContext('2d');
 function profTick(){if(!$('prof').classList.contains('on'))return;placePanel($('prof'),'prof');const L=pfQ[pfI]||'';if(pfN<L.length){pfN=Math.min(L.length,pfN+1.2);$('pfT').textContent=L.slice(0,Math.floor(pfN))}else $('pfT').textContent=L;
  $('pfN').style.visibility=pfN>=L.length&&Math.floor(T0/400)%2?'visible':'hidden';
- pfx.setTransform(1,0,0,1,0,0);pfx.clearRect(0,0,200,200);drawProf(pfx,100,192,6)}
+ pfx.setTransform(1,0,0,1,0,0);pfx.clearRect(0,0,200,200);if(PFS)drawChar(pfx,PFS.L,PFS.eq,idleF(0),100,196,6);else drawProf(pfx,100,192,6)}
+/* ===== conversa ao tocar num personagem do mapa (aluno, guardião, Mestre) ===== */
+let PFS=null;
+const GFALA={'GALILEU':'Corpos caem juntos no vácuo, não importa a massa. Testei isso muito antes de você!','HIPÁTIA':'Estudei os astros em Alexandria. Observar com cuidado é o primeiro passo da ciência.','FARADAY':'Mexa um ímã perto de um fio e surge corrente elétrica: é a indução!','MARIE CURIE':'Fui a primeira pessoa a ganhar dois prêmios Nobel: um em Física e outro em Química.','NEWTON':'Toda ação tem uma reação de mesma intensidade e sentido oposto. Inclusive esta conversa!',
+ 'EINSTEIN':'Nada viaja mais rápido que a luz no vácuo: cerca de 300 mil km por segundo.','LISE MEITNER':'Ajudei a explicar a fissão nuclear: um núcleo pesado se divide e libera muita energia.','CÉSAR LATTES':'Sou brasileiro! Ajudei a descobrir o méson pi, uma partícula do núcleo atômico.','EMMY NOETHER':'Toda simetria da natureza esconde uma lei de conservação. Bonito, né?','SANTOS DUMONT':'Voei com o 14-Bis em Paris, em 1906. Sonhe alto!',
+ 'TESLA':'Trabalhei com corrente alternada, a mesma que chega na tomada da sua casa.','VOLTA':'Inventei a pilha elétrica empilhando discos de metal. Daí vem o nome "pilha"!','AMPÈRE':'A unidade de corrente elétrica leva o meu nome: o ampère.','KEPLER':'Os planetas giram em órbitas elípticas, com o Sol num dos focos.','HUYGENS':'Descrevi a luz como uma onda e inventei o relógio de pêndulo.'};
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+function charSay(name,L,eq,lines){profSay(lines);PFS={L,eq};$('pfNm').textContent=name}
+function talkTo(h){
+ if(h.guard){const key=Object.keys(GFALA).find(k=>h.guard.endsWith(k)),tit=h.guard.split(' ')[0].toLowerCase();
+  charSay(h.guard,h.L,h.eq,[pick(['Saudações, viajante!','Alto lá, aprendiz!','Bem-vindo, jovem herói!'])+' Sou '+h.guard.replace(/^\S+ /,'')+' e protejo esta região.',key?GFALA[key]:'A Física protege quem a estuda.']);return}
+ if(h.mestre){charSay('MESTRE',h.L,h.eq,['Saudações, aprendiz! Eu sou o Mestre'+(h.nick?' '+h.nick:'')+'.',pick(['Estou patrulhando as trilhas do reino. Continue firme nos estudos!','Cada questão do ENEM que você acerta fortalece a sua tribo. Bora!','Dúvida em Física? Me procure na aula ou pergunte ao Arquimago!'])]);return}
+ const w=h.who;if(!w)return;
+ if(w.me){charSay(w.nick,h.L,h.eq,['Esse é você! '+pick(['Tá estiloso, hein?','Pronto pra próxima missão?','Que armadura, hein!']),'Continue juntando pontos para os '+w.tribo+'!']);return}
+ charSay(w.nick,h.L,h.eq,[pick(['Opa! Eu sou '+w.nick+', dos '+w.tribo+'!','E aí! '+w.nick+' aqui, orgulho dos '+w.tribo+'!','Salve! Sou '+w.nick+'. Bem-vindo à nossa aldeia!']),pick(['Tô em '+(w.rank+1)+'º lugar na minha tribo. Vem me alcançar!','Bora pra Torre ENEM? Cada acerto faz a aldeia crescer!','Ontem errei uma de cinemática... hoje não erro mais!','Já viu a fortaleza dos Dragões? Um dia a nossa fica assim!'])])}
+
 function profTalk(){profSay([PROF_DICAS[Math.floor(Math.random()*PROF_DICAS.length)]])}
 
 /* ============================ PAINÉIS HTML (posição sobre o canvas) ============================ */
