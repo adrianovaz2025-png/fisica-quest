@@ -1324,6 +1324,9 @@ function genTerrain(Wd,o){
  const cvt=a=>a?a.map(hx):null,CVS=PLS.map(p=>({P:p,PG:cvt(p.g),PF:cvt(p.forest),PS:cvt(p.sand),PK:cvt(p.rock),PN:cvt(p.snow),PC:cvt(p.cliff),PD:cvt(p.dirt),PR:cvt(p.road),PW:cvt(p.water)}));
  const pk=(c,f)=>(0xff000000|(clamp(c[2]*f,0,255)<<16)|(clamp(c[1]*f,0,255)<<8)|clamp(c[0]*f,0,255))>>>0;
  const rw0=o.roadW||.45,siMax=Math.ceil(h-OY+maxH+4),siMin=Math.floor(-OY-2);
+ const mkVN=(fx,fy,s2)=>{const x0=Math.floor(-1*fx)-1,y0=Math.floor(Math.min(siMin,0)*fy)-1,nx=Math.ceil(w*fx)-x0+3,ny=Math.ceil((siMax+2)*fy)-y0+3,T=new Float32Array(nx*ny);for(let j=0;j<ny;j++)for(let i=0;i<nx;i++)T[j*nx+i]=hash(i+x0,j+y0,s2);
+  return(px,si)=>{const x=px*fx,y=si*fy,xi=Math.floor(x),yi=Math.floor(y),xf=x-xi,yf=y-yi,u=xf*xf*(3-2*xf),v=yf*yf*(3-2*yf),k=(yi-y0)*nx+(xi-x0),a=T[k],b=T[k+1],c2=T[k+nx],d=T[k+nx+1];return a+(b-a)*u+(c2-a)*v+(a-b-c2+d)*u*v}};
+ const VW1=mkVN(.011,.028,sd+40),VW2=mkVN(.07,.26,sd+41);
  for(let px=0;px<w;px++){const a=(px+.5-OX)/16;let ymin=h;
   for(let si=siMax;si>=siMin;si--){const s=si/8,X=(s+a)/2,Y=(s-a)/2;let hh,k=0,tx=0,ty=0;const inside=X>=0&&Y>=0&&X<N&&Y<N;
    if(inside){const gx=X*G,gy=Y*G,ix=gx|0,iy=gy|0;tx=gx-ix;ty=gy-iy;k=iy*S+ix;hh=bil(fh,k,tx,ty,S)}else hh=-24;
@@ -1331,7 +1334,7 @@ function genTerrain(Wd,o){
    const y0=y<0?0:y,by=BAYER[((y0&3)<<2)|(px&3)],land=hh>0;let top,sl=0,li=1,dn=.5,n=.5,tc=null,tf=1,cu=CVS[0],wu=cu;
    if(inside){dn=bil(fd,k,tx,ty,S);n=bil(fn,k,tx,ty,S);if(MB){const gi=clamp(Math.round(X*G+(by-.5)*1.6+(dn-.5)*1.4),0,S-1),gj=clamp(Math.round(Y*G+(n-.5)*1.4-(by-.5)*.8),0,S-1);cu=CVS[fbi[gj*S+gi]];wu=CVS[fwi[gj*S+gi]]}}
    const{PG,PF,PS,PK,PN,PD,PR}=cu,PW=wu.PW,PP=cu.P;
-   if(!land){const d=-hh+(dn-.5)*.9+(by-.5)*.9;let idx=d<1?0:d<2.6?1:d<5.2?2:d<10?3:4,f=1;if(idx>=3){const wv=vnoise(px*.011,si*.028,sd+40);f=.95+wv*.1+(by-.5)*.03;idx=4;if(wu.P.lava){f=.75+wv*.5;const ck=Math.abs(vnoise(px*.035,si*.09,sd+42)-.5);if(ck<.025+(by-.5)*.02){idx=1;f=1}else if(ck<.05){idx=2;f=.9}}else if(vnoise(px*.07,si*.26,sd+41)>.8&&hash(px,si,3)<.35){idx=3;f=1.06}}top=pk(PW[idx],f)}
+   if(!land){const d=-hh+(dn-.5)*.9+(by-.5)*.9;let idx=d<1?0:d<2.6?1:d<5.2?2:d<10?3:4,f=1;if(idx>=3){const wv=VW1(px,si);f=.95+wv*.1+(by-.5)*.03;idx=4;if(wu.P.lava){f=.75+wv*.5;const ck=Math.abs(vnoise(px*.035,si*.09,sd+42)-.5);if(ck<.025+(by-.5)*.02){idx=1;f=1}else if(ck<.05){idx=2;f=.9}}else if(hash(px,si,3)<.35&&VW2(px,si)>.8){idx=3;f=1.06}}top=pk(PW[idx],f)}
    else{sl=bil(fsl,k,tx,ty,S);li=bil(fsh,k,tx,ty,S);const di=bil(fdi,k,tx,ty,S),rd=bil(fr,k,tx,ty,S),fo=bil(ffo,k,tx,ty,S),rk=PP.rockS+(dn-.5)*5;let col;
     if(hh<PP.beachH+(dn-.5)*1.4)col=PS[clamp(Math.floor(dn*3+by-.5),0,2)];
     else{col=PG[clamp(Math.floor((n*.9+(dn-.5)*.35)*5.5-.3+by-.5),0,4)];if(fo>.3+by*.4)col=PF[clamp(Math.floor(dn*3+by-.5),0,2)]}
@@ -1396,21 +1399,26 @@ function drawBoat(x,px,py,left,col,t){const b=Math.round(Math.sin(t/500+px*.1));
 const HSLOTS=[[-5,-5],[-1,-5],[3,-5],[-5,-1],[3,-1],[-5,3],[-1,3],[3,3]];
 const THATCH=['#dcb85e','#c4a04c','#8e6c2a'];
 function buildTribeWorld(levels){
- const N=72,Wd=newWorld(N,190),C=[36,36],sd=777,IR=29.5,ISL=[8.6,8.6],BRA=[15.3,15.3],BRB=[11.4,11.4];
+ const N=136,Wd=newWorld(N,190),C=[68,68],sd=777,IR=51,ISL=[25.6,25.6],BRA=[32.6,32.6],BRB=[29.2,29.2];
  const TP=TURMAS.map((t,i)=>{const th=(-90+72*i)*Math.PI/180,Rr=400;return[C[0]+Rr*(Math.cos(th)+Math.sin(th))/32,C[1]+Rr*(Math.sin(th)-Math.cos(th))/32]});
  const AX=TP.map(T=>{const dx=C[0]-T[0],dy=C[1]-T[1];return Math.abs(dx)>=Math.abs(dy)?[Math.sign(dx),0]:[0,Math.sign(dy)]});
  const ring=[];for(let i=0;i<=56;i++){const a=i/56*Math.PI*2;ring.push([C[0]+Math.cos(a)*7.4,C[1]+Math.sin(a)*7.4])}
  const roads=TP.map((T,i)=>{const a=AX[i],g1=[T[0]+a[0]*6.5,T[1]+a[1]*6.5],g2=[T[0]+a[0]*8.5,T[1]+a[1]*8.5],v=[g2[0]-C[0],g2[1]-C[1]],L=Math.hypot(...v),rp=[C[0]+v[0]/L*7.4,C[1]+v[1]/L*7.4];return[T,g1,g2,[(g2[0]+rp[0])/2,(g2[1]+rp[1])/2],rp]});
- const rdir=[-.157,-.988],rp2=[.988,-.157],riv=[[4.2,0],[9,.8],[14,-.8],[19,1],[24,-.6],[29,.5],[40,0]].map(([t,o])=>[C[0]+rdir[0]*t+rp2[0]*o,C[1]+rdir[1]*t+rp2[1]*o]);
+ const rdir=[-.157,-.988],rp2=[.988,-.157],riv=[[4.2,0],[9,.8],[14,-.8],[19,1],[24,-.6],[29,.5],[36,-.8],[44,.6],[52,0],[60,0]].map(([t,o])=>[C[0]+rdir[0]*t+rp2[0]*o,C[1]+rdir[1]*t+rp2[1]*o]);
  const POD=TP.map((T,ti)=>{const a=levels[ti]>=2?0:1.6;for(const o of[{c:[7.6-a*.6,7.6-a*.6],d:[1,-1],s:1.05},{c:[1.2,8.6-a],d:[1,0],s:1.45},{c:[8.6-a,1.2],d:[0,1],s:1.45}]){const q=[T[0]+o.c[0],T[1]+o.c[1]];const e=[-2.9,0,2.9].map(t=>[q[0]+o.d[0]*t*o.s/1.45,q[1]+o.d[1]*t*o.s/1.45]);if(e.every(z=>Math.hypot(z[0]-C[0],z[1]-C[1])>8.8&&polyDist(z[0],z[1],riv)>3.5))return[q[0],q[1],o.d,o.s]}return[T[0]+7.6,T[1]+7.6,[1,-1],1.05]});Wd.POD=POD;
  Wd.podPos=(ti,k)=>{const q=POD[ti],o=[0,-1,1,-2,2][k],f=[.45,.15,.15,-.1,-.1][k];return[q[0]+q[2][0]*o*q[3]+f,q[1]+q[2][1]*o*q[3]+f]};
  const inPod=(x,y,m=4.4,f=0)=>POD.some(q=>x-q[0]>-m&&x-q[0]<m+f&&y-q[1]>-m&&y-q[1]<m+f);Wd.inPod=inPod;
  const ang=TP.map(T=>Math.atan2(T[1]-C[1],T[0]-C[0]));
- const MAS=ang.map((a,i)=>{let d=ang[(i+1)%5]-a;while(d<=-Math.PI)d+=2*Math.PI;while(d>Math.PI)d-=2*Math.PI;const m=a+d/2;return{x:C[0]+Math.cos(m)*24.2,y:C[1]+Math.sin(m)*24.2,ur:[Math.cos(m),Math.sin(m)],a:[46,88,72,98,80][i]}});
- const hf=(X,Y)=>{const dC=Math.hypot(X-C[0],Y-C[1]),d=dC/IR;
-  const coast=1-d+(fbm(X*.06,Y*.06,sd)-.5)*.34+(fbm(X*.2,Y*.2,sd+1)-.5)*.1-sstep(30.5,35,dC)*1.6;let h=coast>0?2+coast*22:Math.max(-24,coast*44);const land=clamp(coast*5,0,1);
+ const MAS=ang.map((a,i)=>{let d=ang[(i+1)%5]-a;while(d<=-Math.PI)d+=2*Math.PI;while(d>Math.PI)d-=2*Math.PI;const m=a+d/2;return{x:C[0]+Math.cos(m)*29,y:C[1]+Math.sin(m)*29,ur:[Math.cos(m),Math.sin(m)],a:[70,96,80,104,88][i],m}});
+ const at=(a,r)=>({x:C[0]+Math.cos(a)*r,y:C[1]+Math.sin(a)*r,ur:[Math.cos(a),Math.sin(a)]});
+ const MT=MAS.map((m,i)=>({...at(m.m,34.5),ph:13,i}));
+ const HM=ang.map((a,i)=>({...at(a+(i===0?.32:0),40.5),ph:10,i}));
+ const POI={santuario:{...at(MAS[0].m,42),ph:11,r:4.6},arena:{...at(MAS[1].m,42),ph:9,r:5},neon:{...at(MAS[3].m,42),ph:9,r:5},porto:{...at(MAS[4].m,47.5),ph:5,r:4},ilha:{...at(MAS[4].m,60),r:5.6}};
+ Wd.MT=MT;Wd.HM=HM;Wd.POI=POI;const PL=[...MT.map(m=>[m,4.2]),...HM.map(m=>[m,3.4]),...['santuario','arena','neon','porto'].map(k=>[POI[k],POI[k].r])];
+ const hf=(X,Y)=>{const dC=Math.hypot(X-C[0],Y-C[1]),d=dC/IR;if(dC>58.5&&Math.hypot(X-POI.ilha.x,Y-POI.ilha.y)>POI.ilha.r+3)return -24;
+  const coast=1-d+(fbm(X*.06,Y*.06,sd)-.5)*.34+(fbm(X*.2,Y*.2,sd+1)-.5)*.1-sstep(52,57,dC)*1.6;let h=coast>0?2+coast*22:Math.max(-24,coast*44);const land=clamp(coast*5,0,1);
   h+=(fbm(X*.12,Y*.12,sd+2)-.5)*16*land;
-  const rid=1-Math.abs(2*fbm(X*.21,Y*.21,sd+7)-1),rid2=1-Math.abs(2*fbm(X*.45,Y*.45,sd+17)-1);for(const m of MAS){const dx=X-m.x,dy=Y-m.y,dr=dx*m.ur[0]+dy*m.ur[1],dt=-dx*m.ur[1]+dy*m.ur[0];for(const[o2,s2]of[[0,1],[-3.4,.72],[3.6,.64]]){const q=(dr/3.6)**2+((dt-o2)/3.4)**2;if(q<7)h+=Math.exp(-q*1.15)*m.a*s2*(.3+rid*.75+rid2*.35)*land}}
+  let rid=-1,rid2=0;if(land>0)for(const m of MAS){const dx=X-m.x,dy=Y-m.y;if(dx*dx+dy*dy>300)continue;if(rid<0){rid=1-Math.abs(2*fbm(X*.21,Y*.21,sd+7)-1);rid2=1-Math.abs(2*fbm(X*.45,Y*.45,sd+17)-1)}const dr=dx*m.ur[0]+dy*m.ur[1],dt=-dx*m.ur[1]+dy*m.ur[0];for(const[o2,s2]of[[0,1],[-3.6,.8],[3.8,.76],[-7.2,.55],[7.4,.5]]){const q=(dr/3.2)**2+((dt-o2)/3.1)**2;if(q<7)h+=Math.exp(-q*1.15)*m.a*s2*(.3+rid*.75+rid2*.35)*land}}
   for(const T of TP){const ax=Math.abs(X-T[0]),ay=Math.abs(Y-T[1]),cd=Math.max(ax,ay)*.75+Math.hypot(ax,ay)*.25,w=sstep(13.2,10,cd);if(w>0)h=lerp(h,9,w)}
   for(const q of POD){const w=sstep(4.6,3,Math.hypot(X-q[0],Y-q[1]));if(w>0)h=Math.max(h,lerp(h,9,w))}
   {const w=sstep(11.5,9,dC);if(w>0)h=lerp(h,8,w)}
@@ -1418,14 +1426,22 @@ function buildTribeWorld(levels){
   {const rd=polyDist(X,Y,riv,3.5)+(fbm(X*.5,Y*.5,sd+8)-.5)*.5;if(rd<2.2)h=Math.min(h,lerp(-5,h,sstep(.85,2,rd)))}
   {const dd=Math.hypot(X-ISL[0],Y-ISL[1])+(fbm(X*.4,Y*.4,sd+40)-.5)*1.2;if(dd<7.5)h=Math.max(h,dd<4.6?11+(fbm(X*.5,Y*.5,sd+41)-.5)*2:lerp(-8,11,sstep(6.8,4.6,dd)))}
   {const da=Math.hypot(X-BRA[0],Y-BRA[1]);if(da<2.8)h=Math.max(h,6*sstep(2.8,1.2,da))}
+  for(const[p,rr]of PL){const w=sstep(rr+1.4,rr,Math.hypot(X-p.x,Y-p.y));if(w>0)h=lerp(h,p.ph,w)}
+  {const I=POI.ilha,dd=Math.hypot(X-I.x,Y-I.y)+(fbm(X*.4,Y*.4,sd+60)-.5)*1.2;if(dd<I.r+1.5)h=Math.max(h,dd<I.r-1.6?10+(fbm(X*.5,Y*.5,sd+61)-.5)*2:lerp(-8,10,sstep(I.r+.8,I.r-1.6,dd)))}
   return h};
  const RADS=[2.8,4.4,5.8,7,7.2,7.4];
  const df=(X,Y)=>{let m=-1;TP.forEach((T,i)=>{const dx=Math.abs(X-T[0]),dy=Math.abs(Y-T[1]),d=Math.max(dx,dy)*.7+Math.hypot(dx,dy)*.3,v=(RADS[levels[i]]-d)/1.3;if(v>m)m=v});return m};
  const ff=(X,Y)=>{let m=sstep(.4,.54,fbm(X*.085,Y*.085,sd+33,3));for(const T of TP){const cd=Math.max(Math.abs(X-T[0]),Math.abs(Y-T[1]));if(cd<12)m*=sstep(10,12,cd)}m*=sstep(9,10.5,Math.hypot(X-C[0],Y-C[1]));
   for(const mm of MAS){const q=Math.hypot(X-mm.x,Y-mm.y)/6;if(q<2&&q>.6)m=Math.max(m,.8*sstep(2,1.3,q)*sstep(.6,.95,q))}return m};
- genTerrain(Wd,{pal:PAL.grass,height:hf,dirt:df,forest:ff,roads:[...roads,ring],roadW:.5,seed:sd});
+ const coast=[];for(let i=0;i<=80;i++){const a=i/80*Math.PI*2;coast.push([C[0]+Math.cos(a)*44,C[1]+Math.sin(a)*44])}
+ const nearC=p=>{const a=Math.atan2(p.y-C[1],p.x-C[0]);return[C[0]+Math.cos(a)*44,C[1]+Math.sin(a)*44]};
+ const mroads=[];MT.forEach((m,i)=>{const ti=i,T=TP[ti],a=AX[ti],ma=MAS[i].m,mid=at(ma-.42,25);mroads.push([[T[0],T[1]],[mid.x,mid.y],[m.x,m.y]]);mroads.push([[m.x,m.y],nearC(m)])});
+ HM.forEach(m=>mroads.push([[m.x,m.y],nearC(m)]));['santuario','arena','neon','porto'].forEach(k=>mroads.push([[POI[k].x,POI[k].y],nearC(POI[k])]));
+ const ff2=(X,Y)=>{const dC=Math.hypot(X-C[0],Y-C[1]);if(dC>57&&Math.hypot(X-POI.ilha.x,Y-POI.ilha.y)>POI.ilha.r+2)return 0;let v=ff(X,Y);if(dC>36&&dC<49)v=Math.max(v,sstep(.42,.6,fbm(X*.09,Y*.09,sd+71,3))*.9);for(const[p,rr]of PL)if(Math.hypot(X-p.x,Y-p.y)<rr+1.6)return 0;if(Math.abs(dC-44)<1.2)return 0;return v};
+ genTerrain(Wd,{pal:PAL.grass,height:hf,dirt:df,forest:ff2,roads:[...roads,ring,coast,...mroads],roadW:.5,seed:sd});
  Wd.TP=TP;Wd.levels=levels.slice();Wd.C=C;
  TP.forEach((T,i)=>buildTown(Wd,T,TURMAS[i],levels[i],AX[i]));
+ MT.forEach(m=>buildMountTown(Wd,m));HM.forEach(m=>buildHamlet(Wd,m));buildPOIs(Wd,POI);
  for(const p of[...roads,ring])bridges(Wd,resample(p,.15),false);
  Wd.ISL=ISL;Wd.BRA=BRA;Wd.BRB=BRB;Wd.PROF=[BRA[0]+.5,BRA[1]+.5];
  // Torre ENEM no centro e castelo do Arquimago
@@ -1433,7 +1449,7 @@ function buildTribeWorld(levels){
  // natureza
  const r=rng(sd+50),P=Wd.pal;
  for(let Y=1;Y<N-1;Y+=.78)for(let X=1;X<N-1;X+=.78){const x=X+r()*.6,y=Y+r()*.6,hh=Wd.q('fh',x,y);if(hh<1)continue;
-  if(Wd.q('fr',x,y)<1.3)continue;if(inPod(x,y,4.4,3))continue;if(Math.hypot(x-ISL[0],y-ISL[1])<7.6||polyDist(x,y,[BRA,BRB],2)<1.6||Math.hypot(x-BRA[0],y-BRA[1])<2.4)continue;const tcd=Math.min(...TP.map(T=>Math.max(Math.abs(x-T[0]),Math.abs(y-T[1]))));if(tcd<7.4)continue;if(tcd<11&&r()>.08)continue;if(Math.hypot(x-C[0],y-C[1])<9.4)continue;
+  if(Wd.q('fr',x,y)<1.3)continue;if(inPod(x,y,4.4,3))continue;if(Math.hypot(x-ISL[0],y-ISL[1])<7.6||polyDist(x,y,[BRA,BRB],2)<1.6||Math.hypot(x-BRA[0],y-BRA[1])<2.4)continue;const tcd=Math.min(...TP.map(T=>Math.max(Math.abs(x-T[0]),Math.abs(y-T[1]))));if(tcd<7.4)continue;if(tcd<11&&r()>.08)continue;if(Math.hypot(x-C[0],y-C[1])<9.4)continue;if(PL.some(([p,rr])=>Math.hypot(x-p.x,y-p.y)<rr+1.2)||Math.hypot(x-POI.ilha.x,y-POI.ilha.y)<3.6)continue;
   const sl=Wd.q('fsl',x,y),fo=Wd.q('ffo',x,y);let sp=null,hg=10;
   if(hh<P.beachH+.6){if(r()<.07){sp=palmS(r()*6|0);hg=34}}
   else if(sl>P.rockS){if(r()<.07){sp=rockS(r()*8|0,ROCKP.gray);hg=8}}
@@ -1443,12 +1459,53 @@ function buildTribeWorld(levels){
   if(sp&&Wd.vis(x,y))addTree(Wd,sp,x,y,hg)}
  for(let i=0,n=0;i<400&&n<10;i++){const x=3+r()*(N-6),y=3+r()*(N-6);if(Wd.q('fh',x,y)<4||Wd.q('fsl',x,y)>8||Wd.q('fr',x,y)<1.5||TP.some(T=>Math.max(Math.abs(x-T[0]),Math.abs(y-T[1]))<12)||Math.hypot(x-C[0],y-C[1])<10||!Wd.vis(x,y))continue;addTree(Wd,rockS(n,ROCKP.gold,n%2?0:1),x,y,10);n++}
  tufts(Wd,'grass',sd+9);
- for(let i=0;i<4;i++)Wd.boats.push({C,r:35+i*1.3,a:r()*6.28,sp:(.000032+r()*.00002)*(i%2?1:-1),col:TURMAS[i+1].cor.f});
+ for(let i=0;i<4;i++)Wd.boats.push({C,r:57+i*1.3,a:r()*6.28,sp:(.000032+r()*.00002)*(i%2?1:-1),col:TURMAS[i+1].cor.f});
  for(let i=0;i<8;i++)Wd.birds.push({x:r()*Wd.w,y:r()*Wd.h,vx:(.018+r()*.012)*(r()<.5?1:-1),vy:(r()-.5)*.008,ph:r()*9});
  for(let i=0;i<5;i++)Wd.clouds.push({x:r()*Wd.w,y:r()*Wd.h,vx:.006+r()*.004});
  finalize(Wd);nightTint(Wd,ISL);bridges(Wd,resample([BRA,BRB],.15),true);Wd.minZ=.5;
+ Wd.GUARD=mkGuards(TP,AX,MT,HM);bridges(Wd,resample([[POI.porto.x+POI.porto.ur[0]*3,POI.porto.y+POI.porto.ur[1]*3],[POI.ilha.x-POI.ilha.ur[0]*4.6,POI.ilha.y-POI.ilha.ur[1]*4.6]],.15),true);
  Wd.cam={x:Wd.P(...TP[0])[0]-VW/2,y:Wd.P(...TP[0])[1]-VH/2-20};
  return Wd}
+/* ===== construções das regiões novas do Reino ===== */
+const MT_ROOF=['#a83a2a','#2a5a8a','#5a3a7a','#2a7a4a','#c88a20'];
+const spSort=items=>items.sort((a,b)=>(a[1]+a[2])-(b[1]+b[2]));
+/* cidade da montanha: no platô ao pé da cordilheira, casas em volta de uma praça, salão e torre */
+function buildMountTown(Wd,m){const X=m.x,Y=m.y,rc=MT_ROOF[m.i%5],items=[];
+ const H=(w,d,h,wall,col,sd,mat='plaster',roof='gx')=>bldg({w,d,h,wall,mat,roof,rc:[0,col,0],rh:Math.round(h*.8),door:1,chim:sd%2,shut:hx('#5a3a22'),box:sd%3===0,seed:sd});
+ const slots=[[-2.6,-2.4],[0,-2.9],[2.4,-2.4],[-2.9,0],[2.8,.1],[-2.3,2.4],[2.2,2.3]];
+ slots.forEach(([dx,dy],k)=>items.push([H(k%3?1.4:1.6,1.3,k%3?10:12,k%2?'#ece0c0':'#e0d0b0',k%2?rc:MT_ROOF[(m.i+k+1)%5],300+m.i*10+k),X+dx-.7,Y+dy-.6]));
+ items.push([wellS(),X-.5,Y-.5]);items.push([towerS({r:.4,h:30,col:'#aaa292',roof:'cone',rh:16,rc:[0,rc,0]}),X+.2-.7,Y-1.7-.7]);
+ spSort(items).forEach(([sp,x0,y0])=>addSpr(Wd,sp,x0,y0))}
+/* vilarejo: três casinhas, palheiro e plantação */
+function buildHamlet(Wd,m){const r=rng(hstr('hm'+m.i)),X=m.x,Y=m.y,items=[];
+ for(let k=0;k<3;k++){const a=k/3*6.283+r()*.6,cx=X+Math.cos(a)*1.6,cy=Y+Math.sin(a)*1.6;items.push([bldg({w:1.4,d:1.2,h:9,wall:'#8a6038',mat:'log',roof:k%2?'gx':'gy',rc:THATCH,rh:9,rk:'thatch',door:1,seed:400+m.i*7+k}),cx-.7,cy-.6])}
+ items.push([hayS(),X+.2,Y+.3]);spSort(items).forEach(([sp,x0,y0])=>addSpr(Wd,sp,x0,y0))}
+/* Santuário: templo dourado + 7 pequenos altares (um por armadura) */
+const ALT=['#7a8290','#8a5a34','#a0aabc','#c8b070','#d8a024','#258a5a','#cc4412'];
+function altarS(col){const key='alt'+col;if(BC[key])return BC[key];const s=SB(.7,.7,40,8);box(s,0,0,0,.7,.7,5,'#9a9282','stone',1);box(s,.12,.12,5,.46,.46,10,'#c8c0a8','ashlar',2);const ap=coneR(s,.35,.35,.36,15,10,[0,col,0],null,'slate',3);fin(s,EDGE);return BC[key]={cv:s.cv,ax:s.ax,ay:s.ay,w:.7,d:.7,h:25,smoke:[],flags:[]}}
+function arenaS(){if(BC.arena)return BC.arena;const s=SB(4,4,60,10),st='#b8ae96';
+ cyl(s,2,2,1.85,0,20,st,'ashlar',4);const t=s.p(2,2,20);ell(s.x,t[0],t[1],1.45*22.6,1.45*11.3,'#d8c49a');ell(s.x,t[0],t[1]+2,1.1*22.6,1.1*11.3,'#c8b088');
+ for(let a=0;a<6.283;a+=.35){const u=2+Math.cos(a)*1.85,v=2+Math.sin(a)*1.85;if(Math.sin(a)+Math.cos(a)<-.3)continue;const p=s.p(u,v,6);for(let j=0;j<7;j++){s.x.px(p[0],p[1]-j,40,32,30);s.x.px(p[0]+1,p[1]-j,40,32,30)}}
+ fin(s,EDGE);return BC.arena={cv:s.cv,ax:s.ax,ay:s.ay,w:4,d:4,h:20,smoke:[],flags:[]}}
+function pierS(){if(BC.pier)return BC.pier;const s=SB(3.4,1,24,8);for(let u=0;u<3.4;u+=.5)box(s,u+.1,.1,0,.14,.14,6,'#5a3a20','wood',u*9|0);box(s,0,0,6,3.4,.9,2,'#8a6038','wood',3,'#a07448');fin(s,EDGE);return BC.pier={cv:s.cv,ax:s.ax,ay:s.ay,w:3.4,d:1,h:8,smoke:[],flags:[]}}
+function chainS(){if(BC.chain)return BC.chain;const s=SB(1.2,1.2,40,8);box(s,0,0,0,.3,.3,16,'#6a6252','stone',1);box(s,.9,.9,0,.3,.3,16,'#6a6252','stone',2);const a=s.p(.15,.15,13),b=s.p(1.05,1.05,13);for(let t=0;t<=1;t+=.06){const x0=Math.round(a[0]+(b[0]-a[0])*t),y0=Math.round(a[1]+(b[1]-a[1])*t+Math.sin(t*Math.PI)*4);s.x.px(x0,y0,170,170,180);s.x.px(x0+1,y0,90,90,100)}fin(s,EDGE);return BC.chain={cv:s.cv,ax:s.ax,ay:s.ay,w:1.2,d:1.2,h:16,smoke:[],flags:[]}}
+function buildPOIs(Wd,P){
+ {const S=P.santuario,items=[[bldg({w:2.2,d:2.2,h:16,wall:'#e8e0c8',mat:'ashlar',roof:'hip',rc:[0,'#d8a020',0],rh:18,door:1,banner:'#d8a020',seed:501}),S.x-1.1,S.y-1.6]];ALT.forEach((c,k)=>{const a=-1.2+k*.4;items.push([altarS(c),S.x+Math.cos(a+1.2)*3.2-.35,S.y+Math.sin(a+1.2)*3.2-.35])});spSort(items).forEach(([sp,x0,y0])=>addSpr(Wd,sp,x0,y0))}
+ {const A=P.arena;addSpr(Wd,arenaS(),A.x-2,A.y-2);TURMAS.forEach((t,i)=>{const a=i/5*6.283,X=A.x+Math.cos(a)*2.6,Y=A.y+Math.sin(a)*2.6;Wd.spr.push({x:Wd.P(X,Y)[0]-4,y:Wd.P(X,Y)[1]-26,w:16,h:28,dep:X+Y,draw:(x,cx,cy,tt)=>{const[px,py]=Wd.P(X,Y);R(x,px-cx,py-cy-24,1,24,'#3a2a1a');drawFlag(x,px-cx,py-cy-24,t.cor.f,tt+i*300,false)}})})}
+ {const N2=P.neon,items=[];const NC=['#ff3a8a','#3af0ff','#c060ff','#ffe040'];[[-1.8,-1.4],[.4,-1.9],[1.9,.2],[-1.6,1.3],[.6,1.6]].forEach(([dx,dy],k)=>items.push([bldg({w:1.5,d:1.4,h:16+k*3,wall:'#3a3448',mat:'stone',roof:'flat',door:1,rows:2,banner:NC[k%4],seed:600+k}),N2.x+dx-.75,N2.y+dy-.7]));spSort(items).forEach(([sp,x0,y0])=>addSpr(Wd,sp,x0,y0))}
+ {const Pt=P.porto,ux=Pt.ur[0],uy=Pt.ur[1];addSpr(Wd,pierS(),Pt.x+ux*2.4-1.7,Pt.y+uy*2.4-.5);addSpr(Wd,stallS('#2a6a9a'),Pt.x-.7,Pt.y-.5);addSpr(Wd,barrelS(),Pt.x+.9,Pt.y+.6);addSpr(Wd,chainS(),Pt.x+ux*3.4-.6,Pt.y+uy*3.4-.6)}
+ {const I=P.ilha;addSpr(Wd,rockS(3,ROCKP.gray),I.x,I.y);addSpr(Wd,pineS(2,false),I.x+1.4,I.y-.8);addSpr(Wd,pineS(4,false),I.x-1.2,I.y+1);addSpr(Wd,totemS('#c8a020'),I.x-.3,I.y-.3)}}
+/* guardiões das vilas: cavaleiros de armadura avançada com nome de cientista */
+const GSETS={tribo:['lupus','aquila','ursa','serpens','draco'],mt:['leaod','leao','fenix','ouro','cometa'],hm:['prata','eletro','eletro','prata','bronze']};
+const GNAMES={tribo:['GUARDIÃO GALILEU','GUARDIÃ HIPÁTIA','GUARDIÃO FARADAY','GUARDIÃ MARIE CURIE','GUARDIÃO NEWTON'],mt:['SENHOR EINSTEIN','DAMA LISE MEITNER','GUARDIÃO CÉSAR LATTES','GUARDIÃ EMMY NOETHER','GUARDIÃO SANTOS DUMONT'],hm:['SENTINELA TESLA','SENTINELA VOLTA','SENTINELA AMPÈRE','SENTINELA KEPLER','SENTINELA HUYGENS']};
+function gEq(t){const p={bronze:['elmo','armadura','botas_bronze'],prata:['elmo_prata','arm_prata','botas_prata'],eletro:['elmo_cristal','arm_cristal','botas_cristal'],ouro:['elmo_ouro','arm_ouro','botas_ouro']}[t]||['elmo_'+t,'arm_'+t,'botas_'+t];return{cabeca:p[0],peito:p[1],botas:p[2]}}
+function mkGuards(TP,AX,MT,HM){const out=[],HS=['topete','assim','coque','rabo','raspado','chanel','moicano','trancas','franjao','afro','dreads'],SK=['#e0a870','#7a4a2c','#f6cfa6','#c08052','#5e3820','#ecbe90','#a06640','#ffe2c8'],HC=['#1e1614','#3a2418','#dcdce8','#a83a2a','#e8c060','#2a1a12'],WP=['montante','katana','nebular','gravit','prisma','magnetica','newton'];
+ const look=k=>({name:'',skin:SK[k%SK.length],hair:{s:HS[k%HS.length],c1:HC[(k*3)%HC.length],c2:'#888'},top:{s:'gola',c1:'#34304a',c2:'#9a5ad8'},pants:'#3e4a5a',eyes:{s:0,c:['#4a2a14','#3a6ac8','#3a8a4a','#5a3414'][k%4]}});
+ const add=(X,Y,kind,i,k)=>{const eq=gEq(GSETS[kind][i]);eq.arma=WP[k%WP.length];out.push({X,Y,L:look(k+3),eq,name:GNAMES[kind][i]})};
+ TP.forEach((T,i)=>{const a=AX[i];add(T[0]+a[0]*5.4+a[1]*1.1,T[1]+a[1]*5.4-a[0]*1.1,'tribo',i,i)});
+ MT.forEach((m,i)=>add(m.x-m.ur[0]*3.6,m.y-m.ur[1]*3.6,'mt',i,i+5));
+ HM.forEach((m,i)=>add(m.x-m.ur[0]*2.4,m.y-m.ur[1]*2.4,'hm',i,i+10));return out}
+
 function resample(p,st){const o=[];for(let i=0;i<p.length-1;i++){const a=p[i],b=p[i+1],L=Math.hypot(b[0]-a[0],b[1]-a[1]),n=Math.max(1,Math.ceil(L/st));for(let j=0;j<n;j++)o.push([lerp(a[0],b[0],j/n),lerp(a[1],b[1],j/n)])}o.push(p[p.length-1]);return o}
 
 function buildTown(Wd,T,tm,L,ax){
@@ -2270,6 +2327,7 @@ function drawGame(){
   /* o Mestre fica numa clareira perto da ponte da Torre do Arquimago (discreto) */
   loadMestre();const adm=isAdm();if(W.BRA&&(adm||MESTRE)){const MX=W.BRA[0]+MSPOT[0],MY=W.BRA[1]+MSPOT[1],mp=W.P(MX,MY),L2=adm?CH():(MESTRE.visual&&MESTRE.visual.hair?MESTRE.visual:LOOKS[0]),E2=adm?eqNow():(MESTRE.equip||{});
    ex.push({dep:MX+MY+.2,hi:{mestre:1,L:L2,eq:E2,fr:idleF(0),P:mp,nick:adm?me.nick:MESTRE.nick,arrow:0}})}
+  (W.GUARD||[]).forEach((gd,k)=>ex.push({dep:gd.X+gd.Y,hi:{L:gd.L,eq:gd.eq,fr:idleF(k),P:W.P(gd.X,gd.Y),guard:gd.name}}));
   if(!meOn&&!adm)ex.push({dep:hx2+hy,hi:{L:CH(),eq:eqNow(),fr:idleF(0),P:W.P(hx2,hy),arrow:1}});
   if(W.PROF)ex.push({dep:W.PROF[0]+W.PROF[1],hi:{prof:1,P:W.P(W.PROF[0],W.PROF[1])}});
   renderWorld(W,ex)}
@@ -2864,7 +2922,7 @@ const MEDAL=['#f8d040','#dfe4ee','#d8904a','#8ab0e0','#8ab0e0'];
 function tagHi(x,y,t,Z){c.font='5px "Press Start 2P", monospace';const w=c.measureText(t.nick).width+14;c.fillStyle='rgba(20,12,24,.78)';c.fillRect(x-w/2,y-8,w,9);c.fillStyle=MEDAL[t.rank];c.fillRect(x-w/2+2,y-6.5,6,6);
  c.fillStyle='#1a1020';c.textAlign='center';c.textBaseline='top';c.font='4px "Press Start 2P", monospace';c.fillText(String(t.rank+1),x-w/2+5.2,y-5.6);c.font='5px "Press Start 2P", monospace';c.textAlign='left';c.fillStyle=t.rank<3?MEDAL[t.rank]:'#ffffff';c.fillText(t.nick,x-w/2+10,y-6.5)}
 function drawHiWorld(){const W=screen==='game'?curW():null;if(!W||!W._hi)return;const Z=ZM(W),cx=W._cx,cy=W._cy;c.imageSmoothingEnabled=false;
- for(const h of W._hi){const vx=(h.px-cx)*Z,vy=(h.py-cy)*Z;if(h.prof)drawProf(c,vx,vy,Z);else{drawChar(c,h.L,h.eq,h.fr,vx,vy,Z);if(h.mestre){const nm='MESTRE',w=34;panel(vx-w/2,vy-40*Z,w,10,'#2a2014','#c8a050','#3a2c18');T(nm,vx,vy-40*Z+2.5,5,'#f0d890','center')}}
+ for(const h of W._hi){const vx=(h.px-cx)*Z,vy=(h.py-cy)*Z;if(h.prof)drawProf(c,vx,vy,Z);else{drawChar(c,h.L,h.eq,h.fr,vx,vy,Z);if(h.guard&&Z>=.85){const nm=h.guard,w=nm.length*4+12;panel(vx-w/2,vy-40*Z,w,10,'#181420','#8a7aa8','#241e30');T(nm,vx,vy-40*Z+2.5,4,'#d8d0f0','center')}if(h.mestre){const nm='MESTRE',w=34;panel(vx-w/2,vy-40*Z,w,10,'#2a2014','#c8a050','#3a2c18');T(nm,vx,vy-40*Z+2.5,5,'#f0d890','center')}}
   for(const o of h.occ)c.drawImage(o.img,Math.round(o.x-cx)*Z,Math.round(o.y-cy)*Z,o.w*Z,o.h*Z);
   if(h.tag)tagHi(vx,vy-(h.tag.up?33:33)*Z-(h.tag.up?0:0),h.tag,Z);
   if(h.arrow){const bb=Math.sin(T0/200)*2;c.fillStyle=GOLD;for(let k=0;k<4;k++)c.fillRect(vx-3*Z+k*Z,vy+(-36+bb+k)*Z,(7-2*k)*Z,Z)}}}
