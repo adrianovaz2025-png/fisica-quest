@@ -692,155 +692,103 @@ function sprite(L,eq,fr,back,solo){
   if(bq>=0){o[k]=d[bq]*.28;o[k+1]=d[bq+1]*.24;o[k+2]=d[bq+2]*.3+10;o[k+3]=255}}
  const cv=mk(MS,MS);cv.getContext('2d').putImageData(new ImageData(o,MS,MS),0,0);return SPR[key]=cv}
 /* ============================ EQUIPAMENTOS NO AVATAR ============================ */
-const TCOL={couro:['#8a5a2c','cloth','#c08a48'],bronze:['#b0703a','metal','#3a9a8a'],prata:['#c4cad8','metal','#2a4ab8'],ouro:['#e0a820','metal','#c0182a'],diamante:['#a8e4ff','diamond','#ffffff'],
- lupus:['#7f8fc4','metal','#a8e8ff'],aquila:['#ece6da','metal','#c82020'],ursa:['#3a8a5a','metal','#e8c040'],serpens:['#6a3aa8','metal','#2ab878'],draco:['#1f9a5a','metal','#f0c040'],
- fenix:['#e04a1a','metal','#ffd040'],estelar:['#2a2468','space','#e8c060']};
-/* armaduras de constelação: uma por tribo (paleta, pontos da constelação no peito) */
+const tone=(h,f)=>'#'+hx(h).map(v=>Math.max(0,Math.min(255,Math.round(f>1?v+(255-v)*(f-1)*2.2:v*f))).toString(16).padStart(2,'0')).join('');
+const TCOL={couro:['#8a5a2c','cloth','#c08a48'],bronze:['#a8683a','metal','#5a3418'],prata:['#b4bccb','metal','#2a4ab8'],ouro:['#d8a028','metal','#a01828'],diamante:['#9ad4f0','metal','#ffffff'],
+ lupus:['#7884b4','metal','#d8e0f8'],aquila:['#e4ded2','metal','#c02020'],ursa:['#3a8456','metal','#e8c040'],serpens:['#6a40a8','metal','#2aa878'],draco:['#1f9458','metal','#f0c040'],
+ fenix:['#d84a1a','metal','#f8c040'],estelar:['#2c2a6a','metal','#e8c060']};
+/* constelações das tribos (desenhadas na aura do conjunto completo) */
 const CONST={
- lupus:{tb:'1A',c:'#7f8fc4',c2:'#b4c2ea',a:'#24306e',g:'#e6ecff',st:[[[25.4,35.2],[28.4,36.6],[31,35],[34.2,36.8],[37.6,35.6]],[[34.2,36.8],[35.6,40],[30.6,40.6],[28.4,36.6]]]},
- aquila:{tb:'1B',c:'#ece6da',c2:'#ffffff',a:'#c82020',g:'#e8c040',st:[[[25,34.6],[29.6,36.2],[32,37.2],[34.4,38.2],[38.6,34.8]],[[32,37.2],[32.6,41.6]],[[27.4,40.6],[32,37.2]]]},
- ursa:{tb:'2A',c:'#3a8a5a',c2:'#64b884',a:'#6a4020',g:'#e8c040',st:[[[25,35],[27.8,35.8],[30.6,37],[33,38.2],[33.6,41],[38,41.4],[38.6,38.4],[33,38.2]]]},
- serpens:{tb:'2B',c:'#6a3aa8',c2:'#9a6ad8',a:'#2ab878',g:'#e8c040',st:[[[25,41.4],[27.4,39.2],[29.8,40.2],[31.8,37.4],[34.4,38.2],[36.6,35.2],[39,35.8]]]},
- draco:{tb:'3A',c:'#1f9a5a',c2:'#52cc84',a:'#c82020',g:'#f0c040',st:[[[25.6,34.4],[27.8,36],[26.8,38.4],[30,40.4],[33.2,39.2],[35.4,41.2],[38.4,37.4],[37,34.6],[38.4,37.4]]]}};
+ lupus:{tb:'1A',c2:'#b4c2ea',st:[[[25.4,35.2],[28.4,36.6],[31,35],[34.2,36.8],[37.6,35.6]],[[34.2,36.8],[35.6,40],[30.6,40.6],[28.4,36.6]]]},
+ aquila:{tb:'1B',c2:'#ffffff',st:[[[25,34.6],[29.6,36.2],[32,37.2],[34.4,38.2],[38.6,34.8]],[[32,37.2],[32.6,41.6]],[[27.4,40.6],[32,37.2]]]},
+ ursa:{tb:'2A',c2:'#a8e0b8',st:[[[25,35],[27.8,35.8],[30.6,37],[33,38.2],[33.6,41],[38,41.4],[38.6,38.4],[33,38.2]]]},
+ serpens:{tb:'2B',c2:'#c8a8f0',st:[[[25,41.4],[27.4,39.2],[29.8,40.2],[31.8,37.4],[34.4,38.2],[36.6,35.2],[39,35.8]]]},
+ draco:{tb:'3A',c2:'#a8f0c0',st:[[[25.6,34.4],[27.8,36],[26.8,38.4],[30,40.4],[33.2,39.2],[35.4,41.2],[38.4,37.4],[37,34.6],[38.4,37.4]]]}};
+/* paleta de cada armadura: b = metal base, a = destaque (cinto/pluma), g = filete (só nas superiores) */
+const ARMP={bronze:{b:'#a8683a',a:'#5a3418',ak:'cloth'},prata:{b:'#b4bccb',a:'#2a4ab8',ak:'cloth'},ouro:{b:'#d8a028',a:'#a01828',ak:'cloth'},
+ diamante:{b:'#9ad4f0',a:'#4a7ac8',g:'#f0fcff',pv:'spike'},lupus:{b:'#7884b4',a:'#2a3470',g:'#d8e0f8',pv:'spike'},aquila:{b:'#e4ded2',a:'#c02020',g:'#e8c040'},
+ ursa:{b:'#3a8456',a:'#6a4020',g:'#e8c040',pw:6.4,ph:4.6},serpens:{b:'#6a40a8',a:'#2aa878',g:'#e8c040'},draco:{b:'#1f9458',a:'#b82020',g:'#f0c040',pv:'spike'},
+ fenix:{b:'#d84a1a',a:'#f8c040',g:'#ffd860',pv:'spike'},estelar:{b:'#2c2a6a',a:'#e8c060',g:'#e8c060'}};
+ARMP.ferro=ARMP.bronze;ARMP.cristal=ARMP.diamante;
 const SYM=(m,P)=>{mPoly(m,P);mPoly(m,P.map(p=>[64-p[0],p[1]]));return m};
 const SEL=(m,cx,cy,rx,ry)=>{mEll(m,cx,cy,rx,ry);mEll(m,64-cx,cy,rx,ry);return m};
 const SRC=(m,x,y,w,h)=>{mRect(m,x,y,w,h);mRect(m,64-x-w,y,w,h);return m};
 const mSub=(m,k)=>{for(let i=0;i<m.length;i++)if(k[i])m[i]=0;return m};
-/* peças comuns */
 const aTor=Y=>mk2(m=>mPoly(m,[[23,Y(32.5)],[41,Y(32.5)],[40.6,Y(45)],[23.4,Y(45)]]));
-const aTas=(Y,c,k)=>m=>{mPoly(m,[[28.6,Y(44.4)],[35.4,Y(44.4)],[34.8,Y(48.6)],[32,Y(50)],[29.2,Y(48.6)]]);SYM(m,[[23,Y(44.4)],[28.2,Y(44.4)],[27.8,Y(48.6)],[24.6,Y(48.2)],[22.6,Y(46.6)]])};
-const aVam=Y=>m=>SRC(m,17.2,Y(40.2),5.6,4.2);
-const aBand=Y=>m=>mPoly(m,[[20.6,Y(15.6)],[26,Y(12.9)],[32,Y(12.1)],[38,Y(12.9)],[43.4,Y(15.6)],[43.6,Y(17.6)],[38,Y(15)],[32,Y(14.4)],[26,Y(15)],[20.4,Y(17.6)]]);
+const aBand=Y=>m=>mPoly(m,[[20.6,Y(15.6)],[26,Y(12.9)],[32,Y(12.1)],[38,Y(12.9)],[43.4,Y(15.6)],[43.6,Y(17.4)],[38,Y(14.8)],[32,Y(14.1)],[26,Y(14.8)],[20.4,Y(17.4)]]);
 const aEar=Y=>m=>SYM(m,[[19.6,Y(16.6)],[23.4,Y(17)],[23.8,Y(24.6)],[21.6,Y(27)],[19.8,Y(24)]]);
-const aLines=(G,ys,col)=>{const C=hx(col);for(const yy of ys){const j=Math.round(G.Y(yy)*Q);for(let i=Math.round(23.6*Q);i<Math.round(40.4*Q);i++)G.ph(i,j,C)}};
 const aDome=(G,face=1)=>{const{Y,back}=G,hm=mk2(m=>{mEll(m,32,Y(17),12.5,10);mRect(m,19.5,Y(17),25,8)});if(!back&&face)mSub(hm,mk2(m=>mRect(m,25,Y(20),14,10)));return hm};
-function aStars(G,P){const{Y}=G,W=[255,255,255],L=hx(P.g);for(const seg of P.st){for(let k=0;k+1<seg.length;k++){const[a,b]=[seg[k],seg[k+1]],n=Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1])*Q);for(let s=0;s<=n;s++){const u=a[0]+(b[0]-a[0])*s/n,v=a[1]+(b[1]-a[1])*s/n;G.ph(Math.round(u*Q),Math.round(Y(v)*Q),L,150)}}
-  for(const[u,v]of seg){const i=Math.round(u*Q),j=Math.round(Y(v)*Q);G.ph(i,j,W);G.ph(i+1,j,W);G.ph(i,j+1,W);G.ph(i+1,j+1,[220,230,255])}}}
-/* pena: quadrilátero da base (bx,by) até a ponta (tx,ty), largura w */
 const feather=(m,bx,by,tx,ty,w)=>{const dx=tx-bx,dy=ty-by,l=Math.hypot(dx,dy),nx=-dy/l*w,ny=dx/l*w;mPoly(m,[[bx+nx,by+ny],[bx+dx*.72+nx*1.1,by+dy*.72+ny*1.1],[tx,ty],[bx+dx*.72-nx*.7,by+dy*.72-ny*.7],[bx-nx*.6,by-ny*.6]])};
 const shrinkTo=(P,cx,cy,f)=>P.map(([u,v])=>[cx+(u-cx)*f,cy+(v-cy)*f]);
 
-/* ---------------- BOTAS ---------------- */
-function eqBotas(G,id){const{x,lL,lR}=G,t=(IT[id]||{}).t||'couro',T=TCOL[t]||TCOL.couro,P=CONST[t];
- const tall=t!=='couro'&&t!=='bronze',y0=tall?47:49;
- paint(x,mk2(m=>{mRect(m,24.5,y0+lL,7,57-y0);mEll(m,28,57+lL,4.6,2.6);mRect(m,32.5,y0+lR,7,57-y0);mEll(m,36,57+lR,4.6,2.6)}),T[0],T[1],6);
- if(t==='couro'||t==='bronze'){paint(x,mk2(m=>{mRect(m,24.2,49+lL,7.6,2);mRect(m,32.2,49+lR,7.6,2)}),t==='couro'?T[2]:'#5a3418','cloth',7);return}
- const knee=(col,kind,sd,sh)=>paint(x,mk2(m=>{sh(m,28,lL);sh(m,36,lR)}),col,kind,sd);
- if(t==='prata'){knee('#e4e8f2','metal',7,(m,c,l)=>mEll(m,c,48.2+l,2.9,2.1));paint(x,mk2(m=>{mRect(m,24.5,55+lL,7,1);mRect(m,32.5,55+lR,7,1)}),'#2a4ab8','cloth',8);return}
- if(t==='ouro'){paint(x,mk2(m=>{mRect(m,24.2,47+lL,7.6,2);mRect(m,32.2,47+lR,7.6,2)}),'#c0182a','metal',7);paint(x,mk2(m=>{mPoly(m,[[24.2,48+lL],[20.6,44.6+lL],[24.2,50.4+lL]]);mPoly(m,[[39.8,48+lR],[43.4,44.6+lR],[39.8,50.4+lR]])}),'#f8d850','metal',8);return}
- if(t==='diamante'){knee('#e8fbff','diamond',7,(m,c,l)=>mPoly(m,[[c-2.4,49+l],[c,44.4+l],[c+2.4,49+l],[c,50.6+l]]));
-  paint(x,mk2(m=>{mPoly(m,[[24.4,52+lL],[21.4,49.6+lL],[24.4,54+lL]]);mPoly(m,[[39.6,52+lR],[42.6,49.6+lR],[39.6,54+lR]])}),'#c8f0ff','diamond',8);return}
- if(t==='fenix'){knee('#ffd040','metal',7,(m,c,l)=>mPoly(m,[[c-2.6,49.4+l],[c-1,45+l],[c,47+l],[c+1.2,44+l],[c+2.6,49.4+l],[c,50.8+l]]));
-  paint(x,mk2(m=>{mRect(m,24.5,55+lL,7,1.2);mRect(m,32.5,55+lR,7,1.2)}),'#ffd040','metal',8);
-  paint(x,mk2(m=>{mPoly(m,[[24.4,50.6+lL],[20.4,46+lL],[22,50+lL],[20.6,51+lL],[24.4,53+lL]]);mPoly(m,[[39.6,50.6+lR],[43.6,46+lR],[42,50+lR],[43.4,51+lR],[39.6,53+lR]])}),'#ff8a2a','metal',9);return}
- if(t==='estelar'){paint(x,mk2(m=>{mRect(m,24.2,47+lL,7.6,1.4);mRect(m,32.2,47+lR,7.6,1.4);mRect(m,24.5,55+lL,7,1);mRect(m,32.5,55+lR,7,1)}),'#e8c060','metal',7);paint(x,mk2(m=>{mEll(m,28,50.6+lL,1,1);mEll(m,36,50.6+lR,1,1)}),'#fff0a0','metal',8);return}
- if(P){knee(P.c2,'metal',7,(m,c,l)=>mEll(m,c,48.2+l,3,2.2));paint(x,mk2(m=>{mRect(m,24.5,54.6+lL,7,1.2);mRect(m,32.5,54.6+lR,7,1.2)}),P.g,'metal',8);
-  paint(x,mk2(m=>{mEll(m,28,48.2+lL,1,1);mEll(m,36,48.2+lR,1,1)}),P.a,'metal',9)}}
+/* ---------------- BOTAS: grevas + joelheira + sapatão ---------------- */
+function eqBotas(G,id){const{x,lL,lR}=G,t=(IT[id]||{}).t||'couro',P=ARMP[t];
+ if(!P){paint(x,mk2(m=>{mRect(m,24.5,49+lL,7,8);mEll(m,28,57+lL,4.6,2.6);mRect(m,32.5,49+lR,7,8);mEll(m,36,57+lR,4.6,2.6)}),'#8a5a2c','cloth',6);
+  paint(x,mk2(m=>{mRect(m,24.2,49+lL,7.6,2);mRect(m,32.2,49+lR,7.6,2)}),'#c08a48','cloth',7);return}
+ const B=P.b,D=tone(B,.72);
+ paint(x,mk2(m=>{mEll(m,28,57+lL,4.6,2.6);mEll(m,36,57+lR,4.6,2.6)}),D,'metal',6);
+ paint(x,mk2(m=>{mRect(m,24.7,48+lL,6.6,8.4);mRect(m,32.7,48+lR,6.6,8.4)}),B,'metal',7);
+ paint(x,mk2(m=>{mEll(m,28,50+lL,2.7,1.8);mEll(m,36,50+lR,2.7,1.8)}),tone(B,1.05),'metal',8)}
 
-/* ---------------- DORSO (asas / peças das costas) ---------------- */
-function eqDorso(G,id){const{x,Y}=G,t=IT[id]&&IT[id].t;
- if(t==='diamante'){paint(x,mk2(m=>SYM(m,[[22.6,Y(38)],[9,Y(33.6)],[4.6,Y(40.6)],[11,Y(45.4)],[22.4,Y(44.2)]])),'#5aa8e8','diamond',2);
-  paint(x,mk2(m=>SYM(m,[[25,Y(34)],[14,Y(16)],[7.4,Y(10.6)],[3.6,Y(19.6)],[8.6,Y(30)],[16,Y(38)],[24,Y(41)]])),'#7cc4f4','diamond',3);
-  paint(x,mk2(m=>{SYM(m,[[24,Y(35)],[8.4,Y(13.2)],[9.6,Y(12.8)],[24.8,Y(34.4)]]);SYM(m,[[23.4,Y(37)],[6.4,Y(22)],[7.2,Y(21.2)],[24,Y(36.4)]])}),'#ffffff','diamond',4);return}
- if(t==='aquila'){const P=CONST.aquila,tips=[[4.6,Y(6)],[2.2,Y(15)],[2.6,Y(24)],[5.6,Y(32)],[10.6,Y(39)]],base=k=>[25-k*.4,Y(33.6+k*1.6)];
-  const wing=f=>mk2(m=>tips.forEach(([tx,ty],k)=>{const[bx,by]=base(k),T=[bx+(tx-bx)*f,by+(ty-by)*f];feather(m,bx,by,T[0],T[1],2.6);feather(m,64-bx,by,64-T[0],T[1],2.6)}));
-  paint(x,wing(1),P.c,'metal',2);paint(x,mSub(wing(1),wing(.74)),P.a,'metal',3);paint(x,wing(.4),P.g,'metal',4);return}
- if(t==='draco'){const P=CONST.draco,W=[[25,Y(34)],[16,Y(18)],[10.4,Y(7.6)],[6.4,Y(11)],[3,Y(21)],[5.6,Y(25.6)],[8.4,Y(30.4)],[10.6,Y(28.4)],[12.6,Y(34.4)],[15.6,Y(32.4)],[18.6,Y(39)],[24,Y(41)]];
-  paint(x,mk2(m=>SYM(m,W)),'#137040','metal',2);
-  paint(x,mk2(m=>{for(const[tx,ty]of[[6.4,Y(11)],[8.4,Y(30.4)],[12.6,Y(34.4)],[3,Y(21)]]){SYM(m,[[24.4,Y(34.6)],[tx,ty],[tx+.9,ty+.5],[24.6,Y(35.6)]])}SYM(m,[[25.2,Y(33.4)],[10,Y(7)],[11.6,Y(7.8)],[25.4,Y(35.2)]])}),P.c2,'metal',3);
-  paint(x,mk2(m=>SYM(m,[[10.6,Y(7.6)],[9,Y(3.6)],[12,Y(7)]])),P.g,'metal',4);return}
- if(t==='fenix'){const tips=[[11,Y(-1)],[4.4,Y(6)],[1.4,Y(15)],[1.6,Y(25)],[5,Y(34)],[11,Y(41)]],base=k=>[25-k*.5,Y(33+k*1.5)];
-  const wing=f=>mk2(m=>tips.forEach(([tx,ty],k)=>{const[bx,by]=base(k),T=[bx+(tx-bx)*f,by+(ty-by)*f];feather(m,bx,by,T[0],T[1],2.4);feather(m,64-bx,by,64-T[0],T[1],2.4)}));
-  paint(x,wing(1),'#c0200e','metal',2);paint(x,wing(.72),'#f06a1a','metal',3);paint(x,wing(.42),'#ffc040','metal',4);return}
- if(t==='estelar'){const W=[[25,Y(34)],[12,Y(10)],[4,Y(4)],[2,Y(16)],[6,Y(28)],[14,Y(38)],[24,Y(41)]];
-  paint(x,mk2(m=>SYM(m,W)),'#e8c060','metal',2);paint(x,mk2(m=>SYM(m,shrinkTo(W,15,Y(24),.86))),'#2a2468','space',3)}}
+/* ---------------- DORSO: asas (só as superiores que têm asas) ---------------- */
+function eqDorso(G,id){const{x,Y}=G,t=IT[id]&&IT[id].t,P=ARMP[t];
+ const wings=(tips,c1,c2,w)=>{const base=k=>[25-k*.5,Y(33.4+k*1.6)],wing=f=>mk2(m=>tips.forEach(([tx,ty],k)=>{const[bx,by]=base(k),T=[bx+(tx-bx)*f,by+(Y(ty)-by)*f];feather(m,bx,by,T[0],T[1],w);feather(m,64-bx,by,64-T[0],T[1],w)}));paint(x,wing(1),c1,'metal',2);paint(x,wing(.62),c2,'metal',3)};
+ if(t==='diamante'||t==='cristal'){paint(x,mk2(m=>SYM(m,[[24.6,Y(34.6)],[12,Y(14)],[6,Y(18)],[9,Y(30)],[23.6,Y(40.6)]])),'#7cc4ec','metal',2);paint(x,mk2(m=>SYM(m,[[23.4,Y(38)],[10.4,Y(34)],[8,Y(39.4)],[22.8,Y(43)]])),'#5aa4dc','metal',3);return}
+ if(t==='aquila'){wings([[5,6],[2.6,15],[3,24],[6,32]],'#e4ded2','#ffffff',2.6);return}
+ if(t==='fenix'){wings([[11,-1],[4.4,6],[1.6,15],[2,25],[6,34]],'#c0280e','#f88a2a',2.4);return}
+ if(t==='draco'){paint(x,mk2(m=>SYM(m,[[25,Y(34)],[16,Y(18)],[10.4,Y(7.6)],[6.4,Y(12)],[3.4,Y(22)],[8.4,Y(30)],[12.6,Y(34.4)],[18.6,Y(39)],[24,Y(41)]])),'#13703f','metal',2);
+  paint(x,mk2(m=>{SYM(m,[[25.2,Y(33.4)],[10,Y(7)],[11.6,Y(7.8)],[25.4,Y(35.2)]]);SYM(m,[[24.4,Y(34.6)],[3.4,Y(22)],[4.2,Y(22.8)],[24.6,Y(35.6)]])}),'#3ab874','metal',3);return}
+ if(t==='estelar'){const W=[[25,Y(34)],[12,Y(10)],[4,Y(5)],[2.6,Y(17)],[7,Y(29)],[24,Y(41)]];paint(x,mk2(m=>SYM(m,W)),'#e8c060','metal',2);paint(x,mk2(m=>SYM(m,shrinkTo(W,15,Y(24),.84))),'#2a2468','space',3)}}
 
-/* ---------------- PEITO ---------------- */
-function eqPeito(G,id){const{x,Y}=G,t=IT[id].t,tor=()=>aTor(Y),P=CONST[t];
- if(t==='bronze'||t==='ferro'){paint(x,tor(),'#b0703a','metal',5);paint(x,mk2(m=>mRect(m,23,Y(32.5),18,1.2)),'#d89a58','metal',6);
-  paint(x,mk2(m=>mRect(m,23.4,Y(43.2),17.2,1.9)),'#5a3418','cloth',6);paint(x,mk2(m=>mRect(m,30.6,Y(42.8),2.8,2.6)),'#3a9a8a','metal',7);
-  paint(x,mk2(m=>{for(const[u,v]of[[25.4,34.6],[38.6,34.6],[25.4,40.6],[38.6,40.6]])mEll(m,u,Y(v),.7,.7)}),'#e8b878','metal',8);
-  paint(x,mk2(m=>SEL(m,20.5,Y(35),5,3.6)),'#b0703a','metal',9);paint(x,mAnd(mk2(m=>SEL(m,20.5,Y(35),5,3.6)),mk2(m=>mRect(m,0,Y(37),64,2))),'#7a4a22','metal',10);return}
- if(t==='prata'){paint(x,tor(),'#c4cad8','metal',5);paint(x,mk2(m=>SYM(m,[[24,Y(37.6)],[31.4,Y(39.4)],[31.4,Y(40.4)],[24,Y(38.6)]])),'#8a90a0','metal',6);
-  paint(x,mk2(m=>mPoly(m,[[31.2,Y(33)],[32.8,Y(33)],[32.6,Y(42.4)],[32,Y(43.2)],[31.4,Y(42.4)]])),'#eef2fa','metal',7);
-  paint(x,mk2(m=>mRect(m,23.4,Y(43.2),17.2,1.9)),'#2a4ab8','cloth',8);paint(x,mk2(m=>mEll(m,32,Y(35.6),1.3,1.3)),'#5a9aff','crystal',9);
-  paint(x,mk2(m=>SEL(m,20.2,Y(37),5.4,2.6)),'#9aa0b0','metal',10);paint(x,mk2(m=>SEL(m,20.8,Y(34.6),5,3.3)),'#d4dae6','metal',11);return}
- if(t==='ouro'){paint(x,tor(),'#e0a820','metal',5);paint(x,mk2(m=>mRect(m,23.4,Y(43.3),17.2,1.9)),'#8a1020','cloth',6);
-  paint(x,mk2(m=>{for(let k=0;k<8;k++){const a=k/8*6.283+.39,c=Math.cos(a),s=Math.sin(a);mPoly(m,[[32+c*2-s*.9,Y(38.4)+s*2+c*.9],[32+c*5.4,Y(38.4)+s*5.4],[32+c*2+s*.9,Y(38.4)+s*2-c*.9]])}}),'#fff0a0','metal',7);
-  paint(x,mk2(m=>mEll(m,32,Y(38.4),2.5,2.5)),'#f8d850','metal',8);paint(x,mk2(m=>mEll(m,32,Y(38.4),1.6,1.6)),'#c0182a','metal',9);
-  for(const s of[-1,1]){const cx=32+s*12.2;
-   paint(x,mk2(m=>{mPoly(m,[[cx-s*2.6,Y(31.4)],[cx+s*.6,Y(26.4)],[cx+s*1.8,Y(31.4)]]);mPoly(m,[[cx+s*2.6,Y(32)],[cx+s*7.4,Y(29.2)],[cx+s*4.8,Y(33.6)]]);mPoly(m,[[cx+s*4.6,Y(34.8)],[cx+s*9,Y(35.4)],[cx+s*4.6,Y(37.4)]])}),'#f8d850','metal',10);
-   paint(x,mk2(m=>mEll(m,cx,Y(34.6),6,4.4)),'#e0a820','metal',11);paint(x,mk2(m=>mEll(m,cx,Y(34.4),1.2,1.2)),'#c0182a','metal',12)}return}
- if(t==='diamante'||t==='cristal'){paint(x,tor(),'#b8ecff','diamond',5);paint(x,mAnd(tor(),mk2(m=>mRect(m,0,Y(39.4),64,6))),'#86ccf2','diamond',6);aLines(G,[41.3,43.2],'#4a90c8');
-  paint(x,mk2(m=>SYM(m,[[24.6,Y(32.6)],[28.6,Y(29.6)],[30,Y(32.6)]])),'#e8f8ff','diamond',7);
-  paint(x,mk2(m=>mPoly(m,[[32,Y(33.4)],[35.4,Y(37)],[32,Y(40.8)],[28.6,Y(37)]])),'#ffffff','diamond',8);paint(x,mk2(m=>mPoly(m,[[32,Y(35.2)],[33.6,Y(37)],[32,Y(38.8)],[30.4,Y(37)]])),'#d8c8ff','crystal',9);
-  paint(x,mk2(aTas(Y)),'#86ccf2','diamond',10);paint(x,mk2(aVam(Y)),'#a8e4ff','diamond',11);
-  paint(x,mk2(m=>SYM(m,[[17.4,Y(37.8)],[15.8,Y(33.4)],[16.8,Y(28.4)],[20.6,Y(31.4)],[23.4,Y(27.2)],[25.6,Y(33)],[24.4,Y(37.6)],[21,Y(39.2)]])),'#a8e4ff','diamond',12);
-  paint(x,mk2(m=>SEL(m,21,Y(34.8),1.2,1.2)),'#ffffff','diamond',13);return}
- if(t==='fenix'){paint(x,tor(),'#e04a1a','metal',5);paint(x,mAnd(tor(),mk2(m=>mRect(m,0,Y(40.6),64,6))),'#b0280e','metal',6);aLines(G,[42.6],'#7a1408');
-  paint(x,mk2(m=>{SYM(m,[[32,Y(36.6)],[25.6,Y(33.6)],[24,Y(35.4)],[26.8,Y(37.6)],[32,Y(39.6)]]);mPoly(m,[[31,Y(35.6)],[33,Y(35.6)],[33.4,Y(40.8)],[32,Y(42.6)],[30.6,Y(40.8)]])}),'#f8c040','metal',7);
-  paint(x,mk2(m=>mEll(m,32,Y(37.6),1.2,1.2)),'#c0182a','metal',8);
-  const tas=mk2(m=>{mPoly(m,[[28.4,Y(44.4)],[35.6,Y(44.4)],[34.8,Y(48)],[32,Y(50.8)],[29.2,Y(48)]]);SYM(m,[[22.8,Y(44.4)],[28,Y(44.4)],[27.2,Y(48)],[25,Y(50)],[24.2,Y(48)],[22.4,Y(48.6)]])});
-  paint(x,tas,'#e04a1a','metal',9);paint(x,mAnd(tas,mk2(m=>mRect(m,0,Y(44.4),64,1.2))),'#f8c040','metal',10);
-  paint(x,mk2(aVam(Y)),'#e04a1a','metal',11);paint(x,mk2(m=>SRC(m,17.2,Y(40.2),5.6,1)),'#f8c040','metal',12);
-  paint(x,mk2(m=>{SYM(m,[[17,Y(37.6)],[15.4,Y(41.6)],[19.2,Y(39.6)],[19.6,Y(42.6)],[22.4,Y(38.6)]])}),'#ff8a2a','metal',13);
-  paint(x,mk2(m=>SYM(m,[[16.4,Y(36)],[18,Y(31.2)],[25.4,Y(31.4)],[25,Y(35.6)],[21,Y(38.6)]])),'#e04a1a','metal',14);
-  paint(x,mk2(m=>SYM(m,[[18.4,Y(31.6)],[20,Y(27.6)],[22.4,Y(31.4)]])),'#ffd040','metal',15);paint(x,mk2(m=>SEL(m,21,Y(34),1.1,1.1)),'#ffd040','metal',16);return}
- if(P){paint(x,tor(),P.c,'metal',5);paint(x,mk2(m=>SYM(m,[[24,Y(33.6)],[31.4,Y(33.6)],[31.4,Y(38.6)],[27,Y(39.6)],[24,Y(38.2)]])),P.c2,'metal',6);
-  paint(x,mAnd(tor(),mk2(m=>mRect(m,0,Y(32.5),64,1.1))),P.g,'metal',7);aLines(G,[40.9],shade(P.c,.6));
-  paint(x,mk2(m=>mRect(m,23.4,Y(43.2),17.2,1.9)),P.a,'metal',8);paint(x,mk2(m=>mRect(m,30.6,Y(42.8),2.8,2.6)),P.g,'metal',9);
-  paint(x,mk2(aTas(Y)),P.c,'metal',10);paint(x,mk2(aVam(Y)),P.c,'metal',11);paint(x,mk2(m=>SRC(m,17.2,Y(40.2),5.6,1)),P.g,'metal',12);
-  aStars(G,P);
-  if(t==='lupus'){paint(x,mk2(m=>SYM(m,[[18,Y(32.6)],[18.8,Y(28.2)],[21.8,Y(31.8)]])),P.c2,'metal',13);paint(x,mk2(m=>SEL(m,20.6,Y(34.8),5.4,3.8)),P.c,'metal',14);
-   paint(x,mk2(m=>{SYM(m,[[17.4,Y(37.2)],[18.4,Y(40.4)],[19.8,Y(37.8)]]);SYM(m,[[20.8,Y(38)],[21.8,Y(40.8)],[23,Y(38)]])}),'#f0f0f8','metal',15);paint(x,mk2(m=>SEL(m,20.6,Y(34.4),1.1,1.1)),P.g,'metal',16)}
-  else if(t==='aquila'){paint(x,mk2(m=>SYM(m,[[17.6,Y(35.6)],[22.8,Y(35.6)],[21,Y(39.2)],[16.4,Y(41.6)]])),P.a,'metal',13);paint(x,mk2(m=>SYM(m,[[17,Y(33)],[24.4,Y(31.8)],[23.4,Y(36.2)],[16.2,Y(38.8)]])),P.c,'metal',14);
-   paint(x,mk2(m=>SYM(m,[[18,Y(33.2)],[24,Y(32.2)],[23.8,Y(33.2)],[17.6,Y(34.2)]])),P.g,'metal',15)}
-  else if(t==='ursa'){paint(x,mk2(m=>SEL(m,20.2,Y(35.2),6.6,4.8)),P.c,'metal',13);paint(x,mk2(m=>SEL(m,20.2,Y(35.2),4.6,3.2)),P.g,'metal',14);paint(x,mk2(m=>SEL(m,20.2,Y(35.2),3.6,2.4)),P.c2,'metal',15);
-   paint(x,mk2(m=>{for(const u of[16.2,18.6,21])SYM(m,[[u,Y(39.2)],[u+.8,Y(41.8)],[u+1.6,Y(39.4)]])}),'#f0e8d0','metal',16)}
-  else if(t==='serpens'){paint(x,mk2(m=>SEL(m,20.6,Y(35),5.4,3.8)),P.c,'metal',13);paint(x,mk2(m=>SEL(m,20.6,Y(35),3.8,2.6)),P.a,'metal',14);paint(x,mk2(m=>SEL(m,20.6,Y(35),2.4,1.6)),P.c2,'metal',15);
-   paint(x,mk2(m=>SYM(m,[[24,Y(31)],[26.6,Y(29.4)],[27.4,Y(31.6)],[25.6,Y(33)]])),P.a,'metal',16)}
-  else{paint(x,mk2(m=>SEL(m,20.4,Y(37),5.4,2.6)),'#137040','metal',13);paint(x,mk2(m=>SEL(m,20.8,Y(34.8),5.2,3)),P.c,'metal',14);
-   paint(x,mk2(m=>SYM(m,[[17.6,Y(33)],[15.6,Y(27.8)],[21.6,Y(32)]])),P.g,'metal',15);paint(x,mk2(m=>SEL(m,20.8,Y(34.6),1.1,1.1)),P.a,'metal',16)}return}
- paint(x,tor(),'#26205a','space',5);
- paint(x,mk2(m=>{mRect(m,23,Y(32.5),18,1.3);mRect(m,23.4,Y(43.6),17.2,1.4);mRect(m,31.4,Y(33.4),1.2,10.4)}),'#e8c060','metal',6);
- paint(x,mk2(aTas(Y)),'#26205a','space',7);paint(x,mAnd(mk2(aTas(Y)),mk2(m=>mRect(m,0,Y(44.4),64,1))),'#e8c060','metal',8);
- paint(x,mk2(m=>SYM(m,[[16.6,Y(37.6)],[15.6,Y(32)],[19.6,Y(29.6)],[25,Y(31)],[24.8,Y(36.4)],[20.4,Y(39)]])),'#e8c060','metal',9);
- paint(x,mk2(m=>SYM(m,[[17.6,Y(36.8)],[16.8,Y(32.4)],[19.8,Y(30.6)],[24,Y(31.8)],[23.8,Y(35.8)],[20.4,Y(38)]])),'#26205a','space',10)}
+/* ---------------- PEITO: armadura de placas completa (molde único + paleta) ---------------- */
+function eqPeito(G,id){const{x,Y}=G,t=IT[id].t,P=ARMP[t]||ARMP.bronze,B=P.b,D=tone(B,.72),L=tone(B,1.05),K='metal';
+ /* braços: braçal superior, cotoveleira e antebraço */
+ paint(x,mk2(m=>SRC(m,17.4,Y(36.4),5.2,4.6)),D,K,20);
+ paint(x,mk2(m=>SRC(m,17.2,Y(41.2),5.6,4.6)),B,K,21);
+ paint(x,mk2(m=>SEL(m,20,Y(41.1),2.6,1.5)),L,K,22);
+ /* peitoral com nervura central e placa do abdômen */
+ paint(x,aTor(Y),B,K,5);
+ if(t==='estelar')paint(x,mk2(m=>mPoly(m,[[27,Y(34)],[37,Y(34)],[36,Y(39.6)],[32,Y(41)],[28,Y(39.6)]])),'#26205a','space',23);
+ paint(x,mk2(m=>mPoly(m,[[23.4,Y(39.6)],[32,Y(41.8)],[40.6,Y(39.6)],[40.6,Y(43.4)],[23.4,Y(43.4)]])),D,K,6);
+ {const C=hx(L),C2=hx(tone(B,1.25));for(let j=Math.round(Y(34)*Q);j<Math.round(Y(40.6)*Q);j++){G.ph(64,j,C2);G.ph(63,j,C)}}
+ /* gola */
+ paint(x,mk2(m=>mPoly(m,[[26.4,Y(32.8)],[27.8,Y(30.8)],[36.2,Y(30.8)],[37.6,Y(32.8)],[32,Y(34.2)]])),P.g?P.g:D,K,7);
+ /* cinto e saiote de placas */
+ paint(x,mk2(m=>mRect(m,23.2,Y(43.4),17.6,1.5)),P.a,P.ak||K,8);
+ paint(x,mk2(m=>mPoly(m,[[23,Y(44.9)],[41,Y(44.9)],[41.6,Y(46.7)],[22.4,Y(46.7)]])),B,K,9);
+ paint(x,mk2(m=>mPoly(m,[[22.4,Y(46.9)],[41.6,Y(46.9)],[42,Y(48.6)],[22,Y(48.6)]])),D,K,10);
+ /* ombreiras em lâminas */
+ const pw=P.pw||5.4,ph=P.ph||3.8;
+ paint(x,mk2(m=>SEL(m,20.2,Y(38.6),4.4,1.9)),D,K,11);
+ paint(x,mk2(m=>SEL(m,20.5,Y(37),5,2.3)),B,K,12);
+ if(P.pv==='spike')paint(x,mk2(m=>SYM(m,[[17.6,Y(33)],[16.4,Y(28.4)],[21.6,Y(32)]])),P.g,K,13);
+ paint(x,mk2(m=>SEL(m,21,Y(34.6),pw,ph)),L,K,14);
+ if(P.g)paint(x,mSub(mk2(m=>SEL(m,21,Y(34.6),pw,ph)),mk2(m=>SEL(m,21,Y(34),pw,ph))),P.g,K,15);
+ /* um único emblema */
+ const em={diamante:'#ffffff',cristal:'#ffffff',fenix:'#f8c040',estelar:'#fff0a0',aquila:'#c02020'}[t];
+ if(em)paint(x,mk2(m=>mPoly(m,[[32,Y(35.2)],[33.5,Y(37)],[32,Y(38.8)],[30.5,Y(37)]])),em,K,16)}
 
 /* ---------------- CABEÇA ---------------- */
-function eqCabeca(G,id){const{x,Y,back}=G,t=IT[id].t,T=TCOL[t]||TCOL.bronze,P=CONST[t];
- if(t==='bronze'||t==='ferro'){const hm=aDome(G);if(!back)mRect(hm,31,Y(19),2.5,6);paint(x,hm,'#b0703a','metal',11);paint(x,mAnd(aDome(G),mk2(m=>mRect(m,0,Y(16.4),64,1.6))),'#7a4a22','metal',12);
-  paint(x,mk2(m=>{mRect(m,31,Y(5.6),2,4.4);mEll(m,32,Y(6),1.4,1.2)}),'#d89a58','metal',13);return}
- if(t==='prata'){const hm=aDome(G);if(!back)SYM(hm,[[21,Y(19)],[25.6,Y(20)],[25.6,Y(25.6)],[23.4,Y(28)],[21,Y(26)]]);paint(x,hm,'#c4cad8','metal',11);
-  paint(x,mk2(m=>mRect(m,31,Y(7),2,11)),'#eef2fa','metal',12);paint(x,mk2(m=>mPoly(m,[[30,Y(8)],[34,Y(8)],[40,Y(3)],[44.4,Y(7)],[37,Y(10)]])),'#2a4ab8','cloth',13);return}
- if(t==='ouro'){paint(x,aDome(G),'#e0a820','metal',11);paint(x,mk2(m=>{mRect(m,19.8,Y(9.2),24.4,2.4);mPoly(m,[[20.5,Y(9.4)],[22.7,Y(2.4)],[25,Y(9.4)]]);mPoly(m,[[29.2,Y(9.4)],[32,Y(.2)],[34.8,Y(9.4)]]);mPoly(m,[[39,Y(9.4)],[41.3,Y(2.4)],[43.5,Y(9.4)]])}),'#f8d850','metal',12);
-  paint(x,mk2(m=>mEll(m,32,Y(7.4),1.4,1.4)),'#c0182a','metal',13);paint(x,mk2(m=>mPoly(m,[[36,Y(6)],[44,Y(1.2)],[51.5,Y(5)],[43,Y(8.6)]])),'#c81e2a','cloth',14);return}
- /* superiores: tiaras que deixam o rosto e o cabelo à mostra */
- if(t==='diamante'||t==='cristal'){paint(x,mk2(aEar(Y)),'#a8e4ff','diamond',11);paint(x,mk2(aBand(Y)),'#a8e4ff','diamond',12);
-  paint(x,mk2(m=>SYM(m,[[24.6,Y(13.6)],[17,Y(2.6)],[22.4,Y(6)],[27.4,Y(12.6)]])),'#c8f0ff','diamond',13);
-  paint(x,mk2(m=>SYM(m,[[28,Y(12.6)],[27.4,Y(6.6)],[30.2,Y(12.2)]])),'#a8e4ff','diamond',14);
-  paint(x,mk2(m=>mPoly(m,[[32,Y(-2)],[35,Y(7.6)],[33.4,Y(12.6)],[30.6,Y(12.6)],[29,Y(7.6)]])),'#e8fbff','diamond',15);paint(x,mk2(m=>mEll(m,32,Y(13.4),1.3,1.1)),'#ffffff','diamond',16);return}
- if(t==='fenix'){paint(x,mk2(m=>SYM(m,[[19.6,Y(16.6)],[23.2,Y(17)],[22.6,Y(24)],[18.4,Y(27.6)],[19.4,Y(22)]])),'#e04a1a','metal',11);
-  const fl=[[27.4,Y(12.6)],[24,Y(4)],[22.4,Y(-.6)],[26.4,Y(4.4)],[30,Y(12)]],fc=[[30.2,Y(12.2)],[31.2,Y(3)],[32,Y(-3)],[32.8,Y(3)],[33.8,Y(12.2)]];
-  paint(x,mk2(m=>{SYM(m,fl);mPoly(m,fc)}),'#e04a1a','metal',12);paint(x,mk2(m=>{SYM(m,shrinkTo(fl,27,Y(12),.6));mPoly(m,shrinkTo(fc,32,Y(12),.6))}),'#ffc040','metal',13);
-  paint(x,mk2(aBand(Y)),'#f8c040','metal',14);paint(x,mk2(m=>mPoly(m,[[29.6,Y(12.6)],[34.4,Y(12.6)],[33.4,Y(15.4)],[32,Y(17.6)],[30.6,Y(15.4)]])),'#f8c040','metal',15);paint(x,mk2(m=>mEll(m,32,Y(13.8),1,.9)),'#c0182a','metal',16);return}
- if(t==='estelar'){paint(x,mk2(aEar(Y)),'#26205a','space',11);paint(x,mk2(aBand(Y)),'#e8c060','metal',12);
-  paint(x,mk2(m=>SYM(m,[[23.4,Y(13.6)],[19.4,Y(6)],[20.2,Y(.6)],[22.4,Y(7)],[27,Y(12.6)]])),'#e8c060','metal',13);
-  paint(x,mk2(m=>mPoly(m,[[32,Y(3.6)],[33.1,Y(6.5)],[35.6,Y(7.4)],[33.1,Y(8.3)],[32,Y(11.2)],[30.9,Y(8.3)],[28.4,Y(7.4)],[30.9,Y(6.5)]])),'#fff0a0','metal',14);
-  paint(x,mk2(m=>mEll(m,32,Y(13.2),1.2,1)),'#a080e0','crystal',15);return}
- if(P){paint(x,mk2(aEar(Y)),P.c,'metal',11);
-  if(t==='serpens')paint(x,mk2(m=>SYM(m,[[22,Y(8.6)],[13.6,Y(11.6)],[11.4,Y(20)],[13.4,Y(28)],[17.6,Y(31)],[21.2,Y(27.6)],[20.4,Y(16)]])),P.c,'metal',12);
-  if(t==='serpens')paint(x,mk2(m=>SYM(m,[[19.8,Y(11.6)],[15.4,Y(14)],[13.8,Y(20.4)],[15.4,Y(26.6)],[18.4,Y(28.4)],[19.2,Y(20)]])),P.a,'metal',13);
-  if(t==='lupus'){paint(x,mk2(m=>SYM(m,[[23.8,Y(13)],[24.6,Y(3.4)],[29.6,Y(11)]])),P.c,'metal',12);paint(x,mk2(m=>SYM(m,[[25.4,Y(11.4)],[25.6,Y(6)],[28,Y(10.6)]])),P.a,'metal',13)}
-  if(t==='ursa')paint(x,mk2(m=>{SEL(m,23.8,Y(9.2),3.9,3.7)}),P.c,'metal',12),paint(x,mk2(m=>SEL(m,23.8,Y(9.6),2.2,2.1)),P.a,'cloth',13);
-  if(t==='aquila'){const fw=f=>mk2(m=>{for(const[tx,ty]of[[13.6,Y(3)],[11.6,Y(8.6)],[12.6,Y(14)]]){const T=[22+(tx-22)*f,Y(15)+(ty-Y(15))*f];feather(m,22,Y(15),T[0],T[1],1.6);feather(m,42,Y(15),64-T[0],T[1],1.6)}});paint(x,fw(1),P.c,'metal',12);paint(x,mSub(fw(1),fw(.72)),P.a,'metal',13)}
-  if(t==='draco'){paint(x,mk2(m=>SYM(m,[[19.6,Y(15)],[14.6,Y(10.6)],[19.2,Y(19.6)]])),P.c2,'metal',12);paint(x,mk2(m=>SYM(m,[[25,Y(13.4)],[21.6,Y(6.4)],[18,Y(-1.8)],[23.4,Y(4.6)],[27.6,Y(12.2)]])),'#f0e0b0','metal',13)}
-  paint(x,mk2(aBand(Y)),t==='ursa'?P.c:P.g,'metal',14);
-  const em={lupus:[[29.6,Y(12.8)],[34.4,Y(12.8)],[32,Y(18.2)]],aquila:[[29.4,Y(12.6)],[34.6,Y(12.6)],[33.6,Y(16)],[32,Y(18.6)],[30.4,Y(16)]],ursa:[[27.4,Y(12.4)],[36.6,Y(12.4)],[35,Y(16.2)],[29,Y(16.2)]],serpens:[[29.6,Y(11.6)],[34.4,Y(11.6)],[35,Y(14)],[32,Y(17.6)],[29,Y(14)]],draco:[[28.6,Y(12)],[35.4,Y(12)],[34.4,Y(15)],[32,Y(18)],[29.6,Y(15)]]}[t];
-  paint(x,mk2(m=>mPoly(m,em)),t==='ursa'?P.g:t==='aquila'?P.g:P.c2,'metal',15);
-  if(t==='serpens'||t==='draco'){const j=Math.round(Y(13.6)*Q),R=[230,40,40];for(const i of[61,66]){G.ph(i,j,R);G.ph(i+1,j,R)}}
-  else paint(x,mk2(m=>mEll(m,32,Y(14),1,.9)),t==='lupus'?'#a8e8ff':P.a,'metal',16);return}
- paint(x,aDome(G),T[0],T[1],11)}
+function eqCabeca(G,id){const{x,Y,back}=G,t=IT[id].t,P=ARMP[t]||ARMP.bronze,B=P.b,D=tone(B,.72);
+ /* básicas: elmos fechados com abertura no rosto */
+ if(t==='bronze'||t==='ferro'){const hm=aDome(G);if(!back)mRect(hm,31,Y(19),2.2,6);paint(x,hm,B,'metal',11);paint(x,mAnd(aDome(G),mk2(m=>mRect(m,0,Y(16.2),64,1.4))),D,'metal',12);return}
+ if(t==='prata'){const hm=aDome(G);if(!back)SYM(hm,[[21,Y(19)],[25.6,Y(20)],[25.6,Y(25.6)],[23.4,Y(28)],[21,Y(26)]]);paint(x,hm,B,'metal',11);
+  paint(x,mk2(m=>mPoly(m,[[30,Y(8)],[34,Y(8)],[40,Y(3)],[44.4,Y(7)],[37,Y(10)]])),P.a,'cloth',13);return}
+ if(t==='ouro'){const hm=aDome(G);if(!back)SYM(hm,[[21,Y(19)],[25.6,Y(20)],[25.6,Y(25.6)],[23.4,Y(28)],[21,Y(26)]]);paint(x,hm,B,'metal',11);
+  paint(x,mk2(m=>{mRect(m,31,Y(5),2,4);mEll(m,32,Y(5.4),1.6,1.4)}),tone(B,1.2),'metal',12);paint(x,mk2(m=>mPoly(m,[[33,Y(5)],[40,Y(.8)],[47,Y(4.4)],[39,Y(7.6)]])),P.a,'cloth',13);return}
+ /* superiores: tiara (rosto e cabelo à mostra) + UMA marca */
+ paint(x,mk2(aEar(Y)),B,'metal',11);
+ const g=P.g,sig={
+  diamante:()=>{paint(x,mk2(m=>mPoly(m,[[32,Y(-1.6)],[34.6,Y(7.6)],[32,Y(13)],[29.4,Y(7.6)]])),'#e8fbff','metal',12);paint(x,mk2(m=>SYM(m,[[24.6,Y(13.4)],[20,Y(5)],[27,Y(12.4)]])),B,'metal',13)},
+  lupus:()=>paint(x,mk2(m=>SYM(m,[[23.8,Y(13.2)],[24.6,Y(3.8)],[29.4,Y(11.2)]])),B,'metal',12),
+  aquila:()=>{const fw=mk2(m=>{for(const[tx,ty]of[[13.6,3.4],[12,9]]){feather(m,22,Y(15),tx,Y(ty),1.6);feather(m,42,Y(15),64-tx,Y(ty),1.6)}});paint(x,fw,B,'metal',12)},
+  ursa:()=>paint(x,mk2(m=>SEL(m,23.8,Y(9.4),3.6,3.4)),B,'metal',12),
+  serpens:()=>paint(x,mk2(m=>SYM(m,[[22,Y(8.6)],[13.6,Y(11.6)],[11.6,Y(20)],[13.6,Y(28)],[17.6,Y(31)],[21.2,Y(27.6)],[20.4,Y(16)]])),B,'metal',12),
+  draco:()=>paint(x,mk2(m=>SYM(m,[[25,Y(13.4)],[21.6,Y(6.4)],[18,Y(-1.8)],[23.4,Y(4.6)],[27.6,Y(12.2)]])),'#efe2bc','metal',12),
+  fenix:()=>{const fc=[[29.6,Y(12.4)],[31.2,Y(3)],[32,Y(-3)],[32.8,Y(3)],[34.4,Y(12.4)]],fl=[[27.2,Y(12.8)],[23.6,Y(4.6)],[22.4,Y(.4)],[26.6,Y(5)],[30,Y(12.2)]];paint(x,mk2(m=>{SYM(m,fl);mPoly(m,fc)}),B,'metal',12);paint(x,mk2(m=>{SYM(m,shrinkTo(fl,27,Y(12),.55));mPoly(m,shrinkTo(fc,32,Y(12),.55))}),'#ffc040','metal',13)},
+  estelar:()=>{paint(x,mk2(m=>SYM(m,[[23.4,Y(13.6)],[19.4,Y(6)],[20.2,Y(.6)],[22.4,Y(7)],[27,Y(12.6)]])),g,'metal',12);paint(x,mk2(m=>mPoly(m,[[32,Y(4.6)],[33,Y(7.2)],[35.4,Y(8)],[33,Y(8.8)],[32,Y(11.4)],[31,Y(8.8)],[28.6,Y(8)],[31,Y(7.2)]])),'#fff0a0','metal',13)}};
+ (sig[t]||sig.diamante)();
+ paint(x,mk2(aBand(Y)),g||B,'metal',14);
+ if(t==='ursa'||t==='serpens')paint(x,mk2(m=>mPoly(m,[[30.4,Y(12.4)],[33.6,Y(12.4)],[32,Y(15.6)]])),P.a,'metal',15)}
 
 function eqCapa(G,id){const{x,Y}=G,cape=()=>mk2(m=>mPoly(m,[[23,Y(32)],[41,Y(32)],[48,59],[16,59]]));
  if(id==='capa')paint(x,cape(),'#b01c2c','cloth',3);
