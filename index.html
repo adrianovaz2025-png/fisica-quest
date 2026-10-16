@@ -1630,7 +1630,7 @@ function peakClouds(Wd,m){let bx=m.x,by=m.y,bh=-1;for(let dx=-9;dx<=9;dx+=.5)for
 /* ===== cidade de montanha estilo Nepal: terraços em degraus, casas brancas de telhado vinho, pagode, estupa e bandeirinhas de oração ===== */
 function stupaS(){if(BC.stupa)return BC.stupa;const s=SB(2,2,80,10);box(s,0,0,0,2,2,4,'#d8d0c0','ashlar',1);box(s,.25,.25,4,1.5,1.5,3,'#ece6da','ashlar',2);cyl(s,1,1,.72,7,8,'#f6f2ea','plaster',3);box(s,.7,.7,15,.6,.6,4,'#d8a020','stone',4);coneR(s,1,1,.32,19,16,[0,'#e8b030',0],null,'slate',5);fin(s,EDGE);return BC.stupa={cv:s.cv,ax:s.ax,ay:s.ay,w:2,d:2,h:35,smoke:[],flags:[]}}
 function pagodaS(){if(BC.pagoda)return BC.pagoda;const s=SB(1.8,1.8,90,10),RC='#7a2a1e';box(s,.2,.2,0,1.4,1.4,10,'#e8dcc4','plaster',1);coneR(s,.9,.9,1.05,10,6,[0,RC,0],null,'slate',2);box(s,.4,.4,15,1,1,6,'#e8dcc4','plaster',3);coneR(s,.9,.9,.8,21,6,[0,RC,0],null,'slate',4);box(s,.55,.55,26,.7,.7,4,'#e8dcc4','plaster',5);coneR(s,.9,.9,.55,30,9,[0,RC,0],null,'slate',6);box(s,.83,.83,38,.14,.14,6,'#e8b030','stone',7);fin(s,EDGE);return BC.pagoda={cv:s.cv,ax:s.ax,ay:s.ay,w:1.8,d:1.8,h:44,smoke:[],flags:[]}}
-function buildNepal(Wd,N){const r=rng(hstr('nepal')),items=[],ux=N.ur[0],uy=N.ur[1];
+function buildNepal(Wd,N){const r=rng(hstr('nepal')),items=[],ux=N.ur[0],uy=N.ur[1];Wd.MONKS=[];for(let k=0;k<7;k++){const li=k%3;Wd.MONKS.push({C:[N.x,N.y],R:N.lv[li]-1.15,a0:k*.9,sp:(k%2?1:-1)*(.00008+k*.000006),sk:['#c88a5a','#a8704a','#e0aa78','#8a5a3a'][k%4]})}
  const house=(k)=>bldg({w:1.25,d:1.1,h:9+(k%3)*2,wall:k%2?'#ece2cc':'#e4d4b4',mat:'plaster',roof:k%2?'gx':'gy',rc:[0,k%3?'#7a2a1e':'#5a3a2a',0],rh:7,door:1,shut:hx('#5a2a18'),seed:700+k});
  let k=0;N.lv.forEach((rad,li)=>{const n=[7,6,4][li]||3;for(let j=0;j<n;j++){const a=j/n*6.283+li*.45+r()*.2,X=N.x+Math.cos(a)*rad,Y=N.y+Math.sin(a)*rad;items.push([house(k++),X-.62,Y-.55])}
   if(li===1)items.push([pagodaS(),N.x+Math.cos(1.2)*rad-.9,N.y+Math.sin(1.2)*rad-.9])});
@@ -2479,7 +2479,7 @@ function drawGame(){
   /* o Mestre fica numa clareira perto da ponte da Torre do Arquimago (discreto) */
   loadMestre();const adm=isAdm();if(W.BRA&&(adm||MESTRE)){if(W.RG&&!W.MW)W.MW=mkWalker(W,W.RG,W.MS);const MWp=W.MW?W.MW(T0):null,MX=MWp?MWp.X:W.BRA[0]+MSPOT[0],MY=MWp?MWp.Y:W.BRA[1]+MSPOT[1],mp=W.P(MX,MY),L2=adm?CH():(MESTRE.visual&&MESTRE.visual.hair?MESTRE.visual:LOOKS[0]),E2=adm?eqNow():(MESTRE.equip||{});
    ex.push({dep:MX+MY+.2,hi:{mestre:1,L:L2,eq:E2,fr:MWp?walkF():idleF(0),back:MWp&&MWp.back,P:mp,nick:adm?me.nick:MESTRE.nick,arrow:0}})}
-  (W.GUARD||[]).forEach((gd,k)=>ex.push({dep:gd.X+gd.Y,hi:{L:gd.L,eq:gd.eq,fr:idleF(k),P:W.P(gd.X,gd.Y),guard:gd.name}}));
+  (W.MONKS||[]).forEach((mk,k)=>{const a=mk.a0+T0*mk.sp,X=mk.C[0]+Math.cos(a)*mk.R,Y=mk.C[1]+Math.sin(a)*mk.R,a2=a+mk.sp*50,bk=(Math.cos(a2)+Math.sin(a2))*mk.R<(Math.cos(a)+Math.sin(a))*mk.R;ex.push({dep:X+Y,hi:{monk:1,L:{name:'',skin:mk.sk,hair:{s:'raspado',c1:mk.sk,c2:'#888'},top:{s:'gola',c1:'#8a1a1a',c2:'#e8a020'},pants:'#7a1414',eyes:{s:0,c:'#3a2414'}},eq:{},fr:[1,0,2,0][Math.floor(T0/170+k)%4],back:bk,P:W.P(X,Y)}})});(W.GUARD||[]).forEach((gd,k)=>ex.push({dep:gd.X+gd.Y,hi:{L:gd.L,eq:gd.eq,fr:idleF(k),P:W.P(gd.X,gd.Y),guard:gd.name}}));
   if(!meOn&&!adm)ex.push({dep:hx2+hy,hi:{L:CH(),eq:eqNow(),fr:idleF(0),P:W.P(hx2,hy),arrow:1}});
   if(W.PROF)ex.push({dep:W.PROF[0]+W.PROF[1],hi:{prof:1,P:W.P(W.PROF[0],W.PROF[1])}});
   renderWorld(W,ex)}
@@ -2592,7 +2592,7 @@ function click(mx,my){for(let i=btns.length-1;i>=0;i--){const b=btns[i];if(mx>=b
   const i=hoverNode();if(i<0)return;if(!nodeOpen(v,i)){toast('COMPLETE O TÓPICO ANTERIOR');return}
   const a=curNodeFor(v);if(a===i){openQuiz(v,i);return}hero.route=route(W,a,i);hero.ri=0;hero.target=i;hero.walking=true}
  else if(tab==='tribos'&&tribeWorld){const W=tribeWorld,Z=ZM(W);
-  if(W._hi){for(let k=W._hi.length-1;k>=0;k--){const h=W._hi[k];if(h.prof||!h.L)continue;const dx=mx/Z+W._cx-h.px,dy=my/Z+W._cy-h.py;if(Math.abs(dx)<11&&dy<3&&dy>-34&&(h.guard||h.mestre||h.who)){talkTo(h);return}}}
+  if(W._hi){for(let k=W._hi.length-1;k>=0;k--){const h=W._hi[k];if(h.prof||!h.L)continue;const dx=mx/Z+W._cx-h.px,dy=my/Z+W._cy-h.py;if(Math.abs(dx)<11&&dy<3&&dy>-34&&(h.guard||h.mestre||h.who||h.monk)){talkTo(h);return}}}
   if(W.PROF){const[px,py]=W.P(...W.PROF),dx=mx/Z+W.cam.x-px,dy=my/Z+W.cam.y-py;if(Math.abs(dx)<12&&dy<4&&dy>-34){profTalk();return}}
   if(W.ENEMT){const[px,py,sp]=W.ENEMT,dx=mx/Z+W.cam.x-px,dy=my/Z+W.cam.y-py-sp.d*8;if(Math.abs(dx)<26&&dy<10&&dy>-190){setTab('enem');return}}
   if(W.ISL){const[px,py]=W.P(...W.ISL),dx=mx/Z+W.cam.x-px,dy=my/Z+W.cam.y-py;if(Math.abs(dx)<70&&dy<50&&dy>-250){profSay(['Este é o meu castelo! Lá dentro guardo a maior biblioteca de Física do reino... e uma coleção de chapéus.','Volte sempre que precisar de uma dica: estou ali na ponte de pedra.']);return}}
@@ -2816,6 +2816,7 @@ const GFALA={'GALILEU':'Corpos caem juntos no vácuo, não importa a massa. Test
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 function charSay(name,L,eq,lines){profSay(lines);PFS={L,eq};$('pfNm').textContent=name}
 function talkTo(h){
+ if(h.monk){charSay('MONGE',h.L,h.eq,[pick(['Namastê, jovem aprendiz!','Tashi delek! Que bom ver você por aqui.','Paz, viajante. Suba devagar: o ar aqui é rarefeito.']),pick(['Quanto mais alto, menor a pressão do ar. Por isso a água ferve abaixo de 100 °C aqui em cima.','A mente calma resolve melhor. Respire fundo antes de cada questão.','O som não viaja no vácuo, mas o silêncio da montanha ensina muito.'])]);return}
  if(h.guard){const key=Object.keys(GFALA).find(k=>h.guard.endsWith(k)),tit=h.guard.split(' ')[0].toLowerCase();
   charSay(h.guard,h.L,h.eq,[pick(['Saudações, viajante!','Alto lá, aprendiz!','Bem-vindo, jovem herói!'])+' Sou '+h.guard.replace(/^\S+ /,'')+' e protejo esta região.',key?GFALA[key]:'A Física protege quem a estuda.']);return}
  if(h.mestre){charSay('MESTRE',h.L,h.eq,['Saudações, aprendiz! Eu sou o Mestre'+(h.nick?' '+h.nick:'')+'.',pick(['Estou patrulhando as trilhas do reino. Continue firme nos estudos!','Cada questão do ENEM que você acerta fortalece a sua tribo. Bora!','Dúvida em Física? Me procure na aula ou pergunte ao Arquimago!'])]);return}
