@@ -96,7 +96,7 @@ select.inp{appearance:none;-webkit-appearance:none}
 .pv{display:flex;flex-direction:column;align-items:center;gap:4px;width:172px}
 #hPrev{width:172px;height:172px;background:radial-gradient(#2e2034,#160e1a);border:3px solid #5a3a22}
 .hname{text-align:center;line-height:1.6}.hname b{display:block;font-size:9px;color:#fff}.hname span{font-size:6px;color:#f8d870}
-.aura{font-size:6px;color:#b8a890;text-align:center;line-height:1.5}.aura.on{color:#fff;text-shadow:0 0 6px #f8d870}.aura.on.cristal{text-shadow:0 0 6px #7ad8f8}.aura.on.estelar{text-shadow:0 0 6px #b890ff}
+.aura{font-size:6px;color:#b8a890;text-align:center;line-height:1.5}.aura.on{color:#fff;text-shadow:0 0 6px #f8d870}.aura.on.diamante{text-shadow:0 0 6px #7ad8f8}.aura.on.fenix{text-shadow:0 0 6px #ff7020}.aura.on.lupus,.aura.on.aquila,.aura.on.ursa,.aura.on.serpens,.aura.on.draco{text-shadow:0 0 6px #a8c8ff}.aura.on.estelar{text-shadow:0 0 6px #b890ff}
 .bag{flex:1;display:flex;flex-direction:column;gap:6px;min-width:0;min-height:0}
 .filt{display:flex;gap:4px;flex-wrap:wrap}
 .chip{padding:6px 7px;font:inherit;font-size:7px;background:#4a3020;color:#f8d870;border:2px solid #1a1020;cursor:pointer}.chip.on{background:#e8b840;color:#1a1020}
@@ -417,7 +417,9 @@ const CONTEUDO={
 const SLOTS=['cabeca','peito','botas','capa','arma','escudo','maos','colar','anel'];
 const SLOTN={cabeca:'CABEÇA',peito:'PEITO',botas:'BOTAS',capa:'CAPA',arma:'ARMA',escudo:'ESCUDO',maos:'PULSO',colar:'COLAR',anel:'ANEL'};
 const RAR=[{n:'COMUM',c:'#a8a4b4'},{n:'RARO',c:'#4aa0f0'},{n:'ÉPICO',c:'#c06af0'},{n:'LENDÁRIO',c:'#f8c030'},{n:'MÍTICO',c:'#ff70d0'}];
-const TIERN={couro:'COURO',ferro:'AÇO',ouro:'SOL NASCENTE',cristal:'PRISMA',estelar:'ESTELAR'};
+const TIERN={couro:'COURO',bronze:'BRONZE',prata:'PRATA',ouro:'OURO',diamante:'DIAMANTE BOREAL',lupus:'LOBO CELESTE',aquila:'FALCÃO CELESTE',ursa:'URSO MAIOR',serpens:'SERPENTE CELESTE',draco:'DRAGÃO CELESTE',fenix:'FÊNIX SUPERNOVA',estelar:'ESTELAR'};
+/* armaduras da Torre ENEM: liberadas por pontos */
+const ARM_PTS={tribo:100,fenix:300};
 /* id, nome curto, nome completo, slot, raridade, tópico em que se ganha (x = exclusivo), conjunto, lenda, saber, desafio [pergunta, certa, errada, errada] */
 const IT_RAW=[
 ['botas','BOTAS','Botas de Couro','botas',0,1,'couro','Gastas de tanto explorar o Vale.','O atrito entre a sola e o chão é o que te empurra para a frente: sem atrito, você escorregaria no lugar.',['O que permite você andar sem escorregar?','O atrito com o chão','A gravidade da Lua','O vento nas costas']],
@@ -425,17 +427,21 @@ const IT_RAW=[
 ['espada','ESPADA','Espada do Aprendiz','arma',0,3,'','Todo herói começa com uma lâmina simples e muita vontade.','No Sistema Internacional, comprimento se mede em metros, massa em quilogramas e tempo em segundos.',['Qual é a unidade de massa no SI?','Quilograma (kg)','Newton (N)','Litro (L)']],
 ['escudo','ESCUDO','Escudo de Carvalho','escudo',0,4,'','Feito do carvalho mais antigo do Vale.','Força é vetorial: tem módulo, direção e sentido. Já a massa é escalar, basta um número.',['Qual destas grandezas é vetorial?','Força','Massa','Temperatura']],
 ['florete','FLORETE','Florete Relâmpago','arma',1,5,'','Dizem que seu dono cruzava o vale antes do eco chegar.','Velocidade média = distância ÷ tempo. Correr 100 m em 10 s dá 10 m/s, ou 36 km/h.',['Quem percorre 200 m em 25 s tem velocidade média de:','8 m/s','5 m/s','25 m/s']],
-['elmo','ELMO','Elmo de Aço','cabeca',1,6,'ferro','Forjado nas oficinas da Cidadela das Mil Torres.','Em queda livre perto da Terra, a velocidade aumenta cerca de 10 m/s a cada segundo (g ≈ 10 m/s²).',['Algo cai do repouso por 3 s (g = 10 m/s²). Sua velocidade é:','30 m/s','10 m/s','3 m/s']],
-['armadura','ARMADURA','Armadura de Aço','peito',1,6,'ferro','Pesada, firme e confiável como a primeira lei de Newton.','Inércia: um corpo tende a manter seu estado de repouso ou de movimento se a força resultante for nula.',['Por que você é jogado para a frente quando o ônibus freia?','Inércia','Atrito','Empuxo']],
+['elmo','ELMO','Elmo de Bronze','cabeca',1,6,'bronze','Forjado nas oficinas da Cidadela das Mil Torres, onde todo herói começa.','Em queda livre perto da Terra, a velocidade aumenta cerca de 10 m/s a cada segundo (g ≈ 10 m/s²).',['Algo cai do repouso por 3 s (g = 10 m/s²). Sua velocidade é:','30 m/s','10 m/s','3 m/s']],
+['armadura','ARMADURA','Peitoral de Bronze','peito',1,6,'bronze','Pesada, firme e confiável como a primeira lei de Newton.','Inércia: um corpo tende a manter seu estado de repouso ou de movimento se a força resultante for nula.',['Por que você é jogado para a frente quando o ônibus freia?','Inércia','Atrito','Empuxo']],
+['botas_bronze','GREVAS','Grevas de Bronze','botas',1,6,'bronze','Pesadas, mas nunca escorregam.','Dilatação térmica: os metais aumentam de tamanho quando esquentam. Por isso trilhos e pontes têm pequenas folgas.',['Por que os trilhos de trem têm folgas entre as barras?','Para o metal dilatar no calor','Para economizar metal','Para o trem fazer barulho']],
 ['colar_pend','COLAR','Colar do Pêndulo','colar',2,6,'','Seu pingente nunca perde o ritmo.','O período de um pêndulo depende só do comprimento e da gravidade. Um pêndulo de 1 m leva cerca de 2 s para ir e voltar.',['Se trocarmos a bola do pêndulo por uma mais pesada, o período...','Não muda','Dobra','Cai pela metade']],
 ['katana','KATANA','Katana do Vento','arma',1,7,'','Corta o ar sem fazer barulho.','A resistência do ar cresce com a velocidade. Por isso um paraquedista atinge uma velocidade máxima: a velocidade terminal.',['O que limita a velocidade de queda de um paraquedista?','A resistência do ar','A massa da Terra','O magnetismo']],
 ['anel_arco','ANEL','Anel do Arco-íris','anel',1,8,'','Guarda um pedacinho de cada cor do céu.','A luz branca é a mistura de todas as cores. Gotas de chuva separam essas cores: é a dispersão.',['O arco-íris aparece porque a luz do Sol é...','Separada em cores pelas gotas','Pintada pelas nuvens','Refletida pela Lua']],
 ['capa','CAPA','Capa Carmesim','capa',1,9,'','Tremula como bandeira de quem não desiste.','Objetos têm cor porque refletem algumas cores da luz e absorvem as outras. A capa vermelha reflete o vermelho.',['Sob luz azul pura, uma capa vermelha parece:','Escura, quase preta','Vermelha','Branca']],
 ['newton','LÂMINA','Lâmina de Newton','arma',2,10,'','Uma maçã caiu sobre ela e... bem, você conhece a história.','2ª lei de Newton: força resultante = massa × aceleração (F = m·a).',['Uma força de 20 N age numa caixa de 4 kg. A aceleração é:','5 m/s²','80 m/s²','0,2 m/s²']],
 ['bussola','BÚSSOLA','Colar da Bússola','colar',2,11,'','Aponta sempre para a próxima aventura.','A Terra se comporta como um grande ímã. A agulha da bússola se alinha ao campo magnético terrestre.',['A agulha da bússola se orienta pelo...','Campo magnético da Terra','Calor do Sol','Vento norte']],
-['elmo_ouro','ELMO','Elmo do Sol Nascente','cabeca',3,12,'ouro','Sua coroa brilha antes mesmo do amanhecer.','O ouro conduz muito bem a eletricidade e não enferruja: por isso aparece nos contatos de celulares e computadores.',['Por que o ouro é usado em conectores eletrônicos?','Conduz bem e não oxida','É o metal mais leve','É isolante']],
-['arm_ouro','ARMADURA','Armadura do Sol Nascente','peito',3,12,'ouro','Forjada no Bastião do Sol, reflete a luz como um espelho.','Densidade = massa ÷ volume. O ouro tem 19,3 g/cm³, cerca de 1,7 vez a do chumbo. Esta é só banhada!',['2 cm³ de ouro (19,3 g/cm³) têm massa de:','38,6 g','9,65 g','21,3 g']],
-['botas_ouro','BOTAS','Botas do Sol Nascente','botas',3,12,'ouro','Deixam pegadas douradas na areia.','Pressão = força ÷ área. Sola larga espalha o peso e afunda menos na areia.',['Para afundar menos na areia, a bota deve ter...','Mais área de apoio','Menos área de apoio','Mais massa']],
+['elmo_prata','ELMO','Elmo de Prata','cabeca',2,12,'prata','Polido até refletir as estrelas.','A prata é o metal que melhor conduz eletricidade e calor. O cobre vem logo atrás e é bem mais barato, por isso é o dos fios.',['Qual metal conduz eletricidade melhor que todos?','Prata','Ferro','Alumínio']],
+['arm_prata','PEITORAL','Peitoral de Prata','peito',2,12,'prata','Um espelho de batalha: devolve a luz para quem a lançou.','Lei da reflexão: o ângulo de incidência é igual ao de reflexão. Os espelhos antigos eram feitos com uma camada de prata.',['Um raio chega a um espelho plano a 30° da normal. Ele reflete a:','30° da normal','60° da normal','90° da normal']],
+['botas_prata','GREVAS','Grevas de Prata','botas',2,12,'prata','Pousam leves mesmo depois do salto mais alto.','Impulso: ao dobrar os joelhos na aterrissagem, você aumenta o tempo da freada e diminui a força sobre o corpo.',['Por que dobramos os joelhos ao cair de um salto?','Aumenta o tempo e reduz a força','Aumenta a gravidade','Diminui a massa']],
+['elmo_ouro','ELMO','Elmo de Ouro','cabeca',3,18,'ouro','Sua coroa brilha antes mesmo do amanhecer.','O ouro é o metal mais maleável: pode ser martelado até virar uma folha mais fina que um fio de cabelo.',['Que propriedade permite fazer folhas finíssimas de ouro?','Maleabilidade','Magnetismo','Radioatividade']],
+['arm_ouro','ARMADURA','Armadura de Ouro','peito',3,18,'ouro','Forjada no Bastião do Sol, reflete a luz como um espelho.','Densidade = massa ÷ volume. O ouro tem 19,3 g/cm³, cerca de 1,7 vez a do chumbo. Esta é só banhada!',['2 cm³ de ouro (19,3 g/cm³) têm massa de:','38,6 g','9,65 g','21,3 g']],
+['botas_ouro','BOTAS','Botas de Ouro','botas',3,18,'ouro','Deixam pegadas douradas na areia.','Pressão = força ÷ área. Sola larga espalha o peso e afunda menos na areia.',['Para afundar menos na areia, a bota deve ter...','Mais área de apoio','Menos área de apoio','Mais massa']],
 ['escudo_sol','ESCUDO','Escudo Solar','escudo',3,12,'','Ofusca qualquer inimigo ao meio-dia.','A luz do Sol leva cerca de 8 minutos para chegar à Terra, a 300 mil km/s.',['Quanto tempo a luz do Sol leva para chegar até nós?','Cerca de 8 minutos','1 segundo','1 dia']],
 ['capa_sol','MANTO','Manto do Sol','capa',3,12,'','Carmesim por fora, dourado nas bordas.','Roupas escuras absorvem mais radiação e esquentam mais ao sol; roupas claras refletem mais.',['Num dia de sol forte, qual roupa esquenta mais?','A preta','A branca','Esquentam igual']],
 ['faraday','BRACELETE','Bracelete de Faraday','maos',2,13,'','Solta faíscas sempre que você move as mãos.','Mexer um ímã perto de uma bobina gera corrente elétrica (indução). É assim que as usinas produzem energia.',['Como o gerador de uma usina produz corrente?','Girando ímãs perto de bobinas','Esquentando a água','Com pilhas gigantes']],
@@ -443,9 +449,6 @@ const IT_RAW=[
 ['atomo','AMULETO','Amuleto do Átomo','colar',2,15,'','Três elétrons giram ao redor de quem o usa.','O elétron é cerca de 1.836 vezes mais leve que o próton. Quase toda a massa do átomo está no núcleo.',['Onde está quase toda a massa de um átomo?','No núcleo','Nos elétrons','No espaço vazio']],
 ['magnetica','ESPADA','Espada Magnética','arma',2,16,'','Atrai limalha de ferro como formigas ao açúcar.','Todo ímã tem dois polos. Quebre um ímã ao meio e você terá dois ímãs, cada um com norte e sul.',['Polos iguais de dois ímãs...','Se repelem','Se atraem','Não interagem']],
 ['anel_vacuo','ANEL','Anel do Vácuo','anel',3,17,'','Ao redor dele, tudo fica em silêncio absoluto.','O som precisa de um meio para se propagar. No vácuo do espaço, nenhuma explosão faz barulho.',['Por que não há som no espaço?','Não há meio material','Faz muito frio','A luz é rápida demais']],
-['elmo_cristal','ELMO','Elmo do Prisma','cabeca',3,18,'cristal','Uma crista de diamante que nunca embaça.','O gelo flutua porque é menos denso que a água líquida: a água se expande ao congelar.',['Por que o gelo flutua na água?','É menos denso que a água','É mais denso que a água','Tem ar comprimido dentro']],
-['arm_cristal','ARMADURA','Armadura do Prisma','peito',3,18,'cristal','Lapidada no Observatório de Cristal, guarda a luz dentro de si.','Reflexão total: a luz que tenta sair do vidro muito inclinada volta para dentro. É assim que funcionam as fibras ópticas.',['Fibras ópticas guiam a luz usando...','Reflexão total','Absorção','Ímãs']],
-['botas_cristal','BOTAS','Botas do Prisma','botas',3,18,'cristal','Deixam faíscas de gelo a cada passo.','Ao nível do mar a água ferve a 100 °C; no alto de uma montanha, com menos pressão, ferve antes.',['No alto de uma montanha, a água ferve...','Abaixo de 100 °C','Acima de 100 °C','Exatamente a 100 °C']],
 ['escudo_cristal','ESCUDO','Escudo de Cristal','escudo',3,18,'','Frio como o zero absoluto, duro como diamante.','Temperatura mede a agitação das partículas. No zero absoluto (−273 °C) essa agitação seria a mínima possível.',['O zero absoluto vale aproximadamente:','−273 °C','0 °C','−100 °C']],
 ['fogo','AMULETO','Amuleto do Fogo Eterno','colar',2,19,'','O ar treme de calor logo acima dele.','O calor flui do corpo mais quente para o mais frio até que fiquem na mesma temperatura: o equilíbrio térmico.',['Um café quente esquecido na mesa...','Esfria até a temperatura do ambiente','Esquenta a sala até ferver','Fica quente para sempre']],
 ['montante','MONTANTE','Montante do Sol','arma',3,20,'','Maior que o próprio herói, brilha como uma estrela.','Energia não se cria nem se destrói, só se transforma. O Sol transforma massa em energia por fusão nuclear.',['De onde vem a energia do Sol?','Fusão nuclear','Queima de carvão','Atrito do vento']],
@@ -454,19 +457,41 @@ const IT_RAW=[
 ['escudo_obs','ESCUDO','Escudo de Obsidiana','escudo',3,23,'','Lava ainda corre pelas suas rachaduras.','A obsidiana é vidro vulcânico: a lava esfria tão rápido que os átomos não têm tempo de formar cristais.',['A obsidiana se forma quando a lava...','Esfria muito rápido','Esfria bem devagar','Congela no espaço']],
 ['nebular','ESPADA','Espada Nebular','arma',4,24,'','Dentro da lâmina, uma galáxia inteira gira devagar.','A luz percorre 300 mil km por segundo: daria cerca de 7,5 voltas na Terra em 1 segundo.',['Em 1 segundo, a luz daria cerca de quantas voltas na Terra?','7,5','1','100']],
 ['capa_estelar','MANTO','Manto Estelar','capa',4,24,'','Uma janela para o céu noturno, presa aos seus ombros.','Ao olhar uma estrela, você vê a luz que saiu dela há muito tempo. A de Proxima Centauri leva cerca de 4,2 anos para chegar.',['Ao olhar uma estrela distante, você a vê...','Como ela era no passado','Como ela é agora','Como ela será no futuro']],
-['elmo_estelar','ELMO','Elmo Estelar do Horizonte','cabeca',4,'x','estelar','Um anel planetário gira sobre a cabeça de quem o merece.','Um ano-luz é a distância que a luz percorre em um ano: cerca de 9,5 trilhões de km. É distância, não tempo!',['Ano-luz é uma unidade de...','Distância','Tempo','Velocidade']],
+['elmo_cristal','TIARA','Tiara do Diamante Boreal','cabeca',4,24,'diamante','Seis pontas de diamante que brilham como a aurora.','Índice de refração: n = c/v. No diamante n ≈ 2,4, então a luz anda lá dentro a cerca de 125 mil km/s.',['Num material com n = 2, a luz anda a cerca de:','150 mil km/s','600 mil km/s','300 mil km/s']],
+['arm_cristal','ARMADURA','Armadura do Diamante Boreal','peito',4,24,'diamante','Suas asas de cristal se abrem quando o herói não desiste.','Reflexão total: a luz que tenta sair do diamante muito inclinada volta para dentro. É por isso que ele brilha tanto, e é assim que funcionam as fibras ópticas.',['Fibras ópticas guiam a luz usando...','Reflexão total','Absorção','Ímãs']],
+['botas_cristal','GREVAS','Grevas do Diamante Boreal','botas',4,24,'diamante','Cada passo deixa um rastro de pó de diamante.','A aurora boreal acontece perto dos polos: o campo magnético da Terra guia partículas do vento solar, que colidem com o ar e o fazem brilhar.',['A aurora aparece perto dos polos porque...','O campo magnético guia as partículas para lá','Lá é mais frio','A Lua reflete mais luz lá']],
+['elmo_lupus','TIARA','Tiara do Lobo Celeste','cabeca',4,'t','lupus','Uma lua crescente brilha entre as orelhas do lobo.','Lupus (o Lobo) é uma constelação do céu do hemisfério sul, vizinha do Centauro. No Brasil aparece bem nas noites de inverno.',['Uma constelação é...','Um grupo de estrelas que forma um desenho no céu','Um planeta com anéis','Uma estrela muito quente'],{pts:ARM_PTS.tribo,tb:'1A'}],
+['arm_lupus','ARMADURA','Armadura do Lobo Celeste','peito',4,'t','lupus','Uiva para as estrelas e elas respondem.','As estrelas de uma constelação parecem vizinhas, mas podem estar a distâncias muito diferentes de nós: é só um efeito de perspectiva.',['As estrelas de uma constelação estão...','A distâncias diferentes, só parecem juntas','Todas coladas umas nas outras','Todas à mesma distância'],{pts:ARM_PTS.tribo,tb:'1A'}],
+['botas_lupus','GREVAS','Grevas do Lobo Celeste','botas',4,'t','lupus','Correm mais rápido que o eco na floresta.','As estrelas parecem piscar porque a luz delas atravessa camadas de ar em movimento, que a desviam o tempo todo (refração na atmosfera).',['Por que as estrelas parecem piscar?','O ar em movimento desvia sua luz','Elas apagam e acendem','A Lua passa na frente'],{pts:ARM_PTS.tribo,tb:'1A'}],
+['elmo_aquila','TIARA','Tiara do Falcão Celeste','cabeca',4,'t','aquila','Asas de penas metálicas protegem o olhar do falcão.','Altair, a estrela mais brilhante da constelação da Águia, gira tão rápido (uma volta a cada 9 horas) que fica achatada nos polos.',['Altair é achatada nos polos porque...','Gira muito rápido','É muito fria','Está perto da Lua'],{pts:ARM_PTS.tribo,tb:'1B'}],
+['arm_aquila','ARMADURA','Armadura do Falcão Celeste','peito',4,'t','aquila','Suas asas abertas cobrem o céu inteiro.','A cor de uma estrela revela sua temperatura: as azuis são as mais quentes e as vermelhas, as mais frias.',['Qual estrela é mais quente?','Uma estrela azul','Uma estrela vermelha','Uma estrela laranja'],{pts:ARM_PTS.tribo,tb:'1B'}],
+['botas_aquila','GREVAS','Grevas do Falcão Celeste','botas',4,'t','aquila','Planam sobre o vento quente sem bater as asas.','Aves planam aproveitando correntes de ar quente que sobem: o ar quente é menos denso e sobe. É a convecção.',['O ar quente sobe porque...','É menos denso','É mais pesado','É atraído pelo Sol'],{pts:ARM_PTS.tribo,tb:'1B'}],
+['elmo_ursa','TIARA','Tiara do Urso Maior','cabeca',4,'t','ursa','Orelhas redondas, coração de aço.','As sete estrelas mais brilhantes da Ursa Maior formam o "Grande Carro". Duas delas apontam para a Estrela Polar, que indica o norte.',['A Estrela Polar indica qual direção?','Norte','Sul','Leste'],{pts:ARM_PTS.tribo,tb:'2A'}],
+['arm_ursa','ARMADURA','Armadura do Urso Maior','peito',4,'t','ursa','Nenhum inverno é longo demais para quem a veste.','A gordura dos ursos é um ótimo isolante térmico: dificulta a perda de calor do corpo para o ambiente gelado.',['Por que a gordura protege o urso do frio?','É um isolante térmico','Produz luz','Atrai o calor do Sol'],{pts:ARM_PTS.tribo,tb:'2A'}],
+['botas_ursa','GREVAS','Grevas do Urso Maior','botas',4,'t','ursa','Pisam firme como a montanha.','A Terra gira de oeste para leste. Por isso, durante a noite, as estrelas parecem girar no céu em torno dos polos celestes.',['As estrelas parecem se mover no céu durante a noite porque...','A Terra gira','As estrelas correm','O Sol as empurra'],{pts:ARM_PTS.tribo,tb:'2A'}],
+['elmo_serpens','TIARA','Tiara da Serpente Celeste','cabeca',4,'t','serpens','O capuz da serpente se abre quando o perigo chega.','Serpens é a única constelação dividida em duas partes, a Cabeça e a Cauda, separadas pela constelação de Ofiúco.',['A constelação Serpens é especial porque...','É dividida em duas partes','Não tem estrelas','Só aparece de dia'],{pts:ARM_PTS.tribo,tb:'2B'}],
+['arm_serpens','ARMADURA','Armadura da Serpente Celeste','peito',4,'t','serpens','Enxerga o calor de quem se aproxima.','Algumas serpentes detectam a radiação infravermelha emitida por corpos quentes. Câmeras térmicas fazem o mesmo.',['Corpos quentes emitem principalmente...','Infravermelho','Raios X','Som'],{pts:ARM_PTS.tribo,tb:'2B'}],
+['botas_serpens','GREVAS','Grevas da Serpente Celeste','botas',4,'t','serpens','Deslizam como uma onda.','Ondas transportam energia sem transportar matéria. O movimento ondulado da serpente lembra uma onda.',['Uma onda transporta...','Energia, sem levar a matéria junto','Matéria de um lugar a outro','Apenas água'],{pts:ARM_PTS.tribo,tb:'2B'}],
+['elmo_draco','TIARA','Tiara do Dragão Celeste','cabeca',4,'t','draco','Chifres de marfim e olhos de rubi.','Há cerca de 4.700 anos a estrela polar era Thuban, do Dragão. O eixo da Terra gira lentamente (precessão) e a estrela polar muda com o tempo.',['A estrela polar muda ao longo de milhares de anos por causa...','Da precessão do eixo da Terra','Do vento solar','Da Lua cheia'],{pts:ARM_PTS.tribo,tb:'3A'}],
+['arm_draco','ARMADURA','Armadura do Dragão Celeste','peito',4,'t','draco','Asas de dragão que guardam o céu do norte.','Na constelação do Dragão fica a Nebulosa Olho de Gato: gás expelido por uma estrela no fim da vida.',['Uma nebulosa planetária é...','Gás expelido por uma estrela no fim da vida','Um planeta gasoso','Um cometa'],{pts:ARM_PTS.tribo,tb:'3A'}],
+['botas_draco','GREVAS','Grevas do Dragão Celeste','botas',4,'t','draco','Escamas que nenhuma lâmina atravessa.','Asas geram sustentação desviando o ar para baixo. Pela 3ª lei de Newton, o ar empurra a asa para cima.',['Pela 3ª lei de Newton, se a asa empurra o ar para baixo...','O ar empurra a asa para cima','O ar desaparece','A asa fica mais pesada'],{pts:ARM_PTS.tribo,tb:'3A'}],
+['elmo_fenix','TIARA','Tiara da Fênix Supernova','cabeca',4,'t','fenix','Renasce das próprias cinzas, como as estrelas.','Quase todo o ferro, o cálcio e o oxigênio do seu corpo foram forjados dentro de estrelas. Somos feitos de poeira de estrelas!',['Onde se formou o ferro do seu sangue?','No interior de estrelas','Na Lua','No fundo dos oceanos'],{pts:ARM_PTS.fenix}],
+['arm_fenix','ARMADURA','Armadura da Fênix Supernova','peito',4,'t','fenix','Suas asas ardem sem nunca queimar quem a veste.','Uma supernova é a explosão de uma estrela gigante: por algumas semanas ela pode brilhar mais que uma galáxia inteira.',['Uma supernova é...','A explosão de uma estrela gigante','O nascimento de um planeta','Um eclipse solar'],{pts:ARM_PTS.fenix}],
+['botas_fenix','GREVAS','Grevas da Fênix Supernova','botas',4,'t','fenix','Onde pisa, brotam faíscas douradas.','Quanto mais quente um corpo, mais a cor da luz que ele emite vai do vermelho para o amarelo e o branco-azulado.',['Numa chama, a parte mais quente tende a ser...','Branca ou azulada','Vermelho-escura','Preta'],{pts:ARM_PTS.fenix}],
+['elmo_estelar','TIARA','Tiara Estelar do Horizonte','cabeca',4,'x','estelar','Um anel planetário gira sobre a cabeça de quem o merece.','Um ano-luz é a distância que a luz percorre em um ano: cerca de 9,5 trilhões de km. É distância, não tempo!',['Ano-luz é uma unidade de...','Distância','Tempo','Velocidade']],
 ['arm_estelar','ARMADURA','Armadura Estelar do Horizonte','peito',4,'x','estelar','Por dentro dela não há metal: há o universo.','Buracos negros têm gravidade tão intensa que, depois do horizonte de eventos, nem a luz consegue escapar.',['O que não escapa de um buraco negro após o horizonte de eventos?','Nem a luz','Só o som','Só os planetas']],
 ['botas_estelar','BOTAS','Botas Estelares','botas',4,'x','estelar','Deixam um rastro de poeira de estrelas.','No espaço, sem atrito, um objeto em movimento segue em linha reta para sempre até que uma força o pare.',['Uma bota chutada no espaço vazio...','Segue em linha reta sem parar','Para logo','Cai para baixo']]];
-const IT={},ITL=IT_RAW.map(a=>{const o={id:a[0],n:a[1],full:a[2],slot:a[3],r:a[4],f:a[5],t:a[6],lenda:a[7],saber:a[8],q:a[9]};IT[o.id]=o;return o});
-const BOOKN=ITL.filter(i=>i.f!=='x').length;
-const REWT={};ITL.forEach(i=>{if(i.f!=='x')(REWT[i.f]=REWT[i.f]||[]).push(i.id)});
+const IT={},ITL=IT_RAW.map(a=>{const o={id:a[0],n:a[1],full:a[2],slot:a[3],r:a[4],f:a[5],t:a[6],lenda:a[7],saber:a[8],q:a[9],pts:a[10]&&a[10].pts,tb:a[10]&&a[10].tb};IT[o.id]=o;return o});
+const isNum=v=>typeof v==='number',visIt=i=>!i.tb||!me||isAdm()||i.tb===me.turma;
+const BOOKN=ITL.filter(i=>isNum(i.f)).length;
+const REWT={};ITL.forEach(i=>{if(isNum(i.f))(REWT[i.f]=REWT[i.f]||[]).push(i.id)});
 const VREW=[0,1,2,3].map(v=>REWT[(v+1)*6]);
-const volOfItem=k=>{const f=IT[k]&&IT[k].f;return f==='x'?3:Math.ceil(f/6)-1};
-function comoObter(it){if(it.f==='x')return'EXCLUSIVO: conclua os 24 tópicos e doure todas as páginas do Livro.';const b=Math.ceil(it.f/6),tp=(it.f-1)%6+1;return tp===6?`Baú do ${b}º bimestre`:`Tópico ${tp} do ${b}º bimestre`}
+const volOfItem=k=>{const f=IT[k]&&IT[k].f;return !isNum(f)?3:Math.ceil(f/6)-1};
+function comoObter(it){if(it.f==='t')return`TORRE ENEM: alcance ${it.pts} pontos`+(it.tb?` (exclusiva da tribo ${TURMA(it.tb).tribo})`:'')+'.';if(it.f==='x')return'EXCLUSIVO: conclua os 24 tópicos e doure todas as páginas do Livro.';const b=Math.ceil(it.f/6),tp=(it.f-1)%6+1;return tp===6?`Baú do ${b}º bimestre`:`Tópico ${tp} do ${b}º bimestre`}
 const LEGACY={espada:['arma','espada'],escudo:['escudo','escudo'],botas:['botas','botas'],armadura:['peito','armadura'],elmo:['cabeca','elmo'],capa:['capa','capa']};
 function normEq(e){if(!e)return{};if(e.s)return e.s;const o={};for(const k in e){const v=e[k];if(typeof v==='string'){if(SLOTS.includes(k))o[k]=v}else if(LEGACY[k]&&v)o[LEGACY[k][0]]=LEGACY[k][1]}return o}
 function bestFor(ids){const s={};for(const id of ids){const it=IT[id],c=s[it.slot];if(!c||it.r>IT[c].r||(it.r===IT[c].r&&it.f>IT[c].f))s[it.slot]=id}return s}
-const eqFromFases=f=>bestFor(ITL.filter(i=>i.f!=='x'&&i.f<=f).map(i=>i.id));
+const eqFromFases=f=>bestFor(ITL.filter(i=>isNum(i.f)&&i.f<=f).map(i=>i.id));
 
 
 /* ============================ UTILITÁRIOS ============================ */
@@ -530,7 +555,7 @@ function mPoly(m,P){P=P.map(p=>[p[0]*Q,p[1]*Q]);let y0=1e9,y1=-1e9;for(const p o
 const mAnd=(m,k)=>{for(let i=0;i<m.length;i++)m[i]&=k[i];return m};
 const mk2=fn=>{const m=mNew();fn(m);return m};
 /* pinta uma máscara com volume: luz no alto/esquerda, sombra na borda direita/baixo */
-function paint(x,m,col,kind,sd=1){const R5=ramp5(col),RV=kind==='crystal'?ramp5('#a070f0'):kind==='space'?ramp5('#b03a98'):null,RC=kind==='space'?ramp5('#2a90b8'):null,at=(i,j)=>i>=0&&j>=0&&i<MS&&j<MS&&m[j*MS+i];let x0=MS,y0=MS,x1=-1,y1=-1;
+function paint(x,m,col,kind,sd=1){const R5=ramp5(col),RV=kind==='crystal'?ramp5('#a070f0'):kind==='diamond'?ramp5('#d8c0ff'):kind==='space'?ramp5('#b03a98'):null,RC=kind==='space'?ramp5('#2a90b8'):null,at=(i,j)=>i>=0&&j>=0&&i<MS&&j<MS&&m[j*MS+i];let x0=MS,y0=MS,x1=-1,y1=-1;
  for(let j=0;j<MS;j++)for(let i=0;i<MS;i++)if(m[j*MS+i]){if(i<x0)x0=i;if(i>x1)x1=i;if(j<y0)y0=j;if(j>y1)y1=j}if(x1<0)return;
  const cx=(x0+x1)/2,cy=(y0+y1)/2,hw=Math.max(1,(x1-x0)/2),hh=Math.max(1,(y1-y0)/2);
  for(let j=y0;j<=y1;j++)for(let i=x0;i<=x1;i++){if(!m[j*MS+i])continue;if(kind==='stubble'&&(i+j)%2)continue;
@@ -543,6 +568,7 @@ function paint(x,m,col,kind,sd=1){const R5=ramp5(col),RV=kind==='crystal'?ramp5(
   else if(kind==='cloth'){t+=(hash(i>>2,j>>2,sd)-.5)*.05;if(hash(i,j,sd+9)<.06)t-=.04}
   else if(kind==='stubble')t-=.18;
   else if(kind==='crystal'){const fa=hash(Math.floor((i+j)/9),Math.floor((i-j+300)/9),sd);t+=(fa-.5)*.44;if((i+j)%9===0||(i-j+300)%9===0)t+=.24;if(fa<.15)RR=RV}
+  else if(kind==='diamond'){const fa=hash(Math.floor((i*2+j)/9),Math.floor((i-j*2+400)/9),sd);t+=(fa-.5)*.26+.05;if((i*2+j)%9===0||(i-j*2+400)%9===0)t+=.17;if(fa<.05)RR=RV}
   else if(kind==='space'){const n=vnoise(i*.06,j*.06,sd);t=.3+(t-.56)*.6+n*.2;if(n>.64)RR=RV;else if(n<.24)RR=RC;if(hash(i,j,sd+5)<.03){const w=hash(i,j,sd+6)<.3?[255,240,170]:[255,255,255];x.px(i,j,w[0],w[1],w[2]);continue}}
   else if(kind==='rock'){t+=(vnoise(i*.25,j*.25,sd)-.5)*.45;if(hash(i>>1,j>>1,sd)<.08)t-=.12}
   const c=RR[t<.2?4:t<.4?3:t<.67?2:t<.86?1:0];x.px(i,j,c[0],c[1],c[2])}}
@@ -556,6 +582,7 @@ function sprite(L,eq,fr,back,solo){
   vl=(i,j,c)=>{ph(i*Q+1,j*Q,c);ph(i*Q+1,j*Q+1,c)},hl=(i,j,c)=>{ph(i*Q,j*Q+1,c);ph(i*Q+1,j*Q+1,c)};
  const cap=(m,ry=7)=>{mEll(m,32,Y(16),11.5,ry);mRect(m,20.5,Y(15),23,4)},G={x,Y,lL,lR,sw,b,back,ph,pt,solo};
  /* --- camadas de trás --- */
+ if(eq.peito&&!back)eqDorso(G,eq.peito);
  if(eq.capa&&!back)eqCapa(G,eq.capa);
  if(!solo){
  if(hs==='afro')paint(x,mk2(m=>mEll(m,32,Y(16),17,14.5)),HC,'hair',11);
@@ -601,6 +628,7 @@ function sprite(L,eq,fr,back,solo){
  if(eq.escudo)eqEscudo(G,eq.escudo);
  if(eq.colar&&!back)eqColar(G,eq.colar);
  if(eq.capa&&back)eqCapa(G,eq.capa);
+ if(eq.peito&&back)eqDorso(G,eq.peito);
  if(!solo){
  /* --- cabeça --- */
  paint(x,mk2(m=>{mEll(m,21.5,Y(23),2.3,3);mEll(m,42.5,Y(23),2.3,3)}),SK,'skin',4);
@@ -664,29 +692,160 @@ function sprite(L,eq,fr,back,solo){
   if(bq>=0){o[k]=d[bq]*.28;o[k+1]=d[bq+1]*.24;o[k+2]=d[bq+2]*.3+10;o[k+3]=255}}
  const cv=mk(MS,MS);cv.getContext('2d').putImageData(new ImageData(o,MS,MS),0,0);return SPR[key]=cv}
 /* ============================ EQUIPAMENTOS NO AVATAR ============================ */
-const TCOL={couro:['#8a5a2c','cloth','#c08a48'],ferro:['#9aa4b4','metal','#e8c040'],ouro:['#e0a820','metal','#c0182a'],cristal:['#5ab8e8','crystal','#a070f0'],estelar:['#2a2468','space','#e8c060']};
-function eqCapa(G,id){const{x,Y}=G,cape=()=>mk2(m=>mPoly(m,[[23,Y(32)],[41,Y(32)],[48,59],[16,59]]));
- if(id==='capa')paint(x,cape(),'#b01c2c','cloth',3);
- else if(id==='capa_sol'){paint(x,cape(),'#8a1020','cloth',3);paint(x,mAnd(cape(),mk2(m=>{mRect(m,0,56.6,64,3);mPoly(m,[[16,59],[18.2,59],[24.8,Y(32)],[23,Y(32)]]);mPoly(m,[[45.8,59],[48,59],[41,Y(32)],[39.2,Y(32)]])})),'#e0a820','metal',4)}
- else{paint(x,cape(),'#1e1a50','space',3);paint(x,mAnd(cape(),mk2(m=>mRect(m,0,57,64,2))),'#e8c060','metal',4)}}
-function eqBotas(G,id){const{x,lL,lR}=G,t=(IT[id]||{}).t||'couro',T=TCOL[t];
- paint(x,mk2(m=>{mRect(m,24.5,49+lL,7,8);mEll(m,28,57+lL,4.6,2.6);mRect(m,32.5,49+lR,7,8);mEll(m,36,57+lR,4.6,2.6)}),T[0],T[1],6);
- paint(x,mk2(m=>{mRect(m,24.2,49+lL,7.6,2);mRect(m,32.2,49+lR,7.6,2)}),T[2],T[1]==='cloth'?'cloth':'metal',7);
- if(t==='ouro')paint(x,mk2(m=>{mPoly(m,[[24.2,50+lL],[20.6,46.6+lL],[24.2,52.4+lL]]);mPoly(m,[[39.8,50+lR],[43.4,46.6+lR],[39.8,52.4+lR]])}),'#f8d850','metal',8);
- if(t==='estelar')paint(x,mk2(m=>{mEll(m,28,51.4+lL,.9,.9);mEll(m,36,51.4+lR,.9,.9)}),'#fff0a0','metal',8)}
-function eqPeito(G,id){const{x,Y}=G,t=IT[id].t,tor=()=>mk2(m=>mPoly(m,[[23,Y(32.5)],[41,Y(32.5)],[40.6,Y(45)],[23.4,Y(45)]]));
- if(t==='ferro'){paint(x,tor(),'#8e98a8','metal',5);paint(x,mk2(m=>mEll(m,32,Y(38),2.4,2.4)),'#e8c040','metal');paint(x,mk2(m=>{mEll(m,20.5,Y(35),5,3.6);mEll(m,43.5,Y(35),5,3.6)}),'#8e98a8','metal',6);return}
+const TCOL={couro:['#8a5a2c','cloth','#c08a48'],bronze:['#b0703a','metal','#3a9a8a'],prata:['#c4cad8','metal','#2a4ab8'],ouro:['#e0a820','metal','#c0182a'],diamante:['#a8e4ff','diamond','#ffffff'],
+ lupus:['#7f8fc4','metal','#a8e8ff'],aquila:['#ece6da','metal','#c82020'],ursa:['#3a8a5a','metal','#e8c040'],serpens:['#6a3aa8','metal','#2ab878'],draco:['#1f9a5a','metal','#f0c040'],
+ fenix:['#e04a1a','metal','#ffd040'],estelar:['#2a2468','space','#e8c060']};
+/* armaduras de constelação: uma por tribo (paleta, pontos da constelação no peito) */
+const CONST={
+ lupus:{tb:'1A',c:'#7f8fc4',c2:'#b4c2ea',a:'#24306e',g:'#e6ecff',st:[[[25.4,35.2],[28.4,36.6],[31,35],[34.2,36.8],[37.6,35.6]],[[34.2,36.8],[35.6,40],[30.6,40.6],[28.4,36.6]]]},
+ aquila:{tb:'1B',c:'#ece6da',c2:'#ffffff',a:'#c82020',g:'#e8c040',st:[[[25,34.6],[29.6,36.2],[32,37.2],[34.4,38.2],[38.6,34.8]],[[32,37.2],[32.6,41.6]],[[27.4,40.6],[32,37.2]]]},
+ ursa:{tb:'2A',c:'#3a8a5a',c2:'#64b884',a:'#6a4020',g:'#e8c040',st:[[[25,35],[27.8,35.8],[30.6,37],[33,38.2],[33.6,41],[38,41.4],[38.6,38.4],[33,38.2]]]},
+ serpens:{tb:'2B',c:'#6a3aa8',c2:'#9a6ad8',a:'#2ab878',g:'#e8c040',st:[[[25,41.4],[27.4,39.2],[29.8,40.2],[31.8,37.4],[34.4,38.2],[36.6,35.2],[39,35.8]]]},
+ draco:{tb:'3A',c:'#1f9a5a',c2:'#52cc84',a:'#c82020',g:'#f0c040',st:[[[25.6,34.4],[27.8,36],[26.8,38.4],[30,40.4],[33.2,39.2],[35.4,41.2],[38.4,37.4],[37,34.6],[38.4,37.4]]]}};
+const SYM=(m,P)=>{mPoly(m,P);mPoly(m,P.map(p=>[64-p[0],p[1]]));return m};
+const SEL=(m,cx,cy,rx,ry)=>{mEll(m,cx,cy,rx,ry);mEll(m,64-cx,cy,rx,ry);return m};
+const SRC=(m,x,y,w,h)=>{mRect(m,x,y,w,h);mRect(m,64-x-w,y,w,h);return m};
+const mSub=(m,k)=>{for(let i=0;i<m.length;i++)if(k[i])m[i]=0;return m};
+/* peças comuns */
+const aTor=Y=>mk2(m=>mPoly(m,[[23,Y(32.5)],[41,Y(32.5)],[40.6,Y(45)],[23.4,Y(45)]]));
+const aTas=(Y,c,k)=>m=>{mPoly(m,[[28.6,Y(44.4)],[35.4,Y(44.4)],[34.8,Y(48.6)],[32,Y(50)],[29.2,Y(48.6)]]);SYM(m,[[23,Y(44.4)],[28.2,Y(44.4)],[27.8,Y(48.6)],[24.6,Y(48.2)],[22.6,Y(46.6)]])};
+const aVam=Y=>m=>SRC(m,17.2,Y(40.2),5.6,4.2);
+const aBand=Y=>m=>mPoly(m,[[20.6,Y(15.6)],[26,Y(12.9)],[32,Y(12.1)],[38,Y(12.9)],[43.4,Y(15.6)],[43.6,Y(17.6)],[38,Y(15)],[32,Y(14.4)],[26,Y(15)],[20.4,Y(17.6)]]);
+const aEar=Y=>m=>SYM(m,[[19.6,Y(16.6)],[23.4,Y(17)],[23.8,Y(24.6)],[21.6,Y(27)],[19.8,Y(24)]]);
+const aLines=(G,ys,col)=>{const C=hx(col);for(const yy of ys){const j=Math.round(G.Y(yy)*Q);for(let i=Math.round(23.6*Q);i<Math.round(40.4*Q);i++)G.ph(i,j,C)}};
+const aDome=(G,face=1)=>{const{Y,back}=G,hm=mk2(m=>{mEll(m,32,Y(17),12.5,10);mRect(m,19.5,Y(17),25,8)});if(!back&&face)mSub(hm,mk2(m=>mRect(m,25,Y(20),14,10)));return hm};
+function aStars(G,P){const{Y}=G,W=[255,255,255],L=hx(P.g);for(const seg of P.st){for(let k=0;k+1<seg.length;k++){const[a,b]=[seg[k],seg[k+1]],n=Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1])*Q);for(let s=0;s<=n;s++){const u=a[0]+(b[0]-a[0])*s/n,v=a[1]+(b[1]-a[1])*s/n;G.ph(Math.round(u*Q),Math.round(Y(v)*Q),L,150)}}
+  for(const[u,v]of seg){const i=Math.round(u*Q),j=Math.round(Y(v)*Q);G.ph(i,j,W);G.ph(i+1,j,W);G.ph(i,j+1,W);G.ph(i+1,j+1,[220,230,255])}}}
+/* pena: quadrilátero da base (bx,by) até a ponta (tx,ty), largura w */
+const feather=(m,bx,by,tx,ty,w)=>{const dx=tx-bx,dy=ty-by,l=Math.hypot(dx,dy),nx=-dy/l*w,ny=dx/l*w;mPoly(m,[[bx+nx,by+ny],[bx+dx*.72+nx*1.1,by+dy*.72+ny*1.1],[tx,ty],[bx+dx*.72-nx*.7,by+dy*.72-ny*.7],[bx-nx*.6,by-ny*.6]])};
+const shrinkTo=(P,cx,cy,f)=>P.map(([u,v])=>[cx+(u-cx)*f,cy+(v-cy)*f]);
+
+/* ---------------- BOTAS ---------------- */
+function eqBotas(G,id){const{x,lL,lR}=G,t=(IT[id]||{}).t||'couro',T=TCOL[t]||TCOL.couro,P=CONST[t];
+ const tall=t!=='couro'&&t!=='bronze',y0=tall?47:49;
+ paint(x,mk2(m=>{mRect(m,24.5,y0+lL,7,57-y0);mEll(m,28,57+lL,4.6,2.6);mRect(m,32.5,y0+lR,7,57-y0);mEll(m,36,57+lR,4.6,2.6)}),T[0],T[1],6);
+ if(t==='couro'||t==='bronze'){paint(x,mk2(m=>{mRect(m,24.2,49+lL,7.6,2);mRect(m,32.2,49+lR,7.6,2)}),t==='couro'?T[2]:'#5a3418','cloth',7);return}
+ const knee=(col,kind,sd,sh)=>paint(x,mk2(m=>{sh(m,28,lL);sh(m,36,lR)}),col,kind,sd);
+ if(t==='prata'){knee('#e4e8f2','metal',7,(m,c,l)=>mEll(m,c,48.2+l,2.9,2.1));paint(x,mk2(m=>{mRect(m,24.5,55+lL,7,1);mRect(m,32.5,55+lR,7,1)}),'#2a4ab8','cloth',8);return}
+ if(t==='ouro'){paint(x,mk2(m=>{mRect(m,24.2,47+lL,7.6,2);mRect(m,32.2,47+lR,7.6,2)}),'#c0182a','metal',7);paint(x,mk2(m=>{mPoly(m,[[24.2,48+lL],[20.6,44.6+lL],[24.2,50.4+lL]]);mPoly(m,[[39.8,48+lR],[43.4,44.6+lR],[39.8,50.4+lR]])}),'#f8d850','metal',8);return}
+ if(t==='diamante'){knee('#e8fbff','diamond',7,(m,c,l)=>mPoly(m,[[c-2.4,49+l],[c,44.4+l],[c+2.4,49+l],[c,50.6+l]]));
+  paint(x,mk2(m=>{mPoly(m,[[24.4,52+lL],[21.4,49.6+lL],[24.4,54+lL]]);mPoly(m,[[39.6,52+lR],[42.6,49.6+lR],[39.6,54+lR]])}),'#c8f0ff','diamond',8);return}
+ if(t==='fenix'){knee('#ffd040','metal',7,(m,c,l)=>mPoly(m,[[c-2.6,49.4+l],[c-1,45+l],[c,47+l],[c+1.2,44+l],[c+2.6,49.4+l],[c,50.8+l]]));
+  paint(x,mk2(m=>{mRect(m,24.5,55+lL,7,1.2);mRect(m,32.5,55+lR,7,1.2)}),'#ffd040','metal',8);
+  paint(x,mk2(m=>{mPoly(m,[[24.4,50.6+lL],[20.4,46+lL],[22,50+lL],[20.6,51+lL],[24.4,53+lL]]);mPoly(m,[[39.6,50.6+lR],[43.6,46+lR],[42,50+lR],[43.4,51+lR],[39.6,53+lR]])}),'#ff8a2a','metal',9);return}
+ if(t==='estelar'){paint(x,mk2(m=>{mRect(m,24.2,47+lL,7.6,1.4);mRect(m,32.2,47+lR,7.6,1.4);mRect(m,24.5,55+lL,7,1);mRect(m,32.5,55+lR,7,1)}),'#e8c060','metal',7);paint(x,mk2(m=>{mEll(m,28,50.6+lL,1,1);mEll(m,36,50.6+lR,1,1)}),'#fff0a0','metal',8);return}
+ if(P){knee(P.c2,'metal',7,(m,c,l)=>mEll(m,c,48.2+l,3,2.2));paint(x,mk2(m=>{mRect(m,24.5,54.6+lL,7,1.2);mRect(m,32.5,54.6+lR,7,1.2)}),P.g,'metal',8);
+  paint(x,mk2(m=>{mEll(m,28,48.2+lL,1,1);mEll(m,36,48.2+lR,1,1)}),P.a,'metal',9)}}
+
+/* ---------------- DORSO (asas / peças das costas) ---------------- */
+function eqDorso(G,id){const{x,Y}=G,t=IT[id]&&IT[id].t;
+ if(t==='diamante'){paint(x,mk2(m=>SYM(m,[[22.6,Y(38)],[9,Y(33.6)],[4.6,Y(40.6)],[11,Y(45.4)],[22.4,Y(44.2)]])),'#5aa8e8','diamond',2);
+  paint(x,mk2(m=>SYM(m,[[25,Y(34)],[14,Y(16)],[7.4,Y(10.6)],[3.6,Y(19.6)],[8.6,Y(30)],[16,Y(38)],[24,Y(41)]])),'#7cc4f4','diamond',3);
+  paint(x,mk2(m=>{SYM(m,[[24,Y(35)],[8.4,Y(13.2)],[9.6,Y(12.8)],[24.8,Y(34.4)]]);SYM(m,[[23.4,Y(37)],[6.4,Y(22)],[7.2,Y(21.2)],[24,Y(36.4)]])}),'#ffffff','diamond',4);return}
+ if(t==='aquila'){const P=CONST.aquila,tips=[[4.6,Y(6)],[2.2,Y(15)],[2.6,Y(24)],[5.6,Y(32)],[10.6,Y(39)]],base=k=>[25-k*.4,Y(33.6+k*1.6)];
+  const wing=f=>mk2(m=>tips.forEach(([tx,ty],k)=>{const[bx,by]=base(k),T=[bx+(tx-bx)*f,by+(ty-by)*f];feather(m,bx,by,T[0],T[1],2.6);feather(m,64-bx,by,64-T[0],T[1],2.6)}));
+  paint(x,wing(1),P.c,'metal',2);paint(x,mSub(wing(1),wing(.74)),P.a,'metal',3);paint(x,wing(.4),P.g,'metal',4);return}
+ if(t==='draco'){const P=CONST.draco,W=[[25,Y(34)],[16,Y(18)],[10.4,Y(7.6)],[6.4,Y(11)],[3,Y(21)],[5.6,Y(25.6)],[8.4,Y(30.4)],[10.6,Y(28.4)],[12.6,Y(34.4)],[15.6,Y(32.4)],[18.6,Y(39)],[24,Y(41)]];
+  paint(x,mk2(m=>SYM(m,W)),'#137040','metal',2);
+  paint(x,mk2(m=>{for(const[tx,ty]of[[6.4,Y(11)],[8.4,Y(30.4)],[12.6,Y(34.4)],[3,Y(21)]]){SYM(m,[[24.4,Y(34.6)],[tx,ty],[tx+.9,ty+.5],[24.6,Y(35.6)]])}SYM(m,[[25.2,Y(33.4)],[10,Y(7)],[11.6,Y(7.8)],[25.4,Y(35.2)]])}),P.c2,'metal',3);
+  paint(x,mk2(m=>SYM(m,[[10.6,Y(7.6)],[9,Y(3.6)],[12,Y(7)]])),P.g,'metal',4);return}
+ if(t==='fenix'){const tips=[[11,Y(-1)],[4.4,Y(6)],[1.4,Y(15)],[1.6,Y(25)],[5,Y(34)],[11,Y(41)]],base=k=>[25-k*.5,Y(33+k*1.5)];
+  const wing=f=>mk2(m=>tips.forEach(([tx,ty],k)=>{const[bx,by]=base(k),T=[bx+(tx-bx)*f,by+(ty-by)*f];feather(m,bx,by,T[0],T[1],2.4);feather(m,64-bx,by,64-T[0],T[1],2.4)}));
+  paint(x,wing(1),'#c0200e','metal',2);paint(x,wing(.72),'#f06a1a','metal',3);paint(x,wing(.42),'#ffc040','metal',4);return}
+ if(t==='estelar'){const W=[[25,Y(34)],[12,Y(10)],[4,Y(4)],[2,Y(16)],[6,Y(28)],[14,Y(38)],[24,Y(41)]];
+  paint(x,mk2(m=>SYM(m,W)),'#e8c060','metal',2);paint(x,mk2(m=>SYM(m,shrinkTo(W,15,Y(24),.86))),'#2a2468','space',3)}}
+
+/* ---------------- PEITO ---------------- */
+function eqPeito(G,id){const{x,Y}=G,t=IT[id].t,tor=()=>aTor(Y),P=CONST[t];
+ if(t==='bronze'||t==='ferro'){paint(x,tor(),'#b0703a','metal',5);paint(x,mk2(m=>mRect(m,23,Y(32.5),18,1.2)),'#d89a58','metal',6);
+  paint(x,mk2(m=>mRect(m,23.4,Y(43.2),17.2,1.9)),'#5a3418','cloth',6);paint(x,mk2(m=>mRect(m,30.6,Y(42.8),2.8,2.6)),'#3a9a8a','metal',7);
+  paint(x,mk2(m=>{for(const[u,v]of[[25.4,34.6],[38.6,34.6],[25.4,40.6],[38.6,40.6]])mEll(m,u,Y(v),.7,.7)}),'#e8b878','metal',8);
+  paint(x,mk2(m=>SEL(m,20.5,Y(35),5,3.6)),'#b0703a','metal',9);paint(x,mAnd(mk2(m=>SEL(m,20.5,Y(35),5,3.6)),mk2(m=>mRect(m,0,Y(37),64,2))),'#7a4a22','metal',10);return}
+ if(t==='prata'){paint(x,tor(),'#c4cad8','metal',5);paint(x,mk2(m=>SYM(m,[[24,Y(37.6)],[31.4,Y(39.4)],[31.4,Y(40.4)],[24,Y(38.6)]])),'#8a90a0','metal',6);
+  paint(x,mk2(m=>mPoly(m,[[31.2,Y(33)],[32.8,Y(33)],[32.6,Y(42.4)],[32,Y(43.2)],[31.4,Y(42.4)]])),'#eef2fa','metal',7);
+  paint(x,mk2(m=>mRect(m,23.4,Y(43.2),17.2,1.9)),'#2a4ab8','cloth',8);paint(x,mk2(m=>mEll(m,32,Y(35.6),1.3,1.3)),'#5a9aff','crystal',9);
+  paint(x,mk2(m=>SEL(m,20.2,Y(37),5.4,2.6)),'#9aa0b0','metal',10);paint(x,mk2(m=>SEL(m,20.8,Y(34.6),5,3.3)),'#d4dae6','metal',11);return}
  if(t==='ouro'){paint(x,tor(),'#e0a820','metal',5);paint(x,mk2(m=>mRect(m,23.4,Y(43.3),17.2,1.9)),'#8a1020','cloth',6);
   paint(x,mk2(m=>{for(let k=0;k<8;k++){const a=k/8*6.283+.39,c=Math.cos(a),s=Math.sin(a);mPoly(m,[[32+c*2-s*.9,Y(38.4)+s*2+c*.9],[32+c*5.4,Y(38.4)+s*5.4],[32+c*2+s*.9,Y(38.4)+s*2-c*.9]])}}),'#fff0a0','metal',7);
   paint(x,mk2(m=>mEll(m,32,Y(38.4),2.5,2.5)),'#f8d850','metal',8);paint(x,mk2(m=>mEll(m,32,Y(38.4),1.6,1.6)),'#c0182a','metal',9);
   for(const s of[-1,1]){const cx=32+s*12.2;
    paint(x,mk2(m=>{mPoly(m,[[cx-s*2.6,Y(31.4)],[cx+s*.6,Y(26.4)],[cx+s*1.8,Y(31.4)]]);mPoly(m,[[cx+s*2.6,Y(32)],[cx+s*7.4,Y(29.2)],[cx+s*4.8,Y(33.6)]]);mPoly(m,[[cx+s*4.6,Y(34.8)],[cx+s*9,Y(35.4)],[cx+s*4.6,Y(37.4)]])}),'#f8d850','metal',10);
    paint(x,mk2(m=>mEll(m,cx,Y(34.6),6,4.4)),'#e0a820','metal',11);paint(x,mk2(m=>mEll(m,cx,Y(34.4),1.2,1.2)),'#c0182a','metal',12)}return}
- if(t==='cristal'){paint(x,tor(),'#5ab8e8','crystal',5);paint(x,mk2(m=>mPoly(m,[[32,Y(33.5)],[35.4,Y(38.6)],[32,Y(44)],[28.6,Y(38.6)]])),'#a070f0','crystal',6);paint(x,mk2(m=>mPoly(m,[[32,Y(35.6)],[33.5,Y(38.6)],[32,Y(41.4)],[30.5,Y(38.6)]])),'#e8dcff','crystal',7);
-  for(const s of[-1,1]){const cx=32+s*11.6;paint(x,mk2(m=>mPoly(m,[[cx-s*4,Y(33.8)],[cx-s*1.5,Y(30)],[cx+s*3.4,Y(30.4)],[cx+s*5.8,Y(34)],[cx+s*3,Y(38.4)],[cx-s*2.6,Y(37.8)]])),'#5ab8e8','crystal',8+s)}return}
+ if(t==='diamante'||t==='cristal'){paint(x,tor(),'#b8ecff','diamond',5);paint(x,mAnd(tor(),mk2(m=>mRect(m,0,Y(39.4),64,6))),'#86ccf2','diamond',6);aLines(G,[41.3,43.2],'#4a90c8');
+  paint(x,mk2(m=>SYM(m,[[24.6,Y(32.6)],[28.6,Y(29.6)],[30,Y(32.6)]])),'#e8f8ff','diamond',7);
+  paint(x,mk2(m=>mPoly(m,[[32,Y(33.4)],[35.4,Y(37)],[32,Y(40.8)],[28.6,Y(37)]])),'#ffffff','diamond',8);paint(x,mk2(m=>mPoly(m,[[32,Y(35.2)],[33.6,Y(37)],[32,Y(38.8)],[30.4,Y(37)]])),'#d8c8ff','crystal',9);
+  paint(x,mk2(aTas(Y)),'#86ccf2','diamond',10);paint(x,mk2(aVam(Y)),'#a8e4ff','diamond',11);
+  paint(x,mk2(m=>SYM(m,[[17.4,Y(37.8)],[15.8,Y(33.4)],[16.8,Y(28.4)],[20.6,Y(31.4)],[23.4,Y(27.2)],[25.6,Y(33)],[24.4,Y(37.6)],[21,Y(39.2)]])),'#a8e4ff','diamond',12);
+  paint(x,mk2(m=>SEL(m,21,Y(34.8),1.2,1.2)),'#ffffff','diamond',13);return}
+ if(t==='fenix'){paint(x,tor(),'#e04a1a','metal',5);paint(x,mAnd(tor(),mk2(m=>mRect(m,0,Y(40.6),64,6))),'#b0280e','metal',6);aLines(G,[42.6],'#7a1408');
+  paint(x,mk2(m=>{SYM(m,[[32,Y(36.6)],[25.6,Y(33.6)],[24,Y(35.4)],[26.8,Y(37.6)],[32,Y(39.6)]]);mPoly(m,[[31,Y(35.6)],[33,Y(35.6)],[33.4,Y(40.8)],[32,Y(42.6)],[30.6,Y(40.8)]])}),'#f8c040','metal',7);
+  paint(x,mk2(m=>mEll(m,32,Y(37.6),1.2,1.2)),'#c0182a','metal',8);
+  const tas=mk2(m=>{mPoly(m,[[28.4,Y(44.4)],[35.6,Y(44.4)],[34.8,Y(48)],[32,Y(50.8)],[29.2,Y(48)]]);SYM(m,[[22.8,Y(44.4)],[28,Y(44.4)],[27.2,Y(48)],[25,Y(50)],[24.2,Y(48)],[22.4,Y(48.6)]])});
+  paint(x,tas,'#e04a1a','metal',9);paint(x,mAnd(tas,mk2(m=>mRect(m,0,Y(44.4),64,1.2))),'#f8c040','metal',10);
+  paint(x,mk2(aVam(Y)),'#e04a1a','metal',11);paint(x,mk2(m=>SRC(m,17.2,Y(40.2),5.6,1)),'#f8c040','metal',12);
+  paint(x,mk2(m=>{SYM(m,[[17,Y(37.6)],[15.4,Y(41.6)],[19.2,Y(39.6)],[19.6,Y(42.6)],[22.4,Y(38.6)]])}),'#ff8a2a','metal',13);
+  paint(x,mk2(m=>SYM(m,[[16.4,Y(36)],[18,Y(31.2)],[25.4,Y(31.4)],[25,Y(35.6)],[21,Y(38.6)]])),'#e04a1a','metal',14);
+  paint(x,mk2(m=>SYM(m,[[18.4,Y(31.6)],[20,Y(27.6)],[22.4,Y(31.4)]])),'#ffd040','metal',15);paint(x,mk2(m=>SEL(m,21,Y(34),1.1,1.1)),'#ffd040','metal',16);return}
+ if(P){paint(x,tor(),P.c,'metal',5);paint(x,mk2(m=>SYM(m,[[24,Y(33.6)],[31.4,Y(33.6)],[31.4,Y(38.6)],[27,Y(39.6)],[24,Y(38.2)]])),P.c2,'metal',6);
+  paint(x,mAnd(tor(),mk2(m=>mRect(m,0,Y(32.5),64,1.1))),P.g,'metal',7);aLines(G,[40.9],shade(P.c,.6));
+  paint(x,mk2(m=>mRect(m,23.4,Y(43.2),17.2,1.9)),P.a,'metal',8);paint(x,mk2(m=>mRect(m,30.6,Y(42.8),2.8,2.6)),P.g,'metal',9);
+  paint(x,mk2(aTas(Y)),P.c,'metal',10);paint(x,mk2(aVam(Y)),P.c,'metal',11);paint(x,mk2(m=>SRC(m,17.2,Y(40.2),5.6,1)),P.g,'metal',12);
+  aStars(G,P);
+  if(t==='lupus'){paint(x,mk2(m=>SYM(m,[[18,Y(32.6)],[18.8,Y(28.2)],[21.8,Y(31.8)]])),P.c2,'metal',13);paint(x,mk2(m=>SEL(m,20.6,Y(34.8),5.4,3.8)),P.c,'metal',14);
+   paint(x,mk2(m=>{SYM(m,[[17.4,Y(37.2)],[18.4,Y(40.4)],[19.8,Y(37.8)]]);SYM(m,[[20.8,Y(38)],[21.8,Y(40.8)],[23,Y(38)]])}),'#f0f0f8','metal',15);paint(x,mk2(m=>SEL(m,20.6,Y(34.4),1.1,1.1)),P.g,'metal',16)}
+  else if(t==='aquila'){paint(x,mk2(m=>SYM(m,[[17.6,Y(35.6)],[22.8,Y(35.6)],[21,Y(39.2)],[16.4,Y(41.6)]])),P.a,'metal',13);paint(x,mk2(m=>SYM(m,[[17,Y(33)],[24.4,Y(31.8)],[23.4,Y(36.2)],[16.2,Y(38.8)]])),P.c,'metal',14);
+   paint(x,mk2(m=>SYM(m,[[18,Y(33.2)],[24,Y(32.2)],[23.8,Y(33.2)],[17.6,Y(34.2)]])),P.g,'metal',15)}
+  else if(t==='ursa'){paint(x,mk2(m=>SEL(m,20.2,Y(35.2),6.6,4.8)),P.c,'metal',13);paint(x,mk2(m=>SEL(m,20.2,Y(35.2),4.6,3.2)),P.g,'metal',14);paint(x,mk2(m=>SEL(m,20.2,Y(35.2),3.6,2.4)),P.c2,'metal',15);
+   paint(x,mk2(m=>{for(const u of[16.2,18.6,21])SYM(m,[[u,Y(39.2)],[u+.8,Y(41.8)],[u+1.6,Y(39.4)]])}),'#f0e8d0','metal',16)}
+  else if(t==='serpens'){paint(x,mk2(m=>SEL(m,20.6,Y(35),5.4,3.8)),P.c,'metal',13);paint(x,mk2(m=>SEL(m,20.6,Y(35),3.8,2.6)),P.a,'metal',14);paint(x,mk2(m=>SEL(m,20.6,Y(35),2.4,1.6)),P.c2,'metal',15);
+   paint(x,mk2(m=>SYM(m,[[24,Y(31)],[26.6,Y(29.4)],[27.4,Y(31.6)],[25.6,Y(33)]])),P.a,'metal',16)}
+  else{paint(x,mk2(m=>SEL(m,20.4,Y(37),5.4,2.6)),'#137040','metal',13);paint(x,mk2(m=>SEL(m,20.8,Y(34.8),5.2,3)),P.c,'metal',14);
+   paint(x,mk2(m=>SYM(m,[[17.6,Y(33)],[15.6,Y(27.8)],[21.6,Y(32)]])),P.g,'metal',15);paint(x,mk2(m=>SEL(m,20.8,Y(34.6),1.1,1.1)),P.a,'metal',16)}return}
  paint(x,tor(),'#26205a','space',5);
  paint(x,mk2(m=>{mRect(m,23,Y(32.5),18,1.3);mRect(m,23.4,Y(43.6),17.2,1.4);mRect(m,31.4,Y(33.4),1.2,10.4)}),'#e8c060','metal',6);
- for(const s of[-1,1]){const cx=32+s*11.8;paint(x,mk2(m=>mEll(m,cx,Y(34.8),5.6,4)),'#e8c060','metal',7);paint(x,mk2(m=>mEll(m,cx,Y(34.8),4.5,3)),'#26205a','space',8+s)}}
+ paint(x,mk2(aTas(Y)),'#26205a','space',7);paint(x,mAnd(mk2(aTas(Y)),mk2(m=>mRect(m,0,Y(44.4),64,1))),'#e8c060','metal',8);
+ paint(x,mk2(m=>SYM(m,[[16.6,Y(37.6)],[15.6,Y(32)],[19.6,Y(29.6)],[25,Y(31)],[24.8,Y(36.4)],[20.4,Y(39)]])),'#e8c060','metal',9);
+ paint(x,mk2(m=>SYM(m,[[17.6,Y(36.8)],[16.8,Y(32.4)],[19.8,Y(30.6)],[24,Y(31.8)],[23.8,Y(35.8)],[20.4,Y(38)]])),'#26205a','space',10)}
+
+/* ---------------- CABEÇA ---------------- */
+function eqCabeca(G,id){const{x,Y,back}=G,t=IT[id].t,T=TCOL[t]||TCOL.bronze,P=CONST[t];
+ if(t==='bronze'||t==='ferro'){const hm=aDome(G);if(!back)mRect(hm,31,Y(19),2.5,6);paint(x,hm,'#b0703a','metal',11);paint(x,mAnd(aDome(G),mk2(m=>mRect(m,0,Y(16.4),64,1.6))),'#7a4a22','metal',12);
+  paint(x,mk2(m=>{mRect(m,31,Y(5.6),2,4.4);mEll(m,32,Y(6),1.4,1.2)}),'#d89a58','metal',13);return}
+ if(t==='prata'){const hm=aDome(G);if(!back)SYM(hm,[[21,Y(19)],[25.6,Y(20)],[25.6,Y(25.6)],[23.4,Y(28)],[21,Y(26)]]);paint(x,hm,'#c4cad8','metal',11);
+  paint(x,mk2(m=>mRect(m,31,Y(7),2,11)),'#eef2fa','metal',12);paint(x,mk2(m=>mPoly(m,[[30,Y(8)],[34,Y(8)],[40,Y(3)],[44.4,Y(7)],[37,Y(10)]])),'#2a4ab8','cloth',13);return}
+ if(t==='ouro'){paint(x,aDome(G),'#e0a820','metal',11);paint(x,mk2(m=>{mRect(m,19.8,Y(9.2),24.4,2.4);mPoly(m,[[20.5,Y(9.4)],[22.7,Y(2.4)],[25,Y(9.4)]]);mPoly(m,[[29.2,Y(9.4)],[32,Y(.2)],[34.8,Y(9.4)]]);mPoly(m,[[39,Y(9.4)],[41.3,Y(2.4)],[43.5,Y(9.4)]])}),'#f8d850','metal',12);
+  paint(x,mk2(m=>mEll(m,32,Y(7.4),1.4,1.4)),'#c0182a','metal',13);paint(x,mk2(m=>mPoly(m,[[36,Y(6)],[44,Y(1.2)],[51.5,Y(5)],[43,Y(8.6)]])),'#c81e2a','cloth',14);return}
+ /* superiores: tiaras que deixam o rosto e o cabelo à mostra */
+ if(t==='diamante'||t==='cristal'){paint(x,mk2(aEar(Y)),'#a8e4ff','diamond',11);paint(x,mk2(aBand(Y)),'#a8e4ff','diamond',12);
+  paint(x,mk2(m=>SYM(m,[[24.6,Y(13.6)],[17,Y(2.6)],[22.4,Y(6)],[27.4,Y(12.6)]])),'#c8f0ff','diamond',13);
+  paint(x,mk2(m=>SYM(m,[[28,Y(12.6)],[27.4,Y(6.6)],[30.2,Y(12.2)]])),'#a8e4ff','diamond',14);
+  paint(x,mk2(m=>mPoly(m,[[32,Y(-2)],[35,Y(7.6)],[33.4,Y(12.6)],[30.6,Y(12.6)],[29,Y(7.6)]])),'#e8fbff','diamond',15);paint(x,mk2(m=>mEll(m,32,Y(13.4),1.3,1.1)),'#ffffff','diamond',16);return}
+ if(t==='fenix'){paint(x,mk2(m=>SYM(m,[[19.6,Y(16.6)],[23.2,Y(17)],[22.6,Y(24)],[18.4,Y(27.6)],[19.4,Y(22)]])),'#e04a1a','metal',11);
+  const fl=[[27.4,Y(12.6)],[24,Y(4)],[22.4,Y(-.6)],[26.4,Y(4.4)],[30,Y(12)]],fc=[[30.2,Y(12.2)],[31.2,Y(3)],[32,Y(-3)],[32.8,Y(3)],[33.8,Y(12.2)]];
+  paint(x,mk2(m=>{SYM(m,fl);mPoly(m,fc)}),'#e04a1a','metal',12);paint(x,mk2(m=>{SYM(m,shrinkTo(fl,27,Y(12),.6));mPoly(m,shrinkTo(fc,32,Y(12),.6))}),'#ffc040','metal',13);
+  paint(x,mk2(aBand(Y)),'#f8c040','metal',14);paint(x,mk2(m=>mPoly(m,[[29.6,Y(12.6)],[34.4,Y(12.6)],[33.4,Y(15.4)],[32,Y(17.6)],[30.6,Y(15.4)]])),'#f8c040','metal',15);paint(x,mk2(m=>mEll(m,32,Y(13.8),1,.9)),'#c0182a','metal',16);return}
+ if(t==='estelar'){paint(x,mk2(aEar(Y)),'#26205a','space',11);paint(x,mk2(aBand(Y)),'#e8c060','metal',12);
+  paint(x,mk2(m=>SYM(m,[[23.4,Y(13.6)],[19.4,Y(6)],[20.2,Y(.6)],[22.4,Y(7)],[27,Y(12.6)]])),'#e8c060','metal',13);
+  paint(x,mk2(m=>mPoly(m,[[32,Y(3.6)],[33.1,Y(6.5)],[35.6,Y(7.4)],[33.1,Y(8.3)],[32,Y(11.2)],[30.9,Y(8.3)],[28.4,Y(7.4)],[30.9,Y(6.5)]])),'#fff0a0','metal',14);
+  paint(x,mk2(m=>mEll(m,32,Y(13.2),1.2,1)),'#a080e0','crystal',15);return}
+ if(P){paint(x,mk2(aEar(Y)),P.c,'metal',11);
+  if(t==='serpens')paint(x,mk2(m=>SYM(m,[[22,Y(8.6)],[13.6,Y(11.6)],[11.4,Y(20)],[13.4,Y(28)],[17.6,Y(31)],[21.2,Y(27.6)],[20.4,Y(16)]])),P.c,'metal',12);
+  if(t==='serpens')paint(x,mk2(m=>SYM(m,[[19.8,Y(11.6)],[15.4,Y(14)],[13.8,Y(20.4)],[15.4,Y(26.6)],[18.4,Y(28.4)],[19.2,Y(20)]])),P.a,'metal',13);
+  if(t==='lupus'){paint(x,mk2(m=>SYM(m,[[23.8,Y(13)],[24.6,Y(3.4)],[29.6,Y(11)]])),P.c,'metal',12);paint(x,mk2(m=>SYM(m,[[25.4,Y(11.4)],[25.6,Y(6)],[28,Y(10.6)]])),P.a,'metal',13)}
+  if(t==='ursa')paint(x,mk2(m=>{SEL(m,23.8,Y(9.2),3.9,3.7)}),P.c,'metal',12),paint(x,mk2(m=>SEL(m,23.8,Y(9.6),2.2,2.1)),P.a,'cloth',13);
+  if(t==='aquila'){const fw=f=>mk2(m=>{for(const[tx,ty]of[[13.6,Y(3)],[11.6,Y(8.6)],[12.6,Y(14)]]){const T=[22+(tx-22)*f,Y(15)+(ty-Y(15))*f];feather(m,22,Y(15),T[0],T[1],1.6);feather(m,42,Y(15),64-T[0],T[1],1.6)}});paint(x,fw(1),P.c,'metal',12);paint(x,mSub(fw(1),fw(.72)),P.a,'metal',13)}
+  if(t==='draco'){paint(x,mk2(m=>SYM(m,[[19.6,Y(15)],[14.6,Y(10.6)],[19.2,Y(19.6)]])),P.c2,'metal',12);paint(x,mk2(m=>SYM(m,[[25,Y(13.4)],[21.6,Y(6.4)],[18,Y(-1.8)],[23.4,Y(4.6)],[27.6,Y(12.2)]])),'#f0e0b0','metal',13)}
+  paint(x,mk2(aBand(Y)),t==='ursa'?P.c:P.g,'metal',14);
+  const em={lupus:[[29.6,Y(12.8)],[34.4,Y(12.8)],[32,Y(18.2)]],aquila:[[29.4,Y(12.6)],[34.6,Y(12.6)],[33.6,Y(16)],[32,Y(18.6)],[30.4,Y(16)]],ursa:[[27.4,Y(12.4)],[36.6,Y(12.4)],[35,Y(16.2)],[29,Y(16.2)]],serpens:[[29.6,Y(11.6)],[34.4,Y(11.6)],[35,Y(14)],[32,Y(17.6)],[29,Y(14)]],draco:[[28.6,Y(12)],[35.4,Y(12)],[34.4,Y(15)],[32,Y(18)],[29.6,Y(15)]]}[t];
+  paint(x,mk2(m=>mPoly(m,em)),t==='ursa'?P.g:t==='aquila'?P.g:P.c2,'metal',15);
+  if(t==='serpens'||t==='draco'){const j=Math.round(Y(13.6)*Q),R=[230,40,40];for(const i of[61,66]){G.ph(i,j,R);G.ph(i+1,j,R)}}
+  else paint(x,mk2(m=>mEll(m,32,Y(14),1,.9)),t==='lupus'?'#a8e8ff':P.a,'metal',16);return}
+ paint(x,aDome(G),T[0],T[1],11)}
+
+function eqCapa(G,id){const{x,Y}=G,cape=()=>mk2(m=>mPoly(m,[[23,Y(32)],[41,Y(32)],[48,59],[16,59]]));
+ if(id==='capa')paint(x,cape(),'#b01c2c','cloth',3);
+ else if(id==='capa_sol'){paint(x,cape(),'#8a1020','cloth',3);paint(x,mAnd(cape(),mk2(m=>{mRect(m,0,56.6,64,3);mPoly(m,[[16,59],[18.2,59],[24.8,Y(32)],[23,Y(32)]]);mPoly(m,[[45.8,59],[48,59],[41,Y(32)],[39.2,Y(32)]])})),'#e0a820','metal',4)}
+ else{paint(x,cape(),'#1e1a50','space',3);paint(x,mAnd(cape(),mk2(m=>mRect(m,0,57,64,2))),'#e8c060','metal',4)}}
 function eqMaos(G,id){const{x,Y}=G,m=()=>mk2(q=>{mRect(q,17.3,Y(43.3),5.4,2.1);mRect(q,41.3,Y(43.3),5.4,2.1)});
  if(id==='bracelete_cin'){paint(x,m(),'#2ab870','metal',3);paint(x,mk2(q=>{mEll(q,20,Y(44.4),.9,.9);mEll(q,44,Y(44.4),.9,.9)}),'#40a0ff','metal',4)}
  else{paint(x,m(),'#c8783a','metal',3);for(const cx of[17.3,41.3])for(let i=1;i<11;i+=2)G.ph(Math.round(cx*Q)+i,Math.round(Y(44.3)*Q),[110,56,24])}}
@@ -734,20 +893,10 @@ function eqColar(G,id){const{x,Y}=G,C=id==='atomo'?[200,210,230]:[232,192,64];
  else if(id==='bussola'){paint(x,mk2(m=>mEll(m,32,cy+.6,2.4,2.4)),'#c8ccd8','metal',3);paint(x,mk2(m=>mEll(m,32,cy+.6,1.6,1.6)),'#f4f0e0','cloth',4);const yy=Math.round((cy+.6)*Q);G.ph(64,yy-3,[220,40,40]);G.ph(64,yy-2,[220,40,40]);G.ph(64,yy-1,[220,40,40]);G.ph(64,yy+1,[60,60,80]);G.ph(64,yy+2,[60,60,80])}
  else if(id==='atomo')paint(x,mk2(m=>mEll(m,32,cy+.4,1.9,1.9)),'#40a0ff','metal',3);
  else paint(x,mk2(m=>mPoly(m,[[32,cy-1.8],[34,cy+1],[32,cy+3],[30,cy+1]])),'#f05a1a','crystal',3)}
-function eqCabeca(G,id){const{x,Y,back}=G,t=IT[id].t,T=TCOL[t];
- const hm=mk2(m=>{mEll(m,32,Y(17),12.5,10);mRect(m,19.5,Y(17),25,8)});if(!back){const fo=mk2(m=>mRect(m,25,Y(20),14,10));for(let i=0;i<hm.length;i++)if(fo[i])hm[i]=0;if(t==='ferro')mRect(hm,31,Y(19),2.5,7)}
- paint(x,hm,t==='ferro'?'#9aa4b4':T[0],T[1],11);
- if(t==='ferro'){paint(x,mk2(m=>mPoly(m,[[30,Y(8)],[34,Y(8)],[41,Y(1)],[48,Y(6)],[39,Y(10)]])),'#d02a2a','cloth',12);return}
- if(t==='ouro'){paint(x,mk2(m=>{mRect(m,19.8,Y(9.2),24.4,2.4);mPoly(m,[[20.5,Y(9.4)],[22.7,Y(2.4)],[25,Y(9.4)]]);mPoly(m,[[29.2,Y(9.4)],[32,Y(.2)],[34.8,Y(9.4)]]);mPoly(m,[[39,Y(9.4)],[41.3,Y(2.4)],[43.5,Y(9.4)]])}),'#f8d850','metal',12);
-  paint(x,mk2(m=>mEll(m,32,Y(7.4),1.4,1.4)),'#c0182a','metal',13);paint(x,mk2(m=>mPoly(m,[[36,Y(6)],[44,Y(1.2)],[51.5,Y(5)],[43,Y(8.6)]])),'#c81e2a','cloth',14);return}
- if(t==='cristal'){paint(x,mk2(m=>mPoly(m,[[32,Y(-2.4)],[36.6,Y(5.2)],[32,Y(10)],[27.4,Y(5.2)]])),'#a070f0','crystal',12);paint(x,mk2(m=>{mPoly(m,[[19.5,Y(15)],[15.2,Y(6.6)],[22.6,Y(11)]]);mPoly(m,[[44.5,Y(15)],[48.8,Y(6.6)],[41.4,Y(11)]])}),'#5ab8e8','crystal',13);return}
- paint(x,mk2(m=>{mRect(m,19.5,Y(22.6),5.6,1.4);mRect(m,38.9,Y(22.6),5.6,1.4);mRect(m,20,Y(10.4),24,1.4)}),'#e8c060','metal',12);
- paint(x,mk2(m=>{mPoly(m,[[19.6,Y(17)],[12.6,Y(8.4)],[21,Y(12)]]);mPoly(m,[[44.4,Y(17)],[51.4,Y(8.4)],[43,Y(12)]])}),'#e8c060','metal',13);
- paint(x,mk2(m=>mPoly(m,[[32,Y(4)],[33.1,Y(6.5)],[35.6,Y(7.4)],[33.1,Y(8.3)],[32,Y(10.8)],[30.9,Y(8.3)],[28.4,Y(7.4)],[30.9,Y(6.5)]])),'#fff0a0','metal',14)}
+
 
 /* ---------------- efeitos animados (desenhados por cima, a cada quadro) ---------------- */
 function setInfo(eq){const c={};for(const s of['cabeca','peito','botas']){const id=eq[s];if(id&&IT[id]&&IT[id].t)c[IT[id].t]=(c[IT[id].t]||0)+1}let t=null,n=0;for(const k in c)if(c[k]>n){n=c[k];t=k}return{t,n}}
-function setTier(eq){const s=setInfo(eq);return s.n===3&&['ouro','cristal','estelar'].includes(s.t)?s.t:null}
 function fxLine(F,u0,v0,u1,v1,col,al=1,sz=1){const{x,U,V,P}=F,n=Math.ceil(Math.hypot(u1-u0,v1-v0)*2);x.globalAlpha=al;x.fillStyle=col;for(let i=0;i<=n;i++){const t=i/Math.max(1,n);x.fillRect(U(u0+(u1-u0)*t),V(v0+(v1-v0)*t),P*sz,P*sz)}x.globalAlpha=1}
 function fxDot(F,u,v,col,sz=1,al=1){const{x,U,V,P}=F;x.globalAlpha=al;x.fillStyle=col;x.fillRect(U(u),V(v),P*sz,P*sz);x.globalAlpha=1}
 function fxStar(F,u,v,col,al=1){const{x,U,V,P}=F,h=P/2;x.globalAlpha=al;x.fillStyle=col;x.fillRect(U(u),V(v),P,P);x.fillRect(U(u)-P,V(v)+h/2,P*3,h);x.fillRect(U(u)+h/2,V(v)-P,h,P*3);x.globalAlpha=1}
@@ -755,16 +904,29 @@ function fxRing(F,front){const{t}=F;for(let a=0;a<6.283;a+=.13){const s=Math.sin
  const m=t/900,s=Math.sin(m);if((s>=0)===front){fxDot(F,32+Math.cos(m)*15.5-1,13.6+s*3.6-1,'#c8e0ff',2);fxDot(F,32+Math.cos(m)*15.5-1,13.6+s*3.6-1,'#ffffff',1)}}
 function fxAtom(F,front){const{t}=F;for(let k=0;k<3;k++){const ph=k*1.047,th=t/420+k*2.09,lx=Math.cos(th)*17,ly=Math.sin(th)*5,u=32+lx*Math.cos(ph)-ly*Math.sin(ph),v=37+lx*Math.sin(ph)+ly*Math.cos(ph);if((Math.sin(th)>=0)!==front)continue;
   for(let q=1;q<4;q++){const t2=th-q*.12,lx2=Math.cos(t2)*17,ly2=Math.sin(t2)*5;fxDot(F,32+lx2*Math.cos(ph)-ly2*Math.sin(ph),37+lx2*Math.sin(ph)+ly2*Math.cos(ph),'#40a0ff',1,.5-q*.12)}fxDot(F,u-.5,v-.5,'#a0e0ff',1.6);fxDot(F,u-.2,v-.2,'#ffffff',.8)}}
-function fxBack(F){const{x,t,U,V,P,eq}=F,st=setTier(eq);
+const SHINY=t=>!!t&&!['couro','bronze','prata','ferro'].includes(t);
+function setTier(eq){const s=setInfo(eq);return s.n===3&&SHINY(s.t)?s.t:null}
+function fxBack(F){const{x,t,U,V,P,eq}=F,st=setTier(eq),pt=IT[eq.peito]&&IT[eq.peito].t;
  if(st==='ouro'){x.globalAlpha=.16+.06*Math.sin(t/300);x.fillStyle='#ffe070';for(let k=0;k<12;k++){const a=k/12*6.283+t/4000;for(let r=13;r<23;r+=1.1)x.fillRect(U(32+Math.cos(a)*r),V(36+Math.sin(a)*r*1.08),P,P)}x.globalAlpha=1}
- else if(st==='cristal'){for(let k=0;k<12;k++){const a=k/12*6.283+t/1800,yy=58-((t/45+k*11)%36);fxDot(F,32+Math.cos(a)*15,yy,k%2?'#c8f4ff':'#b890ff',1,.75)}}
+ else if(st==='diamante'){const C=['#5af0b0','#5ad8f0','#b890ff'];for(let k=0;k<3;k++){x.fillStyle=C[k];for(let u=4;u<60;u+=.9){const v=9+k*4.6+Math.sin(u*.19+t/650+k*1.7)*3.2,al=.1+.12*Math.max(0,Math.sin(u*.11-t/900+k));x.globalAlpha=al;x.fillRect(U(u),V(v),P,P*5)}}x.globalAlpha=1;
+  for(let k=0;k<12;k++){const u=6+((k*37)%52),v=((t/38+k*23)%60)-2,tw=Math.sin(t/160+k*1.9);if(tw>.7)fxStar(F,u,v,'#ffffff',.9);else fxDot(F,u,v,k%2?'#e8fbff':'#c8b8ff',1,.7)}}
+ else if(st==='fenix'){x.globalAlpha=.13+.06*Math.sin(t/180);x.fillStyle='#ff7020';x.beginPath();x.ellipse(U(32),V(30),24*P,30*P,0,0,6.283);x.fill();x.globalAlpha=1;
+  for(let k=0;k<16;k++){const p=((t/24+k*41)%100)/100,u=8+((k*29)%48)+Math.sin(t/200+k)*2,v=58-p*60;fxDot(F,u,v,p<.35?'#fff0a0':p<.7?'#ffa030':'#e03a10',1,1-p*.9)}}
+ else if(st&&CONST[st]){const C=CONST[st],M=([u,v])=>[32+(u-32)*3.3,29+(v-37.6)*4.6],pul=.22+.1*Math.sin(t/500);
+  for(const seg of C.st)for(let k=0;k+1<seg.length;k++){const[a,b]=[M(seg[k]),M(seg[k+1])];fxLine(F,a[0],a[1],b[0],b[1],C.c2,pul)}
+  for(const seg of C.st)seg.forEach((p,k)=>{const[u,v]=M(p),tw=Math.sin(t/260+k*1.3+u);if(tw>.3)fxStar(F,u,v,'#ffffff',.5+tw*.5);else fxDot(F,u-.3,v-.3,'#ffffff',1.6,.8)})}
  else if(st==='estelar'){x.globalAlpha=.14;x.fillStyle='#6a48d0';x.beginPath();x.ellipse(U(32),V(36),18*P,25*P,0,0,6.283);x.fill();x.globalAlpha=1;for(let k=0;k<16;k++){const a=k/16*6.283+t/6000,tw=Math.sin(t/220+k*1.7);if(tw<-.1)continue;const u=32+Math.cos(a)*18,v=36+Math.sin(a)*24;if(tw>.75)fxStar(F,u,v,'#ffffff',.9);else fxDot(F,u,v,k%3?'#ffffff':'#fff0a0',1,.8)}}
+ /* chamas nas pontas das asas da Fênix */
+ if(pt==='fenix')for(const[u0,v0]of[[11,-1],[4.4,6],[1.4,15],[1.6,25],[5,34]])for(const s of[0,1]){const u=s?64-u0:u0;for(let q=0;q<3;q++){const p=((t/16+q*33+u0*7)%100)/100;fxDot(F,u+(Math.sin(t/90+q+u0)*1.2),v0-1-p*5,p<.4?'#ffe070':'#ff6a1a',1,.9*(1-p))}}
+ if(pt==='estelar')[[6,8],[4,18],[10,26],[16,20],[11,14]].forEach(([u,v],k)=>{const tw=Math.sin(t/240+k*2.2);for(const uu of[u,64-u])if(tw>.55)fxStar(F,uu,v,'#ffffff',tw)});
+ if(pt==='diamante'){const p=(t%2600)/2600;if(p<.25)fxStar(F,p<.125?8:56,14+p*40,'#ffffff',1-p*4)}
  if(eq.anel==='anel_vacuo'){x.globalAlpha=.32;x.fillStyle='#1a0a2a';x.beginPath();x.ellipse(U(32),V(57),15*P,4.5*P,0,0,6.283);x.fill();x.globalAlpha=1;for(let k=0;k<5;k++)fxDot(F,22+k*5,56-((t/90+k*5)%14),'#3a2050',1,.6)}
  if(eq.cabeca==='elmo_estelar'&&!F.back)fxRing(F,false);
  if(eq.colar==='atomo')fxAtom(F,false)}
+const GLINT={ouro:'#fff8c0',diamante:'#ffffff',fenix:'#fff0a0',estelar:'#e0d0ff'};
 function fxFront(F){const{x,t,eq,walk,back}=F;
  const pt=IT[eq.peito]&&IT[eq.peito].t;
- if(!back&&(pt==='ouro'||pt==='cristal'||pt==='estelar'))[[21.5,34],[41.5,36],[29,41.5],[36,33.5]].forEach(([u,v],k)=>{const p=(t+k*700)%2800;if(p<380)fxStar(F,u,v,pt==='ouro'?'#fff8c0':pt==='cristal'?'#ffffff':'#e0d0ff',1-p/380)});
+ if(!back&&SHINY(pt))[[21.5,34],[41.5,36],[29,41.5],[36,33.5]].forEach(([u,v],k)=>{const p=(t+k*700)%2800;if(p<380)fxStar(F,u,v,GLINT[pt]||'#ffffff',1-p/380)});
  const w=eq.arma;
  if(w){const tip=(SWD[w]||SWD.espada).top;
   if(w==='florete'){if(walk){fxLine(F,45.4,4,45.4,42,'#e8f4ff',.32);fxLine(F,43.6,6,43.6,42,'#a8d8ff',.16)}const p=t%2400;if(p<500)fxDot(F,47,42-(42-tip)*p/500,'#ffffff',1)}
@@ -792,7 +954,7 @@ function drawChar(x,ch,eq,fr,px,py,s=1,back=false){eq=normEq(eq);
  fxBack(F);
  let img=sprite(ch,eq,fr,back);
  const pt=IT[eq.peito]&&IT[eq.peito].t;
- if(!back&&(pt==='ouro'||pt==='cristal'||pt==='estelar')){const ph=(t+Math.abs(px*7|0))%3400;if(ph<520){glx.globalCompositeOperation='source-over';glx.clearRect(0,0,MS,MS);glx.drawImage(img,0,0);glx.globalCompositeOperation='source-atop';glx.fillStyle=pt==='estelar'?'rgba(210,190,255,.5)':'rgba(255,255,235,.6)';const u=-30+ph/520*190,y0=(29+b)*Q,y1=(48+b)*Q;glx.beginPath();glx.moveTo(u,y0);glx.lineTo(u+9,y0);glx.lineTo(u-15,y1);glx.lineTo(u-24,y1);glx.closePath();glx.fill();glx.globalCompositeOperation='source-over';img=GLC}}
+ if(!back&&SHINY(pt)){const ph=(t+Math.abs(px*7|0))%3400;if(ph<520){glx.globalCompositeOperation='source-over';glx.clearRect(0,0,MS,MS);glx.drawImage(img,0,0);glx.globalCompositeOperation='source-atop';glx.fillStyle=pt==='estelar'?'rgba(210,190,255,.5)':'rgba(255,255,235,.6)';const u=-30+ph/520*190,y0=(29+b)*Q,y1=(48+b)*Q;glx.beginPath();glx.moveTo(u,y0);glx.lineTo(u+9,y0);glx.lineTo(u-15,y1);glx.lineTo(u-24,y1);glx.closePath();glx.fill();glx.globalCompositeOperation='source-over';img=GLC}}
  const sc=x.getTransform?Math.abs(x.getTransform().a)||1:1;if(32*s*sc<MS*.98){x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high'}
  x.drawImage(img,Math.round(px-16*s),Math.round(py-31*s),32*s,32*s);x.imageSmoothingEnabled=false;
  fxFront(F)}
@@ -2096,10 +2258,10 @@ $('qx').onclick=closeQuiz;
 function afterProgress(){const before=tribeData?levelsOf(tribeData)[TURMAS.findIndex(t=>t.id===me.turma)]:null;refreshTribes().then(lv=>{const i=TURMAS.findIndex(t=>t.id===me.turma);if(before!=null&&lv[i]>before)toast(`SUA TRIBO EVOLUIU: ${NIVEL_NOME[lv[i]]}!`,3500)})}
 
 /* ============================ ESTADO DO EQUIPAMENTO ============================ */
-function estelarOK(){const e=me&&me.equip;return!!(me&&me.fases>=24&&e&&e.g&&ITL.every(i=>i.f==='x'||e.g.includes(i.id)))}
-const ownedIds=()=>me?ITL.filter(i=>i.f==='x'?estelarOK():i.f<=me.fases).map(i=>i.id):[];
+function estelarOK(){const e=me&&me.equip;return!!(me&&me.fases>=24&&e&&e.g&&ITL.every(i=>!isNum(i.f)||e.g.includes(i.id)))}
+const ownedIds=()=>me?ITL.filter(i=>isAdm()||(i.f==='x'?estelarOK():i.f==='t'?(me.pontos||0)>=i.pts&&visIt(i):i.f<=me.fases)).map(i=>i.id):[];
 const owned=ownedIds;
-function eqState(){let e=me.equip;if(!e||e.v!==2){const ow=ITL.filter(i=>i.f!=='x'&&i.f<=me.fases).map(i=>i.id),old=normEq(e||{});const s={};for(const k in old)if(ow.includes(old[k]))s[k]=old[k];e={v:2,s:Object.keys(s).length?s:bestFor(ow),g:[],n:ow.slice()};me.equip=e}
+function eqState(){let e=me.equip;if(!e||e.v!==2){const ow=ITL.filter(i=>isNum(i.f)&&i.f<=me.fases).map(i=>i.id),old=normEq(e||{});const s={};for(const k in old)if(ow.includes(old[k]))s[k]=old[k];e={v:2,s:Object.keys(s).length?s:bestFor(ow),g:[],n:ow.slice()};me.equip=e}
  if(!e.s)e.s={};if(!e.g)e.g=[];if(!e.n)e.n=[];return e}
 const eqNow=()=>{if(!me)return{};const s=eqState().s,ow=ownedIds(),o={};for(const k of SLOTS)if(s[k]&&ow.includes(s[k]))o[k]=s[k];return o};
 let eqT=0;function saveEq(){clearTimeout(eqT);eqT=setTimeout(()=>{if(me)API.saveEquip(me.equip).catch(e=>toast(errPT(e)))},450)}
@@ -2118,7 +2280,7 @@ function iconCv(id,locked,sz=44){const c2=mk(48,48);c2.getContext('2d').drawImag
 function heroVisible(){return screen==='game'&&tab==='heroi'&&!!me}
 function heroSync(){const on=heroVisible(),h=$('hero');if(on!==h.classList.contains('on')){h.classList.toggle('on',on);if(on)renderHero()}if(on)placeHeroPanel()}
 function placeHeroPanel(){const r=scr.getBoundingClientRect(),h=$('hero'),y0=r.top+r.height*26.5/VH,z=Math.round(Math.max(1,Math.min(1.9,(r.bottom-y0)/340,r.width/760))*20)/20,st=h.style,L=Math.round(r.left/z)+'px',T=Math.round(y0/z)+'px',Wd=Math.round(r.width/z)+'px',Hg=Math.round((r.bottom-y0)/z)+'px';if(st.zoom!==String(z))st.zoom=z;if(st.left!==L)st.left=L;if(st.top!==T)st.top=T;if(st.width!==Wd)st.width=Wd;if(st.height!==Hg)st.height=Hg}
-function renderHero(){if(!me)return;eqState();const ow=ownedIds();$('hCol').textContent=`COLEÇÃO ${ow.length}/${ITL.length}`;
+function renderHero(){if(!me)return;eqState();const ow=ownedIds();$('hCol').textContent=`COLEÇÃO ${ow.length}/${ITL.filter(visIt).length}`;
  document.querySelectorAll('.htab').forEach(b=>b.classList.toggle('on',b.dataset.t===HV.tab));$('hInv').classList.toggle('on',HV.tab==='inv');$('hBook').classList.toggle('on',HV.tab==='book');
  const tm=TURMA(me.turma);$('hBan').dataset.ban=TURMAS.findIndex(t=>t.id===me.turma);$('hName').textContent=me.nick.toUpperCase();$('hTribe').textContent=`${tm.nome} · ${tm.tribo}`;
  if(HV.tab==='inv')renderInv();else renderBook()}
@@ -2133,7 +2295,7 @@ function renderInv(){const e=eqState(),ow=ownedIds(),cur=eqNow();
  if(HV.filt.startsWith('slot:')){const c=el('button','chip on',SLOTN[HV.filt.slice(5)]+' ✕');c.onclick=()=>{HV.filt='all';renderInv()};fl.appendChild(c)}
  const list=ow.filter(id=>{const sl=IT[id].slot;if(HV.filt==='all')return true;if(HV.filt.startsWith('slot:'))return sl===HV.filt.slice(5);return FGROUP[HV.filt].includes(sl)}).sort((a,b)=>IT[b].r-IT[a].r||SLOTS.indexOf(IT[a].slot)-SLOTS.indexOf(IT[b].slot));
  const gr=$('hGrid');gr.innerHTML='';
- if(!list.length)gr.appendChild(el('div','gempty',ow.length?'NENHUM ITEM DESTE TIPO AINDA.':'SUA BOLSA ESTÁ VAZIA. CONCLUA TÓPICOS NA JORNADA PARA GANHAR ITENS!'));
+ if(!list.length)gr.appendChild(el('div','gempty',ow.length?'NENHUM ITEM DESTE TIPO AINDA.':CONFIG.JORNADA===false?`SUA BOLSA ESTÁ VAZIA. JUNTE ${ARM_PTS.tribo} PONTOS NA TORRE ENEM PARA GANHAR A ARMADURA DA SUA TRIBO!`:'SUA BOLSA ESTÁ VAZIA. CONCLUA TÓPICOS NA JORNADA PARA GANHAR ITENS!'));
  for(const id of list){const it=IT[id],c=el('button','cell r'+it.r+(HV.sel===id?' sel':''));c.style.borderColor=RAR[it.r].c;c.appendChild(iconCv(id,false,42));
   if(!e.n.includes(id))c.appendChild(el('i','new','NOVO'));if(cur[it.slot]===id)c.appendChild(el('i','eqd','✔'));
   c.onclick=()=>{HV.sel=HV.sel===id?null:id;renderInv()};gr.appendChild(c)}
@@ -2155,16 +2317,16 @@ function drawHeroPreview(){const x=hpx;x.setTransform(1,0,0,1,0,0);x.clearRect(0
  if(HV.tryId){x.font='14px "Press Start 2P",monospace';x.textAlign='center';x.fillStyle='#1a1020';x.fillText('PROVANDO',162,26);x.fillStyle='#f8d870';x.fillText('PROVANDO',160,24)}}
 /* ---------------- Livro de Itens ---------------- */
 function shuf(arr,seed){const r=rng(seed),a=arr.slice();for(let i=a.length-1;i>0;i--){const j=r()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a}
-function renderBook(){const e=eqState(),ow=ownedIds(),gold=e.g.filter(id=>IT[id]&&IT[id].f!=='x').length;
+function renderBook(){const e=eqState(),ow=ownedIds(),gold=e.g.filter(id=>IT[id]&&isNum(IT[id].f)).length;
  $('bInfo').innerHTML=`PÁGINAS DOURADAS <b>${gold}/${BOOKN}</b>`+(estelarOK()?' · <span class="mit">ARMADURA ESTELAR LIBERADA!</span>':` · ESTELAR: ${me.fases>=24?'doure todas as páginas':'conclua os 24 tópicos e doure todas as páginas'}`);
- const ct=$('bChap');ct.innerHTML='';CHAP.forEach((c,i)=>{let lab=c[0];if(c[1]){const all=ITL.filter(it=>c[1].includes(it.slot));lab+=` ${all.filter(it=>ow.includes(it.id)).length}/${all.length}`}const b=el('button','chip'+(HV.ch===i?' on':''),lab);b.onclick=()=>{HV.ch=i;HV.page=null;renderBook()};ct.appendChild(b)});
+ const ct=$('bChap');ct.innerHTML='';CHAP.forEach((c,i)=>{let lab=c[0];if(c[1]){const all=ITL.filter(it=>c[1].includes(it.slot)&&visIt(it));lab+=` ${all.filter(it=>ow.includes(it.id)).length}/${all.length}`}const b=el('button','chip'+(HV.ch===i?' on':''),lab);b.onclick=()=>{HV.ch=i;HV.page=null;renderBook()};ct.appendChild(b)});
  const gr=$('bGrid');gr.innerHTML='';const C=CHAP[HV.ch];
  if(!C[1]){TURMAS.forEach((t,i)=>{const b=el('button','bcell ban'+(HV.page==='ban'+i?' sel':''));const cv=mk(64,112);cv.dataset.ban=i;cv.className='bancv';b.appendChild(cv);b.appendChild(el('span',null,t.tribo));b.onclick=()=>{HV.page='ban'+i;renderBook()};gr.appendChild(b)})}
- else for(const it of ITL.filter(it=>C[1].includes(it.slot)).sort((a,b)=>(a.f==='x'?99:a.f)-(b.f==='x'?99:b.f))){const own=ow.includes(it.id),g=e.g.includes(it.id),b=el('button','bcell'+(g?' gold':'')+(HV.page===it.id?' sel':''));
+ else for(const it of ITL.filter(it=>C[1].includes(it.slot)&&visIt(it)).sort((a,b)=>(a.f==='x'?99:a.f==='t'?50+a.pts/100:a.f)-(b.f==='x'?99:b.f==='t'?50+b.pts/100:b.f))){const own=ow.includes(it.id),g=e.g.includes(it.id),b=el('button','bcell'+(g?' gold':'')+(HV.page===it.id?' sel':''));
   b.appendChild(iconCv(it.id,!own,40));b.appendChild(el('span',null,own?it.n:'???'));if(g)b.appendChild(el('i','gst','★'));b.onclick=()=>{HV.page=it.id;renderBook()};gr.appendChild(b)}
  renderPage()}
 function renderPage(){const pg=$('bPage'),id=HV.page;pg.innerHTML='';pg.className='page';
- if(!id){pg.appendChild(el('h4',null,'LIVRO DE ITENS'));pg.appendChild(el('p',null,'Cada item que você conquista ganha uma página neste livro, com sua lenda e um segredo da Física.'));pg.appendChild(el('p',null,'Acerte o DESAFIO da página para deixá-la DOURADA ★. Quem concluir os 24 tópicos e dourar todas as páginas desbloqueia a lendária Armadura Estelar do Horizonte.'));pg.appendChild(el('p','dim','Escolha um item ao lado.'));return}
+ if(!id){pg.appendChild(el('h4',null,'LIVRO DE ITENS'));pg.appendChild(el('p',null,'Cada item que você conquista ganha uma página neste livro, com sua lenda e um segredo da Física.'));pg.appendChild(el('p',null,'Acerte o DESAFIO da página para deixá-la DOURADA ★. Quem concluir os 24 tópicos e dourar todas as páginas desbloqueia a lendária Armadura Estelar do Horizonte.'));pg.appendChild(el('p',null,`Na TORRE ENEM, cada acerto vale pontos: com ${ARM_PTS.tribo} pontos você libera a Armadura da Constelação da sua tribo, e com ${ARM_PTS.fenix}, a Armadura da Fênix Supernova.`));pg.appendChild(el('p','dim','Escolha um item ao lado.'));return}
  if(id.startsWith('ban')){const i=+id.slice(3),t=TURMAS[i],B=BAN[i],lv=tribeData?levelsOf(tribeData)[i]:0;const cv=mk(96,170);cv.dataset.ban=i;cv.className='bancv bbig';pg.appendChild(cv);
   pg.appendChild(el('h4',null,`ESTANDARTE DOS ${t.tribo}`));pg.appendChild(el('p','dim',`${t.nome} · NÍVEL ${lv+1}: ${NIVEL_NOME[lv]}`+(t.id===me.turma?' · SUA TRIBO':'')));pg.appendChild(el('p','lema',`"${B.lema}"`));
   pg.appendChild(el('p',null,'O estandarte evolui com a tribo: começa como um trapo rasgado, ganha bordas no nível Vila e barra dourada com borlas na Fortaleza. No Reino, uma estrela brilha no topo do mastro.'));return}
@@ -2187,8 +2349,10 @@ function showRew(title,sub,ids,mode){rewOn=true;rewMode=mode;rewItems=ids||[];$(
  for(const id of rewItems){const it=IT[id],d=el('div');d.appendChild(iconCv(id,false,48));const s=el('span',null,it.full);s.style.color=RAR[it.r].c;d.appendChild(s);d.appendChild(el('small',null,RAR[it.r].n));ri.appendChild(d)}
  rewEq={...eqNow()};for(const id of rewItems)rewEq[IT[id].slot]=id;
  $('rb').textContent=mode==='bim'?'EQUIPAR E CONTINUAR':'EQUIPAR';$('rb2').textContent=mode==='bim'?'SÓ CONTINUAR':'GUARDAR NA BOLSA';$('rew').classList.add('on')}
+function checkTorre(){if(!me||rewOn||isAdm()||screen!=='game'||$('enem').classList.contains('on'))return;const e=eqState(),ow=ownedIds(),nv=ITL.filter(i=>i.f==='t'&&ow.includes(i.id)&&!e.n.includes(i.id));if(!nv.length)return;const t=nv[0].t,ids=nv.filter(i=>i.t===t).map(i=>i.id);showRew('ARMADURA DA TORRE ENEM!','CONJUNTO '+TIERN[t],ids,'item');e.n=[...e.n,...ids];saveEq()}
+setInterval(()=>{try{checkTorre()}catch(e){}},2500);
 function showReward(v){rewV=v;showRew('BIMESTRE COMPLETO!',vols()[v].name,VREW[v],'bim')}
-function closeRew(eq){rewOn=false;$('rew').classList.remove('on');if(eq)for(const id of rewItems)equip(id);
+function closeRew(eq){rewOn=false;$('rew').classList.remove('on');if(eq)for(const id of rewItems)equip(id);if(heroVisible())renderHero();
  if(rewMode==='bim'){if(rewV<3){const nx=rewV+1;jView='mundo';ensureMundo(()=>{placeMH(rewV);toast('NOVO BIMESTRE DESBLOQUEADO!',2600);setTimeout(()=>goBim(nx),900)})}else toast('JORNADA COMPLETA! PARABÉNS!',3500)}}
 $('rb').onclick=()=>closeRew(true);$('rb2').onclick=()=>closeRew(false);
 const rwx=$('rwc').getContext('2d');
