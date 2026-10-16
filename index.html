@@ -1396,7 +1396,7 @@ function drawBoat(x,px,py,left,col,t){const b=Math.round(Math.sin(t/500+px*.1));
 const HSLOTS=[[-5,-5],[-1,-5],[3,-5],[-5,-1],[3,-1],[-5,3],[-1,3],[3,3]];
 const THATCH=['#dcb85e','#c4a04c','#8e6c2a'];
 function buildTribeWorld(levels){
- const N=100,Wd=newWorld(N,190),C=[50,50],sd=777,IR=41.5,ISL=[10.6,10.6],BRA=[19.4,19.4],BRB=[15.6,15.6];
+ const N=72,Wd=newWorld(N,190),C=[36,36],sd=777,IR=29.5,ISL=[8.6,8.6],BRA=[15.3,15.3],BRB=[11.4,11.4];
  const TP=TURMAS.map((t,i)=>{const th=(-90+72*i)*Math.PI/180,Rr=400;return[C[0]+Rr*(Math.cos(th)+Math.sin(th))/32,C[1]+Rr*(Math.sin(th)-Math.cos(th))/32]});
  const AX=TP.map(T=>{const dx=C[0]-T[0],dy=C[1]-T[1];return Math.abs(dx)>=Math.abs(dy)?[Math.sign(dx),0]:[0,Math.sign(dy)]});
  const ring=[];for(let i=0;i<=56;i++){const a=i/56*Math.PI*2;ring.push([C[0]+Math.cos(a)*7.4,C[1]+Math.sin(a)*7.4])}
@@ -1407,16 +1407,11 @@ function buildTribeWorld(levels){
  const inPod=(x,y,m=4.4,f=0)=>POD.some(q=>x-q[0]>-m&&x-q[0]<m+f&&y-q[1]>-m&&y-q[1]<m+f);Wd.inPod=inPod;
  const ang=TP.map(T=>Math.atan2(T[1]-C[1],T[0]-C[0]));
  const MAS=ang.map((a,i)=>{let d=ang[(i+1)%5]-a;while(d<=-Math.PI)d+=2*Math.PI;while(d>Math.PI)d-=2*Math.PI;const m=a+d/2;return{x:C[0]+Math.cos(m)*24.2,y:C[1]+Math.sin(m)*24.2,ur:[Math.cos(m),Math.sin(m)],a:[46,88,72,98,80][i]}});
- const MT=ang.map((a,i)=>({x:C[0]+Math.cos(a)*32.5,y:C[1]+Math.sin(a)*32.5,ur:[Math.cos(a),Math.sin(a)],ph:46,i}));
- const HM=MAS.map((m,i)=>({x:C[0]+m.ur[0]*35.5,y:C[1]+m.ur[1]*35.5,ph:15,i}));Wd.MT=MT;Wd.HM=HM;
  const hf=(X,Y)=>{const dC=Math.hypot(X-C[0],Y-C[1]),d=dC/IR;
-  const coast=1-d+(fbm(X*.06,Y*.06,sd)-.5)*.34+(fbm(X*.2,Y*.2,sd+1)-.5)*.1-sstep(42.5,47,dC)*1.6;let h=coast>0?2+coast*22:Math.max(-24,coast*44);const land=clamp(coast*5,0,1);
+  const coast=1-d+(fbm(X*.06,Y*.06,sd)-.5)*.34+(fbm(X*.2,Y*.2,sd+1)-.5)*.1-sstep(30.5,35,dC)*1.6;let h=coast>0?2+coast*22:Math.max(-24,coast*44);const land=clamp(coast*5,0,1);
   h+=(fbm(X*.12,Y*.12,sd+2)-.5)*16*land;
   const rid=1-Math.abs(2*fbm(X*.21,Y*.21,sd+7)-1),rid2=1-Math.abs(2*fbm(X*.45,Y*.45,sd+17)-1);for(const m of MAS){const dx=X-m.x,dy=Y-m.y,dr=dx*m.ur[0]+dy*m.ur[1],dt=-dx*m.ur[1]+dy*m.ur[0];for(const[o2,s2]of[[0,1],[-3.4,.72],[3.6,.64]]){const q=(dr/3.6)**2+((dt-o2)/3.4)**2;if(q<7)h+=Math.exp(-q*1.15)*m.a*s2*(.3+rid*.75+rid2*.35)*land}}
-  for(const m of MT){const dx=X-m.x,dy=Y-m.y,dr=dx*m.ur[0]+dy*m.ur[1],dt=-dx*m.ur[1]+dy*m.ur[0];for(const[o2,s2,a2]of[[0,1,90],[-4.4,.8,70],[4.6,.75,64]]){const q=((dr-1.5)/4.2)**2+((dt-o2)/3.6)**2;if(q<7)h+=Math.exp(-q*1.05)*a2*s2*(.45+rid*.6+rid2*.3)*land}}
   for(const T of TP){const ax=Math.abs(X-T[0]),ay=Math.abs(Y-T[1]),cd=Math.max(ax,ay)*.75+Math.hypot(ax,ay)*.25,w=sstep(13.2,10,cd);if(w>0)h=lerp(h,9,w)}
-  for(const m of MT){const w=sstep(3.9,2.7,Math.hypot(X-m.x,Y-m.y));if(w>0)h=lerp(h,m.ph,w)}
-  for(const m of HM){const w=sstep(3.4,2.3,Math.hypot(X-m.x,Y-m.y));if(w>0)h=lerp(h,m.ph,w)}
   for(const q of POD){const w=sstep(4.6,3,Math.hypot(X-q[0],Y-q[1]));if(w>0)h=Math.max(h,lerp(h,9,w))}
   {const w=sstep(11.5,9,dC);if(w>0)h=lerp(h,8,w)}
   {const lw=sstep(4.9,3.8,dC+(fbm(X*.4,Y*.4,sd+3)-.5)*1.1);if(lw>0)h=lerp(h,-6,lw);const iw=sstep(2.2,1.6,dC);if(iw>0)h=lerp(h,8,iw)}
@@ -1428,12 +1423,9 @@ function buildTribeWorld(levels){
  const df=(X,Y)=>{let m=-1;TP.forEach((T,i)=>{const dx=Math.abs(X-T[0]),dy=Math.abs(Y-T[1]),d=Math.max(dx,dy)*.7+Math.hypot(dx,dy)*.3,v=(RADS[levels[i]]-d)/1.3;if(v>m)m=v});return m};
  const ff=(X,Y)=>{let m=sstep(.4,.54,fbm(X*.085,Y*.085,sd+33,3));for(const T of TP){const cd=Math.max(Math.abs(X-T[0]),Math.abs(Y-T[1]));if(cd<12)m*=sstep(10,12,cd)}m*=sstep(9,10.5,Math.hypot(X-C[0],Y-C[1]));
   for(const mm of MAS){const q=Math.hypot(X-mm.x,Y-mm.y)/6;if(q<2&&q>.6)m=Math.max(m,.8*sstep(2,1.3,q)*sstep(.6,.95,q))}return m};
- const mroads=[];MT.forEach((m,i)=>{const T=TP[i],a=AX[i];mroads.push([[T[0]-a[0]*6.5,T[1]-a[1]*6.5],[(T[0]+m.x)/2+m.ur[1]*1.5,(T[1]+m.y)/2-m.ur[0]*1.5],[m.x-m.ur[0]*2.2,m.y-m.ur[1]*2.2]]);for(const h2 of[HM[i],HM[(i+4)%5]])mroads.push([[m.x,m.y],[(m.x+h2.x)/2,(m.y+h2.y)/2],[h2.x,h2.y]])});
- const ff0=ff,ff2=(X,Y)=>{let v=ff0(X,Y);for(const m of[...MT,...HM]){const q=Math.hypot(X-m.x,Y-m.y);if(q<3.6)return 0;if(q<8)v=Math.max(v,.75*sstep(3.6,5,q)*sstep(8,6.5,q))}return v};
- genTerrain(Wd,{pal:PAL.grass,height:hf,dirt:df,forest:ff2,roads:[...roads,ring,...mroads],roadW:.5,seed:sd});
+ genTerrain(Wd,{pal:PAL.grass,height:hf,dirt:df,forest:ff,roads:[...roads,ring],roadW:.5,seed:sd});
  Wd.TP=TP;Wd.levels=levels.slice();Wd.C=C;
  TP.forEach((T,i)=>buildTown(Wd,T,TURMAS[i],levels[i],AX[i]));
- MT.forEach(m=>buildMountTown(Wd,m));HM.forEach(m=>buildHamlet(Wd,m));
  for(const p of[...roads,ring])bridges(Wd,resample(p,.15),false);
  Wd.ISL=ISL;Wd.BRA=BRA;Wd.BRB=BRB;Wd.PROF=[BRA[0]+.5,BRA[1]+.5];
  // Torre ENEM no centro e castelo do Arquimago
@@ -1441,7 +1433,7 @@ function buildTribeWorld(levels){
  // natureza
  const r=rng(sd+50),P=Wd.pal;
  for(let Y=1;Y<N-1;Y+=.78)for(let X=1;X<N-1;X+=.78){const x=X+r()*.6,y=Y+r()*.6,hh=Wd.q('fh',x,y);if(hh<1)continue;
-  if(Wd.q('fr',x,y)<1.3)continue;if(inPod(x,y,4.4,3))continue;if(Math.hypot(x-ISL[0],y-ISL[1])<7.6||polyDist(x,y,[BRA,BRB],2)<1.6||Math.hypot(x-BRA[0],y-BRA[1])<2.4)continue;const tcd=Math.min(...TP.map(T=>Math.max(Math.abs(x-T[0]),Math.abs(y-T[1]))));if(tcd<7.4)continue;if(tcd<11&&r()>.08)continue;if(Math.hypot(x-C[0],y-C[1])<9.4)continue;if(MT.some(m=>Math.hypot(x-m.x,y-m.y)<4.2)||HM.some(m=>Math.hypot(x-m.x,y-m.y)<3.6))continue;
+  if(Wd.q('fr',x,y)<1.3)continue;if(inPod(x,y,4.4,3))continue;if(Math.hypot(x-ISL[0],y-ISL[1])<7.6||polyDist(x,y,[BRA,BRB],2)<1.6||Math.hypot(x-BRA[0],y-BRA[1])<2.4)continue;const tcd=Math.min(...TP.map(T=>Math.max(Math.abs(x-T[0]),Math.abs(y-T[1]))));if(tcd<7.4)continue;if(tcd<11&&r()>.08)continue;if(Math.hypot(x-C[0],y-C[1])<9.4)continue;
   const sl=Wd.q('fsl',x,y),fo=Wd.q('ffo',x,y);let sp=null,hg=10;
   if(hh<P.beachH+.6){if(r()<.07){sp=palmS(r()*6|0);hg=34}}
   else if(sl>P.rockS){if(r()<.07){sp=rockS(r()*8|0,ROCKP.gray);hg=8}}
@@ -1451,36 +1443,12 @@ function buildTribeWorld(levels){
   if(sp&&Wd.vis(x,y))addTree(Wd,sp,x,y,hg)}
  for(let i=0,n=0;i<400&&n<10;i++){const x=3+r()*(N-6),y=3+r()*(N-6);if(Wd.q('fh',x,y)<4||Wd.q('fsl',x,y)>8||Wd.q('fr',x,y)<1.5||TP.some(T=>Math.max(Math.abs(x-T[0]),Math.abs(y-T[1]))<12)||Math.hypot(x-C[0],y-C[1])<10||!Wd.vis(x,y))continue;addTree(Wd,rockS(n,ROCKP.gold,n%2?0:1),x,y,10);n++}
  tufts(Wd,'grass',sd+9);
- for(let i=0;i<4;i++)Wd.boats.push({C,r:47+i*1.3,a:r()*6.28,sp:(.000032+r()*.00002)*(i%2?1:-1),col:TURMAS[i+1].cor.f});
+ for(let i=0;i<4;i++)Wd.boats.push({C,r:35+i*1.3,a:r()*6.28,sp:(.000032+r()*.00002)*(i%2?1:-1),col:TURMAS[i+1].cor.f});
  for(let i=0;i<8;i++)Wd.birds.push({x:r()*Wd.w,y:r()*Wd.h,vx:(.018+r()*.012)*(r()<.5?1:-1),vy:(r()-.5)*.008,ph:r()*9});
  for(let i=0;i<5;i++)Wd.clouds.push({x:r()*Wd.w,y:r()*Wd.h,vx:.006+r()*.004});
  finalize(Wd);nightTint(Wd,ISL);bridges(Wd,resample([BRA,BRB],.15),true);Wd.minZ=.5;
- Wd.GUARD=mkGuards(TP,AX,MT,HM);
  Wd.cam={x:Wd.P(...TP[0])[0]-VW/2,y:Wd.P(...TP[0])[1]-VH/2-20};
  return Wd}
-const GSETS={tribo:['lupus','aquila','ursa','serpens','draco'],mt:['leaod','leao','fenix','ouro','cometa'],hm:['prata','cristal','eletro','prata','bronze']};
-const GNAMES={tribo:['GUARDIÃO GALILEU','GUARDIÃ HIPÁTIA','GUARDIÃO FARADAY','GUARDIÃ MARIE CURIE','GUARDIÃO NEWTON'],mt:['SENHOR EINSTEIN','DAMA LISE MEITNER','GUARDIÃO CÉSAR LATTES','GUARDIÃ EMMY NOETHER','GUARDIÃO SANTOS DUMONT'],hm:['SENTINELA TESLA','SENTINELA VOLTA','SENTINELA AMPÈRE','SENTINELA KEPLER','SENTINELA HUYGENS']};
-function gEq(t){const p={bronze:['elmo','armadura','botas_bronze'],prata:['elmo_prata','arm_prata','botas_prata'],eletro:['elmo_cristal','arm_cristal','botas_cristal'],cristal:['elmo_cristal','arm_cristal','botas_cristal'],ouro:['elmo_ouro','arm_ouro','botas_ouro']}[t]||['elmo_'+t,'arm_'+t,'botas_'+t];return{cabeca:p[0],peito:p[1],botas:p[2]}}
-function mkGuards(TP,AX,MT,HM){const out=[],HS=['topete','assim','coque','rabo','raspado','chanel','moicano','trancas','franjao','afro','dreads'],SK=['#e0a870','#7a4a2c','#f6cfa6','#c08052','#5e3820','#ecbe90','#a06640','#ffe2c8'],HC=['#1e1614','#3a2418','#dcdce8','#a83a2a','#e8c060','#2a1a12'],WP=['montante','katana','nebular','gravit','prisma','magnetica','newton'];
- const look=k=>({name:'',skin:SK[k%SK.length],hair:{s:HS[k%HS.length],c1:HC[(k*3)%HC.length],c2:'#888'},top:{s:'gola',c1:'#34304a',c2:'#9a5ad8'},pants:'#3e4a5a',eyes:{s:0,c:['#4a2a14','#3a6ac8','#3a8a4a','#5a3414'][k%4]}});
- const add=(X,Y,kind,i,k)=>{const eq=gEq(GSETS[kind][i]);eq.arma=WP[k%WP.length];out.push({X,Y,L:look(k+3),eq,name:GNAMES[kind][i]})};
- TP.forEach((T,i)=>{const a=AX[i];add(T[0]+a[0]*5.4+a[1]*1.1,T[1]+a[1]*5.4-a[0]*1.1,'tribo',i,i)});
- MT.forEach((m,i)=>add(m.x-m.ur[0]*2.9+m.ur[1]*.9,m.y-m.ur[1]*2.9-m.ur[0]*.9,'mt',i,i+5));
- HM.forEach((m,i)=>add(m.x+.4,m.y+1.9,'hm',i,i+10));return out}
-/* cidade da montanha: casas em anel no platô, salão de pedra e torre de vigia */
-const MT_ROOF=['#a83a2a','#2a5a8a','#5a3a7a','#2a7a4a','#c88a20'];
-function buildMountTown(Wd,m){const r=rng(hstr('mt'+m.i)),X=m.x,Y=m.y,rc=MT_ROOF[m.i%5];
- const H=(w,d,h,wall,col,sd,mat='plaster',roof='gx')=>bldg({w,d,h,wall,mat,roof,rc:[0,col,0],rh:Math.round(h*.8),door:1,chim:sd%2,shut:hx('#5a3a22'),seed:sd});
- const items=[];
- for(let k=0;k<6;k++){const a=k/6*6.283+.4,rr=2.3+r()*.3,cx=X+Math.cos(a)*rr,cy=Y+Math.sin(a)*rr,big=k%3===0;items.push([H(big?1.6:1.3,big?1.4:1.2,big?12:10,k%2?'#ece0c0':'#e0d0b0',k%2?rc:MT_ROOF[(m.i+k)%5],70+m.i*10+k),cx-.7,cy-.6])}
- items.push([H(1.8,1.6,18,'#b8ae98',rc,99+m.i,'ashlar','hip'),X-.9,Y-.8]);
- items.push([towerS({r:.4,h:34,col:'#aaa292',roof:'cone',rh:18,rc:[0,rc,0]}),X+1.1-.7,Y-1.6-.7]);
- items.sort((a,b)=>(a[1]+a[2])-(b[1]+b[2])).forEach(([sp,x0,y0])=>addSpr(Wd,sp,x0,y0))}
-/* vilarejo na encosta: 3 casinhas, palheiro e poço */
-function buildHamlet(Wd,m){const r=rng(hstr('hm'+m.i)),X=m.x,Y=m.y,ridge=['gx','gy'];
- const items=[];for(let k=0;k<3;k++){const a=k/3*6.283+r(),cx=X+Math.cos(a)*1.4,cy=Y+Math.sin(a)*1.4;items.push([bldg({w:1.4,d:1.2,h:9,wall:'#8a6038',mat:'log',roof:ridge[k%2],rc:THATCH,rh:9,rk:'thatch',door:1,seed:200+m.i*7+k}),cx-.7,cy-.6])}
- items.push([hayS(),X+.6,Y+.2]);items.push([wellS(),X-.5,Y-.4]);
- items.sort((a,b)=>(a[1]+a[2])-(b[1]+b[2])).forEach(([sp,x0,y0])=>addSpr(Wd,sp,x0,y0))}
 function resample(p,st){const o=[];for(let i=0;i<p.length-1;i++){const a=p[i],b=p[i+1],L=Math.hypot(b[0]-a[0],b[1]-a[1]),n=Math.max(1,Math.ceil(L/st));for(let j=0;j<n;j++)o.push([lerp(a[0],b[0],j/n),lerp(a[1],b[1],j/n)])}o.push(p[p.length-1]);return o}
 
 function buildTown(Wd,T,tm,L,ax){
@@ -2302,7 +2270,6 @@ function drawGame(){
   /* o Mestre fica numa clareira perto da ponte da Torre do Arquimago (discreto) */
   loadMestre();const adm=isAdm();if(W.BRA&&(adm||MESTRE)){const MX=W.BRA[0]+MSPOT[0],MY=W.BRA[1]+MSPOT[1],mp=W.P(MX,MY),L2=adm?CH():(MESTRE.visual&&MESTRE.visual.hair?MESTRE.visual:LOOKS[0]),E2=adm?eqNow():(MESTRE.equip||{});
    ex.push({dep:MX+MY+.2,hi:{mestre:1,L:L2,eq:E2,fr:idleF(0),P:mp,nick:adm?me.nick:MESTRE.nick,arrow:0}})}
-  (W.GUARD||[]).forEach((gd,k)=>ex.push({dep:gd.X+gd.Y,hi:{L:gd.L,eq:gd.eq,fr:idleF(k),P:W.P(gd.X,gd.Y),guard:gd.name}}));
   if(!meOn&&!adm)ex.push({dep:hx2+hy,hi:{L:CH(),eq:eqNow(),fr:idleF(0),P:W.P(hx2,hy),arrow:1}});
   if(W.PROF)ex.push({dep:W.PROF[0]+W.PROF[1],hi:{prof:1,P:W.P(W.PROF[0],W.PROF[1])}});
   renderWorld(W,ex)}
@@ -2897,7 +2864,7 @@ const MEDAL=['#f8d040','#dfe4ee','#d8904a','#8ab0e0','#8ab0e0'];
 function tagHi(x,y,t,Z){c.font='5px "Press Start 2P", monospace';const w=c.measureText(t.nick).width+14;c.fillStyle='rgba(20,12,24,.78)';c.fillRect(x-w/2,y-8,w,9);c.fillStyle=MEDAL[t.rank];c.fillRect(x-w/2+2,y-6.5,6,6);
  c.fillStyle='#1a1020';c.textAlign='center';c.textBaseline='top';c.font='4px "Press Start 2P", monospace';c.fillText(String(t.rank+1),x-w/2+5.2,y-5.6);c.font='5px "Press Start 2P", monospace';c.textAlign='left';c.fillStyle=t.rank<3?MEDAL[t.rank]:'#ffffff';c.fillText(t.nick,x-w/2+10,y-6.5)}
 function drawHiWorld(){const W=screen==='game'?curW():null;if(!W||!W._hi)return;const Z=ZM(W),cx=W._cx,cy=W._cy;c.imageSmoothingEnabled=false;
- for(const h of W._hi){const vx=(h.px-cx)*Z,vy=(h.py-cy)*Z;if(h.prof)drawProf(c,vx,vy,Z);else{drawChar(c,h.L,h.eq,h.fr,vx,vy,Z);if(h.guard&&Z>=.85){const nm=h.guard,w=nm.length*4+12;panel(vx-w/2,vy-40*Z,w,10,'#181420','#8a7aa8','#241e30');T(nm,vx,vy-40*Z+2.5,4,'#d8d0f0','center')}if(h.mestre){const nm='MESTRE',w=34;panel(vx-w/2,vy-40*Z,w,10,'#2a2014','#c8a050','#3a2c18');T(nm,vx,vy-40*Z+2.5,5,'#f0d890','center')}}
+ for(const h of W._hi){const vx=(h.px-cx)*Z,vy=(h.py-cy)*Z;if(h.prof)drawProf(c,vx,vy,Z);else{drawChar(c,h.L,h.eq,h.fr,vx,vy,Z);if(h.mestre){const nm='MESTRE',w=34;panel(vx-w/2,vy-40*Z,w,10,'#2a2014','#c8a050','#3a2c18');T(nm,vx,vy-40*Z+2.5,5,'#f0d890','center')}}
   for(const o of h.occ)c.drawImage(o.img,Math.round(o.x-cx)*Z,Math.round(o.y-cy)*Z,o.w*Z,o.h*Z);
   if(h.tag)tagHi(vx,vy-(h.tag.up?33:33)*Z-(h.tag.up?0:0),h.tag,Z);
   if(h.arrow){const bb=Math.sin(T0/200)*2;c.fillStyle=GOLD;for(let k=0;k<4;k++)c.fillRect(vx-3*Z+k*Z,vy+(-36+bb+k)*Z,(7-2*k)*Z,Z)}}}
