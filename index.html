@@ -1510,7 +1510,7 @@ function buildTribeWorld(levels){
   for(const q of POD){const w=sstep(4.6,3,Math.hypot(X-q[0],Y-q[1]));if(w>0)h=Math.max(h,lerp(h,9,w))}
   {const w=sstep(11.5,9,dC);if(w>0)h=lerp(h,8,w)}
   {const lw=sstep(4.9,3.8,dC+(fbm(X*.4,Y*.4,sd+3)-.5)*1.1);if(lw>0)h=lerp(h,-6,lw);const iw=sstep(2.2,1.6,dC);if(iw>0)h=lerp(h,8,iw)}
-  {const rd=polyDist(X,Y,riv,3.5)+(fbm(X*.5,Y*.5,sd+8)-.5)*.5;if(rd<2.2)h=Math.min(h,lerp(-5,h,sstep(.85,2,rd)))}
+  
   {const dd=Math.hypot(X-ISL[0],Y-ISL[1])+(fbm(X*.4,Y*.4,sd+40)-.5)*1.2;if(dd<7.5)h=Math.max(h,dd<4.6?11+(fbm(X*.5,Y*.5,sd+41)-.5)*2:lerp(-8,11,sstep(6.8,4.6,dd)))}
   {const da=Math.hypot(X-BRA[0],Y-BRA[1]);if(da<2.8)h=Math.max(h,6*sstep(2.8,1.2,da))}
   for(const[p,rr]of PL){const w=sstep(rr+1.4,rr,Math.hypot(X-p.x,Y-p.y));if(w>0)h=lerp(h,p.ph,w)}
