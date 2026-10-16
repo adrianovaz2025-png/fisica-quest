@@ -1531,7 +1531,7 @@ function buildTribeWorld(levels){
  for(let i=0;i<8;i++)Wd.birds.push({x:r()*Wd.w,y:r()*Wd.h,vx:(.018+r()*.012)*(r()<.5?1:-1),vy:(r()-.5)*.008,ph:r()*9});
  for(let i=0;i<5;i++)Wd.clouds.push({x:r()*Wd.w,y:r()*Wd.h,vx:.006+r()*.004});
  finalize(Wd);nightTint(Wd,ISL);bridges(Wd,resample([BRA,BRB],.15),true);Wd.minZ=.5;
- Wd.GUARD=mkGuards(TP,AX,MT,HM);placeGuards(Wd,[BRA[0]+2.6,BRA[1]-.4]);bridges(Wd,resample([[POI.porto.x+POI.porto.ur[0]*3,POI.porto.y+POI.porto.ur[1]*3],[POI.ilha.x-POI.ilha.ur[0]*4.6,POI.ilha.y-POI.ilha.ur[1]*4.6]],.15),true);
+ Wd.MS=[BRA[0]+2.6,BRA[1]-.4];clearSpot(Wd,...Wd.MS);Wd.GUARD=mkGuards(TP,AX,MT,HM);placeGuards(Wd,Wd.MS);bridges(Wd,resample([[POI.porto.x+POI.porto.ur[0]*3,POI.porto.y+POI.porto.ur[1]*3],[POI.ilha.x-POI.ilha.ur[0]*4.6,POI.ilha.y-POI.ilha.ur[1]*4.6]],.15),true);
  Wd.cam={x:Wd.P(...TP[0])[0]-VW/2,y:Wd.P(...TP[0])[1]-VH/2-20};
  return Wd}
 /* ===== construções das regiões novas do Reino ===== */
@@ -1585,6 +1585,8 @@ function freeSpot(Wd,X,Y,taken,maxR=4.5){let best=null,bs=1e9;
   if(bad)continue;const rd=Wd.q('fr',x,y),sc=r+(rd<.7?1.2:rd<2.2?-.6:0);if(sc<bs){bs=sc;best=[x,y]}}
  return best||[X,Y]}
 function placeGuards(Wd,extra){const taken=extra?[extra]:[];(Wd.GUARD||[]).forEach(g=>{const s=freeSpot(Wd,g.X,g.Y,taken);g.X=s[0];g.Y=s[1];taken.push(s)})}
+/* abre uma clareira (tira árvores/pedras que cobrem o personagem) */
+function clearSpot(Wd,X,Y){const[px,py]=Wd.P(X,Y),d=X+Y;Wd.spr=Wd.spr.filter(s=>!(s.img&&s.w<=72&&Math.abs(s.dep-d)<4&&hitPx(s,px-20,py-48,px+20,py+16)>0))}
 
 function resample(p,st){const o=[];for(let i=0;i<p.length-1;i++){const a=p[i],b=p[i+1],L=Math.hypot(b[0]-a[0],b[1]-a[1]),n=Math.max(1,Math.ceil(L/st));for(let j=0;j<n;j++)o.push([lerp(a[0],b[0],j/n),lerp(a[1],b[1],j/n)])}o.push(p[p.length-1]);return o}
 
@@ -2407,7 +2409,7 @@ function drawGame(){
   TURMAS.forEach((t,ti)=>{const TT=W.TP[ti];(tribeTop[t.id]||[]).forEach((m,k)=>{const[X,Y]=W.podPos(ti,k),isMe=me&&m.nick===me.nick;if(isMe)meOn=true;
    ex.push({dep:X+Y,hi:{L:isMe?CH():m.visual&&m.visual.hair?m.visual:LOOKS[(m.personagem||0)%4],eq:isMe?eqNow():(m.equip&&m.equip.s?m.equip.s:eqFromFases(m.fases||0)),fr:idleF(k+ti),P:W.P(X,Y),tag:{nick:m.nick,rank:k,up:k===3||k===4},arrow:isMe}})})});
   /* o Mestre fica numa clareira perto da ponte da Torre do Arquimago (discreto) */
-  loadMestre();const adm=isAdm();if(W.BRA&&(adm||MESTRE)){const MX=W.BRA[0]+MSPOT[0],MY=W.BRA[1]+MSPOT[1],mp=W.P(MX,MY),L2=adm?CH():(MESTRE.visual&&MESTRE.visual.hair?MESTRE.visual:LOOKS[0]),E2=adm?eqNow():(MESTRE.equip||{});
+  loadMestre();const adm=isAdm();if(W.BRA&&(adm||MESTRE)){const MX=W.MS?W.MS[0]:W.BRA[0]+MSPOT[0],MY=W.MS?W.MS[1]:W.BRA[1]+MSPOT[1],mp=W.P(MX,MY),L2=adm?CH():(MESTRE.visual&&MESTRE.visual.hair?MESTRE.visual:LOOKS[0]),E2=adm?eqNow():(MESTRE.equip||{});
    ex.push({dep:MX+MY+.2,hi:{mestre:1,L:L2,eq:E2,fr:idleF(0),P:mp,nick:adm?me.nick:MESTRE.nick,arrow:0}})}
   (W.GUARD||[]).forEach((gd,k)=>ex.push({dep:gd.X+gd.Y,hi:{L:gd.L,eq:gd.eq,fr:idleF(k),P:W.P(gd.X,gd.Y),guard:gd.name}}));
   if(!meOn&&!adm)ex.push({dep:hx2+hy,hi:{L:CH(),eq:eqNow(),fr:idleF(0),P:W.P(hx2,hy),arrow:1}});
