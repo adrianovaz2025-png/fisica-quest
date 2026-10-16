@@ -19,7 +19,7 @@ html,body{margin:0;height:100%;background:#0b0710;overflow:hidden;touch-action:n
 .box h2{margin:0 0 8px;font-size:10px;color:#f8d870;line-height:1.6}
 .box h3{margin:0 0 14px;font-size:14px;color:#fff;line-height:1.5;text-shadow:2px 2px 0 #1a1020}
 .video{background:#120c18;border:3px solid #5a3a22;height:80px;display:flex;align-items:center;justify-content:center;font-size:9px;color:#8a7a9a;margin-bottom:14px;text-align:center;line-height:1.8}
-.q{font-size:11px;line-height:1.9;margin:0 0 10px}
+.q{font-size:11px;line-height:1.9;margin:0 0 10px;white-space:pre-line}
 .opt{display:block;width:100%;margin:8px 0;padding:12px;font:inherit;font-size:10px;line-height:1.6;background:#4a3020;color:#f4e4c0;border:3px solid #1a1020;box-shadow:inset -3px -3px 0 #2a1810,inset 3px 3px 0 #7a5030;cursor:pointer;text-align:left}
 .opt:hover:not(:disabled){background:#6a4430}
 .opt.ok{background:#2f7a3a;box-shadow:inset -3px -3px 0 #1a4a22,inset 3px 3px 0 #5ab05a;color:#fff}
@@ -326,34 +326,34 @@ const pontosDe=f=>f*10+Math.floor(f/6)*50;
 /* Cada fase: [título, pergunta, [resposta CERTA, erradas...]] (embaralhadas na tela) */
 const CONTEUDO={
 1:[
-{name:'VALE DA CINEMÁTICA',ph:[
- ['Grandezas e Unidades','No Sistema Internacional (SI), a unidade de velocidade é:',['m/s','km/h','m/s²','cm/min']],
- ['Velocidade Média','Um carro percorre 120 km em 2 h. Sua velocidade média é:',['60 km/h','240 km/h','30 km/h','120 km/h']],
- ['Movimento Uniforme','No movimento uniforme (MU), a velocidade do corpo é:',['Constante','Crescente','Sempre nula','Decrescente']],
- ['Movimento Variado','Um corpo parte do repouso com aceleração de 2 m/s². Após 5 s, sua velocidade é:',['10 m/s','5 m/s','2,5 m/s','25 m/s']],
- ['Queda Livre','No vácuo, uma pedra e uma pena são soltas da mesma altura, ao mesmo tempo. Elas:',['Chegam juntas ao chão','A pedra chega antes','A pena chega antes','Nenhuma das duas cai']],
- ['Lançamentos','No lançamento horizontal (sem resistência do ar), a componente horizontal da velocidade:',['Permanece constante','Aumenta','Diminui até zero','Inverte o sentido']]]},
-{name:'DESERTO DE NEWTON',ph:[
- ['Forças','A unidade de força no SI é o:',['Newton (N)','Joule (J)','Watt (W)','Pascal (Pa)']],
- ['1ª Lei: Inércia','A tendência de um corpo manter seu estado de repouso ou de MRU chama-se:',['Inércia','Atrito','Impulso','Empuxo']],
- ['2ª Lei: F = m.a','Uma força resultante de 20 N age sobre um corpo de 4 kg. A aceleração é:',['5 m/s²','80 m/s²','16 m/s²','24 m/s²']],
- ['3ª Lei: Ação e Reação','As forças de ação e reação atuam:',['Em corpos diferentes','No mesmo corpo','Só em corpos parados','No mesmo sentido']],
- ['Força Peso','Qual o peso de um corpo de 50 kg, com g = 10 m/s²?',['500 N','50 N','5 N','5000 N']],
- ['Atrito','Um bloco desliza sobre uma superfície com atrito, sem nenhuma força o empurrando. Ele:',['Desacelera até parar','Acelera','Mantém a velocidade','Muda de direção sozinho']]]},
-{name:'PICOS DA ENERGIA',ph:[
- ['Trabalho','Uma força de 10 N desloca um corpo por 3 m, na mesma direção e sentido. O trabalho é:',['30 J','13 J','7 J','3,3 J']],
- ['Potência','Um motor realiza 600 J de trabalho em 2 s. Sua potência é:',['300 W','1200 W','600 W','150 W']],
- ['Energia Cinética','Um corpo de 2 kg move-se a 3 m/s. Sua energia cinética é:',['9 J','6 J','18 J','3 J']],
- ['Energia Potencial','Um corpo de 1 kg está a 5 m de altura (g = 10 m/s²). Sua energia potencial gravitacional é:',['50 J','5 J','15 J','500 J']],
- ['Conservação da Energia','Sem atrito e sem resistência do ar, durante a queda de um corpo a energia mecânica:',['Se conserva','Aumenta','Diminui','Vira zero']],
- ['Quantidade de Movimento','Um corpo de 3 kg move-se a 4 m/s. Sua quantidade de movimento é:',['12 kg.m/s','7 kg.m/s','24 kg.m/s','1,3 kg.m/s']]]},
-{name:'CIDADELA DA GRAVITAÇÃO',ph:[
- ['Leis de Kepler','Segundo a 1ª Lei de Kepler, as órbitas dos planetas em torno do Sol são:',['Elípticas','Quadradas','Retas','Espirais']],
- ['Gravitação Universal','Se a distância entre dois corpos dobrar, a força gravitacional entre eles fica:',['4 vezes menor','2 vezes menor','Igual','2 vezes maior']],
- ['Pressão','Uma força de 100 N atua sobre uma área de 2 m². A pressão é:',['50 Pa','200 Pa','102 Pa','98 Pa']],
- ['Densidade','Um corpo tem massa de 200 g e volume de 100 cm³. Sua densidade é:',['2 g/cm³','0,5 g/cm³','20 g/cm³','100 g/cm³']],
- ['Pressão Hidrostática','Quanto mais fundo um mergulhador desce na água, a pressão sobre ele:',['Aumenta','Diminui','Fica igual','Zera']],
- ['Empuxo','Um corpo flutua em um líquido quando sua densidade é ___ que a do líquido.',['Menor','Maior','O dobro','O triplo']]]}],
+{name:'MUNDO DO TRABALHO',ph:[
+ ['O Deslocamento e a Força','Uma força de 50 N, na mesma direção e sentido do deslocamento (α = 0°), empurra uma caixa por 4 m. O trabalho realizado é:',['200 J','12,5 J','54 J','0 J'],'Trabalho de uma força constante:\nτ = F · Δs · cos α\n(τ em J · F em N · Δs em m · α = ângulo entre a força e o deslocamento)'],
+ ['Tipos de Trabalho e a Gravidade','Um livro de 2 kg é erguido 3 m (g = 10 m/s²). O trabalho do peso nessa subida é:',['−60 J (resistente)','+60 J (motor)','0 J (nulo)','−6 J (resistente)'],'Motor: α < 90° · Resistente: α > 90° · Nulo: α = 90°\nTrabalho do peso: τp = ± m · g · h\n(+ na descida · − na subida)'],
+ ['Forças Variáveis e a Mola','Uma mola de constante k = 200 N/m é comprimida 0,1 m. O módulo do trabalho da força elástica é:',['1 J','10 J','20 J','2 J'],'Força variável: τ = área do gráfico F × Δs\nForça elástica: τel = ± k · (Δx)² / 2\n(k em N/m · Δx = deformação em m)'],
+ ['Potência e Rendimento','Um motor recebe 1000 W e entrega 800 W de potência útil. O rendimento dele é:',['80%','20%','125%','8%'],'Potência média: Pm = τ / Δt (W = J/s)\nPtotal = Pútil + Pdissipada\nRendimento: η = Pútil / Ptotal'],
+ ['Questão do Livro (UEA-AM)','Um pequeno motor emprega 4 000 J de trabalho para erguer um objeto por uma altura de 4 m com velocidade constante. Sabendo que g = 10 m/s², a massa do objeto erguido é:',['100 kg','10 kg','20 kg','40 kg','50 kg'],'Livro 1º ano vol. 3 · Capítulo 9 · página 21 · questão 24\nLembre: τ = m · g · h'],
+ ['Desafio Final','Uma pessoa leva uma caixa de 10 kg até 5 m de altura em 10 s (g = 10 m/s²). A potência média usada para erguer a caixa é:',['50 W','500 W','5 W','5 000 W'],'Junte tudo: primeiro o trabalho (τ = m · g · h), depois a potência (Pm = τ / Δt).']]},
+{name:'VALE DA ENERGIA',ph:[
+ ['A Energia do Movimento','Um carrinho de 2 kg se move a 3 m/s. A energia cinética dele é:',['9 J','6 J','18 J','3 J'],'Energia cinética: Ec = m · v² / 2\nTeorema da Energia Cinética: τR = ΔEc = Ec,f − Ec,i'],
+ ['As Energias Potenciais','Um vaso de 3 kg está numa janela a 10 m do chão (g = 10 m/s²). Tomando o chão como referência, a energia potencial gravitacional dele é:',['300 J','30 J','3 000 J','13 J'],'Gravitacional: Epg = m · g · h\nElástica: Epe = k · (Δx)² / 2\nτp = −ΔEpg'],
+ ['O Mundo Conservativo','Um corpo é solto do repouso a 5 m de altura, sem atrito (g = 10 m/s²). Ao chegar ao chão, a velocidade dele é:',['10 m/s','5 m/s','50 m/s','100 m/s'],'Energia mecânica: Em = Ec + Ep\nSem atrito ela se conserva: Ec,i + Ep,i = Ec,f + Ep,f'],
+ ['Sistemas Dissipativos','Um skatista tem 500 J de energia mecânica no alto da rampa e chega embaixo com 420 J. O trabalho das forças dissipativas foi:',['−80 J','+80 J','920 J','0 J'],'τ(forças não conservativas) = ΔEm = Em,f − Em,i\nΔEm < 0: a energia vira calor e som (atrito, resistência do ar)'],
+ ['Questão do Livro (UFRGS-RS)','Em Sochi (2014), Lizzy Yarnold venceu a prova de skeleton. Num ponto da pista, atleta + trenó (70 kg) estão a 15 m do ponto mais baixo, a 12 m/s. Tomando o ponto mais baixo como referência, nesse ponto o conjunto possui:',['Energia cinética e energia potencial gravitacional','Somente energia cinética','Somente energia potencial gravitacional','Somente energia potencial elástica','Energia cinética, potencial elástica e potencial gravitacional'],'Livro 1º ano vol. 3 · Capítulo 10 · página 38 · questão 16\nDica: tem altura? Tem velocidade?'],
+ ['Desafio Final','Uma bola de 0,5 kg é lançada para cima a 8 m/s, sem resistência do ar (g = 10 m/s²). A altura máxima que ela atinge é:',['3,2 m','6,4 m','0,8 m','32 m'],'Conservação: toda a Ec do lançamento vira Epg no ponto mais alto.\nm · v² / 2 = m · g · h']]},
+{name:'PICOS DA ESTÁTICA',ph:[
+ ['Ponto Material em Repouso','Um lustre de peso 40 N está pendurado, em repouso, por um único fio vertical. A tração no fio vale:',['40 N','0 N','80 N','20 N'],'Equilíbrio de translação: ΣF = 0\nou seja: ΣFx = 0 e ΣFy = 0'],
+ ['O Teorema de Lamy','Três forças de mesma intensidade mantêm um ponto em equilíbrio. Pelo Teorema de Lamy, o ângulo entre cada par de forças é:',['120°','90°','60°','180°'],'Três forças concorrentes em equilíbrio:\nF1 / sen α = F2 / sen β = F3 / sen γ\n(cada força dividida pelo seno do ângulo formado pelas outras duas)'],
+ ['Torque: o Momento da Força','Uma força de 20 N é aplicada perpendicularmente na ponta de uma chave de 0,25 m. O módulo do momento é:',['5 N·m','80 N·m','20,25 N·m','0,8 N·m'],'Força perpendicular: M = ± F · d\nForça inclinada: M = F · d · sen θ\n(+ anti-horário · − horário)'],
+ ['Binário e Momento Resultante','Duas mãos giram um volante com forças opostas de 15 N cada, separadas por 0,4 m. O momento desse binário é:',['6 N·m','12 N·m','3 N·m','37,5 N·m'],'Binário: M = F · d\nMomento resultante: MR = ΣM = M1 + M2 + M3 + ...'],
+ ['Questão do Livro (porta emperrada)','Para abrir uma porta emperrada, um participante aplica 80 N perpendicularmente na extremidade. A porta tem 1,2 m de largura. Qual é o momento da força em relação ao eixo do pino?',['96 N·m','66,7 N·m','81,2 N·m','9,6 N·m'],'Livro 1º ano vol. 3 · Capítulo 11 · página 59 · Organize as Ideias'],
+ ['Desafio Final','Numa barra atuam um momento de +12 N·m (anti-horário) e outro de −20 N·m (horário). O momento resultante é:',['−8 N·m (horário)','+32 N·m (anti-horário)','+8 N·m (anti-horário)','0 N·m'],'Some os momentos com sinal: MR = M1 + M2']]},
+{name:'VULCÃO DO EQUILÍBRIO',ph:[
+ ['Equilíbrio de Rotação','Um corpo extenso está em equilíbrio de rotação quando:',['A soma dos momentos é zero','A soma das forças é a maior possível','Ele gira cada vez mais rápido','Só uma força age sobre ele'],'ΣM = 0  ⇔  M(anti-horário) = M(horário)'],
+ ['As Duas Condições','Para um corpo extenso ficar em equilíbrio estático (sem andar e sem girar), é preciso que:',['ΣF = 0 e ΣM = 0','Apenas ΣF = 0','Apenas ΣM = 0','ΣF seja igual a ΣM'],'Equilíbrio de translação: ΣF = 0 (não anda)\nEquilíbrio de rotação: ΣM = 0 (não gira)'],
+ ['As Alavancas','No carrinho de mão, a carga fica entre o apoio (a roda) e a força das mãos. Ele é uma alavanca:',['Inter-resistente','Inter-fixa','Inter-potente','Sem ponto de apoio'],'Lei fundamental: FP · bP = FR · bR\nInter-fixa: apoio no meio (tesoura)\nInter-resistente: resistência no meio (carrinho de mão)\nInter-potente: força no meio (pinça)'],
+ ['Vantagem Mecânica','Numa alavanca, o braço potente mede 2 m e o resistente 0,5 m. A vantagem mecânica é:',['4','1','0,25','2,5'],'VM = FR / FP = bP / bR'],
+ ['Questão do Livro (gangorra)','Uma gangorra homogênea de 8 m, apoiada no centro, tem uma criança de 500 N na extremidade A. Desprezando o peso da gangorra, qual deve ser o peso da criança na extremidade B para a gangorra ficar em equilíbrio na horizontal?',['500 N','250 N','1 000 N','2 000 N'],'Livro 1º ano vol. 3 · Capítulo 12 · página 75 · Organize as Ideias'],
+ ['Desafio Final','Numa gangorra apoiada no centro, uma criança de 300 N senta a 2 m do apoio. Para equilibrar, uma criança de 400 N deve sentar, do outro lado, a:',['1,5 m do apoio','2,7 m do apoio','2 m do apoio','1 m do apoio'],'FA · bA = FB · bB']]}],
 2:[
 {name:'VALE DA TERMOLOGIA',ph:[
  ['Temperatura','Temperatura é a medida do(a):',['Grau de agitação das partículas','Quantidade de calor do corpo','Massa do corpo','Pressão do gás']],
@@ -2360,11 +2360,14 @@ let tribeData=null,tribeWorld=null,tribeDirty=true,building=false;
 let T0=0,last=performance.now(),btns=[],mouse={x:-1,y:-1},toastM='',toastT=0;
 const hero={X:0,Y:0,walking:false,route:[],ri:0,target:0,node:{}};
 const CH=()=>me&&me.visual&&me.visual.hair?me.visual:LOOKS[me?(me.personagem||0)%4:selIdx%4];
-const serie=()=>TURMA(me.turma).serie||3;
+let PROF_SERIE=1;try{PROF_SERIE=+localStorage.getItem('fq_trilha')||1}catch(e){}
+const serie=()=>isAdm()?PROF_SERIE:(TURMA(me.turma).serie||3);
+const JORN_ON={1:true};const jornOn=()=>CONFIG.JORNADA||!!JORN_ON[serie()];
+function setTrilha(n){PROF_SERIE=n;try{localStorage.setItem('fq_trilha',n)}catch(e){}toast(`TRILHA DO ${n}º ANO`)}
 const vols=()=>CONTEUDO[serie()];
 const isDone=(v,i)=>v*6+i<me.fases;
-const volOpen=v=>!CONFIG.JORNADA||v*6<=me.fases;
-const nodeOpen=(v,i)=>!CONFIG.JORNADA||isDone(v,i)||v*6+i===me.fases;
+const volOpen=v=>!jornOn()||v*6<=me.fases;
+const nodeOpen=(v,i)=>!jornOn()||isDone(v,i)||v*6+i===me.fases;
 function nodeState(v,i){return !me?0:isDone(v,i)?2:nodeOpen(v,i)?1:0}
 const idleF=i=>Math.floor(T0/450+i*.7)%2?3:0;
 const walkF=()=>[1,0,2,0][Math.floor(T0/130)%4];
@@ -2493,6 +2496,7 @@ function uiGame(){
  [['jornada','JORNADA','flag',28,84],['tribos','TRIBOS','castle',116,78],['enem','ENEM','tower',198,62],['heroi','HERÓI','helm',264,74],...(isAdm()?[['admin','ALUNOS','key',342,72]]:[])].forEach(([id,l,ic,x,w])=>btnI(ic,l,x,2,w,21,()=>setTab(id),7,tab===id?'#1a1020':GOLD,tab===id?'#e8b840':null));
  const tm=TURMA(me.turma);T(me.pontos+' PTS',VW-6,9,7,GOLD,'right');if(VW>=(isAdm()?600:520)){c.fillStyle=OUT;c.fillRect(VW-170,8,10,10);c.fillStyle=tm.cor.f;c.fillRect(VW-169,9,8,8);T(me.nick.toUpperCase().slice(0,9),VW-156,10,6,'#fff','left')}
  if(tab==='jornada')uiJornada();else if(tab==='tribos')uiTribos();else uiHeroi();
+ if(tab==='jornada'&&isAdm()){const w=150,x0=VW-w-4,y0=29;panel(x0,y0,w,20,'#2a1e48','#b890ff','#3a2a5a');T(`TRILHA: ${serie()}º ANO`,x0+w/2-8,y0+7,6,'#e8d8ff','center');T('⟳',x0+w-12,y0+6,8,GOLD,'center');btns.push({x:x0,y:y0,w,h:20,fn:()=>setTrilha(serie()%3+1)})}
 }
 function uiMundo(){const W=mundoW;if(!W)return;const cx=W.cam.x,cy=W.cam.y,Z=ZM(W),hc=hoverCastle();
  BIM.forEach((b,i)=>{const[px,py]=W.P(...b.F),x=(px-cx)*Z,y=(py-cy-[268,262,214,226][i])*Z-16;if(x<-90||x>VW+90||y<-40||y>VH+40)return;
@@ -2521,7 +2525,7 @@ function uiJornada(){if(jView==='mundo'){uiMundo();return}const v=curVol,V=vols(
  mapBtns(W,()=>{const[px,py]=W.Pb(hero.X,hero.Y);centerOn(W,px,py)});
  if(!volOpen(v)){T('BLOQUEADO',VW/2,110,14,GOLD,'center');T(`Complete o ${v}º bimestre para liberar`,VW/2,134,7,'#fff','center')}
  panel(4,VH-25,ONLINE?VW-8:VW-82,21,'#2a1d14','#5a3a22','#1a1020');
- const h=hoverNode();let info;if(h>=0)info=`TÓPICO ${h+1}: ${V.ph[h][0]}`;else{const n=me.fases-v*6;info=!CONFIG.JORNADA?'ARRASTE PARA EXPLORAR · DESAFIOS EM BREVE':!volOpen(v)?'ARRASTE PARA EXPLORAR':n>=6?'BIMESTRE CONCLUÍDO!':n<0?'ARRASTE PARA EXPLORAR':`PRÓXIMO: ${V.ph[n][0]}`}
+ const h=hoverNode();let info;if(h>=0)info=`TÓPICO ${h+1}: ${V.ph[h][0]}`;else{const n=me.fases-v*6;info=!jornOn()?'ARRASTE PARA EXPLORAR · DESAFIOS EM BREVE':!volOpen(v)?'ARRASTE PARA EXPLORAR':n>=6?'BIMESTRE CONCLUÍDO!':n<0?'ARRASTE PARA EXPLORAR':`PRÓXIMO: ${V.ph[n][0]}`}
  T(info.toUpperCase(),ONLINE?VW/2:(VW-78)/2,VH-18,6,h>=0?GOLD:'#f4e4c0','center');
  if(!ONLINE)btn('TESTE>>',VW-74,VH-25,70,21,skipVol,6);
 }
@@ -2601,8 +2605,8 @@ function click(mx,my){for(let i=btns.length-1;i>=0;i--){const b=btns[i];if(mx>=b
 
 /* ---------- quiz ---------- */
 function openQuiz(v,i){const ph=vols()[v].ph[i];
- if(!CONFIG.JORNADA){$('qv').textContent=`${v+1}º BIMESTRE - TÓPICO ${i+1}`;$('qt').textContent=ph[0];$('qq').textContent='🔒 Os desafios deste tópico serão disponibilizados em breve! Por enquanto, explore o mapa à vontade e treine na Torre ENEM (aba ENEM) para ganhar pontos para a sua tribo.';$('qf').textContent='';const box=$('qo');box.innerHTML='';const b=document.createElement('button');b.className='opt';b.textContent='OK, VOU EXPLORAR!';b.onclick=closeQuiz;box.appendChild(b);$('quiz').classList.add('on');return}
- $('qv').textContent=`${v+1}º BIMESTRE - TÓPICO ${i+1}${i===5?' - DESAFIO FINAL':''}`;$('qt').textContent=ph[0];$('qq').textContent=ph[1];$('qf').textContent='';
+ if(!jornOn()){$('qv').textContent=`${v+1}º BIMESTRE - TÓPICO ${i+1}`;$('qt').textContent=ph[0];$('qq').textContent='🔒 Os desafios deste tópico serão disponibilizados em breve! Por enquanto, explore o mapa à vontade e treine na Torre ENEM (aba ENEM) para ganhar pontos para a sua tribo.';$('qf').textContent='';const box=$('qo');box.innerHTML='';const b=document.createElement('button');b.className='opt';b.textContent='OK, VOU EXPLORAR!';b.onclick=closeQuiz;box.appendChild(b);$('quiz').classList.add('on');return}
+ $('qv').textContent=`${v+1}º BIMESTRE - TÓPICO ${i+1}${i===5?' - DESAFIO FINAL':''}`;$('qt').textContent=ph[0];$('qq').textContent=(ph[3]?'📘 '+ph[3]+'\n\n':'')+ph[1];$('qf').textContent='';
  const box=$('qo');box.innerHTML='';
  ph[2].map((t,j)=>({t,ok:j===0})).sort(()=>Math.random()-.5).forEach(o=>{const b=document.createElement('button');b.className='opt';b.textContent=o.t;
   b.onclick=async()=>{if(o.ok){b.classList.add('ok');[...box.children].forEach(x=>x.disabled=true);const already=isDone(v,i);$('qf').style.color='#7ae07a';
