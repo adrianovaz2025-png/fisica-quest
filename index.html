@@ -1496,9 +1496,9 @@ function buildTribeWorld(levels){
  Wd.podPos=(ti,k)=>{const q=POD[ti],o=[0,-1,1,-2,2][k],f=[.45,.15,.15,-.1,-.1][k];return[q[0]+q[2][0]*o*q[3]+f,q[1]+q[2][1]*o*q[3]+f]};
  const inPod=(x,y,m=4.4,f=0)=>POD.some(q=>x-q[0]>-m&&x-q[0]<m+f&&y-q[1]>-m&&y-q[1]<m+f);Wd.inPod=inPod;
  const ang=TP.map(T=>Math.atan2(T[1]-C[1],T[0]-C[0]));
- const MAS=ang.map((a,i)=>{let d=ang[(i+1)%5]-a;while(d<=-Math.PI)d+=2*Math.PI;while(d>Math.PI)d-=2*Math.PI;const m=a+d/2;return{x:C[0]+Math.cos(m)*29,y:C[1]+Math.sin(m)*29,ur:[Math.cos(m),Math.sin(m)],a:[70,96,80,104,175][i],m,br:i===4}});
+ const MAS=ang.map((a,i)=>{let d=ang[(i+1)%5]-a;while(d<=-Math.PI)d+=2*Math.PI;while(d>Math.PI)d-=2*Math.PI;const m=a+d/2;return{x:C[0]+Math.cos(m)*29,y:C[1]+Math.sin(m)*29,ur:[Math.cos(m),Math.sin(m)],a:[120,135,75,140,175][i],m,br:1}});
  const at=(a,r)=>({x:C[0]+Math.cos(a)*r,y:C[1]+Math.sin(a)*r,ur:[Math.cos(a),Math.sin(a)]});
- const MT=MAS.map((m,i)=>({...at(m.m,34.5),ph:13,i})).filter(m=>m.i!==4);
+ const MT=MAS.map((m,i)=>({...at(m.m,34.5),ph:13,i})).filter(()=>false);
  const HM=ang.map((a,i)=>({...at(a+(i===0?.32:0),40.5),ph:10,i}));
  const POI={santuario:{...at(MAS[0].m,42),ph:11,r:4.6},arena:{...at(MAS[1].m,42),ph:9,r:5},neon:{...at(MAS[3].m+.2,41),r:4.4},lago2:{...at(MAS[2].m+.2,41),r:3.6},lago3:{...at(MAS[0].m-.62,30),r:2.8},porto:{...at(MAS[4].m,47.5),ph:5,r:4},ilha:{...at(MAS[4].m,60),r:5.6}};
  Wd.MT=MT;Wd.HM=HM;Wd.POI=POI;const PL=[...MT.map(m=>[m,3.2]),...HM.map(m=>[m,2.4]),...['santuario','arena','porto'].map(k=>[POI[k],POI[k].r])];
@@ -1540,7 +1540,7 @@ function buildTribeWorld(levels){
   if(Wd.q('fr',x,y)<1.3)continue;if(inPod(x,y,4.4,3))continue;if(Math.hypot(x-ISL[0],y-ISL[1])<7.6||polyDist(x,y,[BRA,BRB],2)<1.6||Math.hypot(x-BRA[0],y-BRA[1])<2.4)continue;const tcd=Math.min(...TP.map(T=>Math.max(Math.abs(x-T[0]),Math.abs(y-T[1]))));if(tcd<7.4)continue;if(tcd<11&&r()>.08)continue;if(Math.hypot(x-C[0],y-C[1])<9.4)continue;if(PL.some(([p,rr])=>Math.hypot(x-p.x,y-p.y)<rr+1.2)||Math.hypot(x-POI.ilha.x,y-POI.ilha.y)<3.6)continue;
   const sl=Wd.q('fsl',x,y),fo=Wd.q('ffo',x,y);let sp=null,hg=10;
   if(hh<P.beachH+.6){if(r()<.07){sp=palmS(r()*6|0);hg=34}}
-  else if(sl>P.rockS){if(r()<.13){sp=rockS(r()*8|0,ROCKP.gray);hg=8}}
+  else if(sl>P.rockS){if(r()<.025){sp=rockS(r()*8|0,ROCKP.gray);hg=8}}
   else if(hh>P.snowH-6){if(r()<.03){sp=rockS(r()*8|0,ROCKP.snow);hg=8}}
   else if(fo>.3?r()<.9*fo+.1:r()<.06){const pine=hh>26||sl>7||r()<.4;if(pine){sp=pineS(r()*6|0,hh>P.snowH-16);hg=42}else{const q=r();sp=oakS(r()*8|0,q<.08?LEAF.fall:q<.2?LEAF.birch:q<.6?LEAF.oak:LEAF.dark);hg=34}}
   else if(r()<.035){sp=bushS(r()*5|0,r()<.45);hg=8}else if(r()<.01){sp=rockS(r()*8|0,ROCKP.gray);hg=8}
@@ -1551,7 +1551,7 @@ function buildTribeWorld(levels){
  for(let i=0;i<8;i++)Wd.birds.push({x:r()*Wd.w,y:r()*Wd.h,vx:(.018+r()*.012)*(r()<.5?1:-1),vy:(r()-.5)*.008,ph:r()*9});
  for(let i=0;i<5;i++)Wd.clouds.push({x:r()*Wd.w,y:r()*Wd.h,vx:.006+r()*.004});
  finalize(Wd);nightTint(Wd,ISL);bridges(Wd,resample([BRA,BRB],.15),true);Wd.minZ=.5;
- Wd.MS=[BRA[0]+2.6,BRA[1]-.4];for(const p of[coast,...mroads])bridges(Wd,resample(p,.15),false);Wd.RG=mkRoadGraph(Wd,[...roads,ring,coast,...mroads]);Wd.RG.N.forEach(([x,y],k)=>{if(k%2===0)clearSpot(Wd,x,y,.55)});clearSpot(Wd,...Wd.MS);peakClouds(Wd,MAS[4]);Wd.MAS4=MAS[4];Wd.GUARD=mkGuards(TP,AX,MT,HM);placeGuards(Wd,Wd.MS);bridges(Wd,resample([[POI.porto.x+POI.porto.ur[0]*3,POI.porto.y+POI.porto.ur[1]*3],[POI.ilha.x-POI.ilha.ur[0]*4.6,POI.ilha.y-POI.ilha.ur[1]*4.6]],.15),true);
+ Wd.MS=[BRA[0]+2.6,BRA[1]-.4];for(const p of[coast,...mroads])bridges(Wd,resample(p,.15),false);Wd.RG=mkRoadGraph(Wd,[...roads,ring,coast,...mroads]);Wd.RG.N.forEach(([x,y],k)=>{if(k%2===0)clearSpot(Wd,x,y,.55)});clearSpot(Wd,...Wd.MS);peakClouds(Wd,MAS[4]);peakClouds(Wd,MAS[3]);Wd.MAS4=MAS[4];Wd.GUARD=mkGuards(TP,AX,MT,HM);placeGuards(Wd,Wd.MS);bridges(Wd,resample([[POI.porto.x+POI.porto.ur[0]*3,POI.porto.y+POI.porto.ur[1]*3],[POI.ilha.x-POI.ilha.ur[0]*4.6,POI.ilha.y-POI.ilha.ur[1]*4.6]],.15),true);
  Wd.cam={x:Wd.P(...TP[0])[0]-VW/2,y:Wd.P(...TP[0])[1]-VH/2-20};
  return Wd}
 /* ===== construções das regiões novas do Reino ===== */
@@ -1622,7 +1622,7 @@ function mkWalker(Wd,g,start){let a=0,bd=1e9;g.N.forEach((p,k)=>{const d=Math.hy
   const A=g.N[a],B=g.N[b];return{X:A[0]+(B[0]-A[0])*t,Y:A[1]+(B[1]-A[1])*t,back:(B[0]+B[1])<(A[0]+A[1])}}}
 /* nuvens girando em volta do pico da montanha brava */
 function peakClouds(Wd,m){let bx=m.x,by=m.y,bh=-1;for(let dx=-9;dx<=9;dx+=.5)for(let dy=-9;dy<=9;dy+=.5){const h=Wd.hz(m.x+dx,m.y+dy);if(h>bh){bh=h;bx=m.x+dx;by=m.y+dy}}
- const[px,py]=Wd.P(bx,by),r=rng(77),CL=[];Wd.PEAK=[bx,by];for(let k=0;k<9;k++)CL.push({a:k/9*6.283+r()*.4,R:30+r()*30,h:bh*(.86-r()*.2),s:.9+r()*.7,sp:(.00005+r()*.00004)});
+ const[px,py]=Wd.P(bx,by),r=rng(77+Math.round(bx*7)),CL=[];Wd.PEAK=[bx,by];for(let k=0;k<9;k++)CL.push({a:k/9*6.283+r()*.4,R:30+r()*30,h:bh*(.86-r()*.2),s:.9+r()*.7,sp:(.00005+r()*.00004)});
  const puff=(x,X,Yy,s,al)=>{x.globalAlpha=al;for(const[ox,oy,rr,c]of[[0,0,11,'#e8eef8'],[-12,3,8,'#d8e0ee'],[12,3,9,'#d8e0ee'],[-5,-6,8,'#ffffff'],[6,-5,7,'#ffffff'],[0,5,9,'#c8d2e4']]){x.fillStyle=c;x.beginPath();x.ellipse(Math.round(X+ox*s),Math.round(Yy+oy*s),rr*s*1.3,rr*s*.8,0,0,6.283);x.fill()}x.globalAlpha=1};
  for(const front of[false,true])Wd.spr.push({x:px-120,y:py-60,w:240,h:bh+100,dep:front?bx+by+8:bx+by-8,draw:(x,cx,cy,t)=>{for(const c of CL){const a=c.a+t*c.sp,f=Math.sin(a)>0;if(f!==front)continue;puff(x,px-cx+Math.cos(a)*c.R*1.6,py-cy+bh-c.h+Math.sin(a)*c.R*.45,c.s,front?.82:.6)}}})}
 
