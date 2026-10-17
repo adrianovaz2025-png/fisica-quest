@@ -1496,7 +1496,7 @@ function buildTribeWorld(levels){
  Wd.podPos=(ti,k)=>{const q=POD[ti],o=[0,-1,1,-2,2][k],f=[.45,.15,.15,-.1,-.1][k];return[q[0]+q[2][0]*o*q[3]+f,q[1]+q[2][1]*o*q[3]+f]};
  const inPod=(x,y,m=4.4,f=0)=>POD.some(q=>x-q[0]>-m&&x-q[0]<m+f&&y-q[1]>-m&&y-q[1]<m+f);Wd.inPod=inPod;
  const ang=TP.map(T=>Math.atan2(T[1]-C[1],T[0]-C[0]));
- const MAS=ang.map((a,i)=>{let d=ang[(i+1)%5]-a;while(d<=-Math.PI)d+=2*Math.PI;while(d>Math.PI)d-=2*Math.PI;const m=a+d/2;return{x:C[0]+Math.cos(m)*29,y:C[1]+Math.sin(m)*29,ur:[Math.cos(m),Math.sin(m)],a:[120,135,0,140,175][i],m,br:1,terr:i===2}});
+ const MAS=ang.map((a,i)=>{let d=ang[(i+1)%5]-a;while(d<=-Math.PI)d+=2*Math.PI;while(d>Math.PI)d-=2*Math.PI;const m=a+d/2;return{x:C[0]+Math.cos(m)*29,y:C[1]+Math.sin(m)*29,ur:[Math.cos(m),Math.sin(m)],a:[120,135,85,140,175][i],m,br:1,terr:false}});
  const at=(a,r)=>({x:C[0]+Math.cos(a)*r,y:C[1]+Math.sin(a)*r,ur:[Math.cos(a),Math.sin(a)]});
  const MT=MAS.map((m,i)=>({...at(m.m,34.5),ph:13,i})).filter(()=>false);
  const HM=ang.map((a,i)=>({...at(a+(i===0?.32:0),40.5),ph:10,i}));
@@ -1516,8 +1516,8 @@ function buildTribeWorld(levels){
   {const da=Math.hypot(X-BRA[0],Y-BRA[1]);if(da<2.8)h=Math.max(h,6*sstep(2.8,1.2,da))}
   for(const[p,rr]of PL){const w=sstep(rr+1.4,rr,Math.hypot(X-p.x,Y-p.y));if(w>0)h=lerp(h,p.ph,w)}
   for(const k of['neon','lago2','lago3']){const L=POI[k],dd=Math.hypot(X-L.x,Y-L.y)+(fbm(X*.35,Y*.35,sd+80)-.5)*1.6;if(dd<L.r+2.2)h=lerp(h,dd<L.r?-4:Math.min(h,6),sstep(L.r+2.2,L.r,dd))}
-  {const dn=Math.hypot(X-NP.x,Y-NP.y)+(fbm(X*.3,Y*.3,sd+90)-.5)*1.2;if(dn<NP.r+1.5){const st=clamp(Math.floor((NP.r-dn)/2.2)+1,0,4),fr=(NP.r-dn)/2.2-Math.floor((NP.r-dn)/2.2),th=8+st*17+(st>0&&fr<.1?(fr/.1-1)*17:0)+(st===4?2:0);h=Math.max(h,lerp(h,th,sstep(NP.r+1.5,NP.r,dn)))}
-   {const qx=X-NP.x+2.6,qy=Y-NP.y+2.6,q=(qx*qx+qy*qy)/10;if(q<9){const rg=1-Math.abs(2*fbm(X*.32,Y*.32,sd+95)-1);h=Math.max(h,10+215*Math.exp(-q*.85)*(.5+rg*.65))}}}
+  {const dn=1e9+(fbm(X*.3,Y*.3,sd+90)-.5)*1.2;if(dn<NP.r+1.5){const st=clamp(Math.floor((NP.r-dn)/2.2)+1,0,4),fr=(NP.r-dn)/2.2-Math.floor((NP.r-dn)/2.2),th=8+st*17+(st>0&&fr<.1?(fr/.1-1)*17:0)+(st===4?2:0);h=Math.max(h,lerp(h,th,sstep(NP.r+1.5,NP.r,dn)))}
+   {const qx=X-NP.x+2.6,qy=Y-NP.y+2.6,q=(qx*qx+qy*qy)/10;if(false){const rg=1-Math.abs(2*fbm(X*.32,Y*.32,sd+95)-1);h=Math.max(h,10+215*Math.exp(-q*.85)*(.5+rg*.65))}}}
   {const I=POI.ilha,dd=Math.hypot(X-I.x,Y-I.y)+(fbm(X*.4,Y*.4,sd+60)-.5)*1.2;if(dd<I.r+1.5)h=Math.max(h,dd<I.r-1.6?10+(fbm(X*.5,Y*.5,sd+61)-.5)*2:lerp(-8,10,sstep(I.r+.8,I.r-1.6,dd)))}
   return h};
  const RADS=[2.8,4.4,5.8,7,7.2,7.4];
@@ -1531,7 +1531,7 @@ function buildTribeWorld(levels){
  const ff2=(X,Y)=>{const dC=Math.hypot(X-C[0],Y-C[1]);if(dC>57&&Math.hypot(X-POI.ilha.x,Y-POI.ilha.y)>POI.ilha.r+2)return 0;let v=ff(X,Y);if(dC>36&&dC<49)v=Math.max(v,sstep(.42,.6,fbm(X*.09,Y*.09,sd+71,3))*.9);for(const[p,rr]of PL)if(Math.hypot(X-p.x,Y-p.y)<rr+1.6)return 0;if(Math.abs(dC-44)<1.2)return 0;return v};
  genTerrain(Wd,{pal:PAL.grass,height:hf,dirt:df,forest:ff2,roads:[...roads,ring,coast,...mroads],roadW:.5,seed:sd});
  Wd.TP=TP;Wd.levels=levels.slice();Wd.C=C;
- Wd.NOF=[NP.x,NP.y,NP.r+2];TP.forEach((T,i)=>buildTown(Wd,T,TURMAS[i],levels[i],AX[i]));buildNepal(Wd,NP);
+ Wd.NOF=[NP.x,NP.y,NP.r+2];TP.forEach((T,i)=>buildTown(Wd,T,TURMAS[i],levels[i],AX[i]));
  MT.forEach(m=>buildMountTown(Wd,m));HM.forEach(m=>buildHamlet(Wd,m));buildPOIs(Wd,POI);
  for(const p of[...roads,ring])bridges(Wd,resample(p,.15),false);
  Wd.ISL=ISL;Wd.BRA=BRA;Wd.BRB=BRB;Wd.PROF=[BRA[0]+.5,BRA[1]+.5];
@@ -1540,7 +1540,7 @@ function buildTribeWorld(levels){
  // natureza
  const r=rng(sd+50),P=Wd.pal;
  for(let Y=1;Y<N-1;Y+=.78)for(let X=1;X<N-1;X+=.78){const x=X+r()*.6,y=Y+r()*.6,hh=Wd.q('fh',x,y);if(hh<1)continue;
-  if(Wd.q('fr',x,y)<1.3)continue;if(inPod(x,y,4.4,3))continue;if(Math.hypot(x-ISL[0],y-ISL[1])<7.6||polyDist(x,y,[BRA,BRB],2)<1.6||Math.hypot(x-BRA[0],y-BRA[1])<2.4)continue;const tcd=Math.min(...TP.map(T=>Math.max(Math.abs(x-T[0]),Math.abs(y-T[1]))));if(tcd<7.4)continue;if(tcd<11&&r()>.08)continue;if(Math.hypot(x-C[0],y-C[1])<9.4)continue;if(PL.some(([p,rr])=>Math.hypot(x-p.x,y-p.y)<rr+1.2)||Math.hypot(x-POI.ilha.x,y-POI.ilha.y)<3.6||Math.hypot(x-NP.x,y-NP.y)<NP.r+.8)continue;
+  if(Wd.q('fr',x,y)<1.3)continue;if(inPod(x,y,4.4,3))continue;if(Math.hypot(x-ISL[0],y-ISL[1])<7.6||polyDist(x,y,[BRA,BRB],2)<1.6||Math.hypot(x-BRA[0],y-BRA[1])<2.4)continue;const tcd=Math.min(...TP.map(T=>Math.max(Math.abs(x-T[0]),Math.abs(y-T[1]))));if(tcd<7.4)continue;if(tcd<11&&r()>.08)continue;if(Math.hypot(x-C[0],y-C[1])<9.4)continue;if(PL.some(([p,rr])=>Math.hypot(x-p.x,y-p.y)<rr+1.2)||Math.hypot(x-POI.ilha.x,y-POI.ilha.y)<3.6)continue;
   const sl=Wd.q('fsl',x,y),fo=Wd.q('ffo',x,y);let sp=null,hg=10;
   if(hh<P.beachH+.6){if(r()<.07){sp=palmS(r()*6|0);hg=34}}
   else if(sl>P.rockS){if(r()<.025){sp=rockS(r()*8|0,ROCKP.gray);hg=8}}
@@ -1554,7 +1554,7 @@ function buildTribeWorld(levels){
  for(let i=0;i<8;i++)Wd.birds.push({x:r()*Wd.w,y:r()*Wd.h,vx:(.018+r()*.012)*(r()<.5?1:-1),vy:(r()-.5)*.008,ph:r()*9});
  for(let i=0;i<5;i++)Wd.clouds.push({x:r()*Wd.w,y:r()*Wd.h,vx:.006+r()*.004});
  finalize(Wd);nightTint(Wd,ISL);bridges(Wd,resample([BRA,BRB],.15),true);Wd.minZ=.5;
- Wd.MS=[BRA[0]+2.6,BRA[1]-.4];for(const p of[coast,...mroads])bridges(Wd,resample(p,.15),false);Wd.RG=mkRoadGraph(Wd,[...roads,ring,coast,...mroads]);Wd.RG.N.forEach(([x,y],k)=>{if(k%2===0)clearSpot(Wd,x,y,.55)});clearSpot(Wd,...Wd.MS);peakClouds(Wd,MAS[4]);peakClouds(Wd,{x:NP.x-2.6,y:NP.y-2.6});Wd.MAS4=MAS[4];Wd.GUARD=mkGuards(TP,AX,MT,HM);placeGuards(Wd,Wd.MS);bridges(Wd,resample([[POI.porto.x+POI.porto.ur[0]*3,POI.porto.y+POI.porto.ur[1]*3],[POI.ilha.x-POI.ilha.ur[0]*4.6,POI.ilha.y-POI.ilha.ur[1]*4.6]],.15),true);
+ Wd.MS=[BRA[0]+2.6,BRA[1]-.4];for(const p of[coast,...mroads])bridges(Wd,resample(p,.15),false);Wd.RG=mkRoadGraph(Wd,[...roads,ring,coast,...mroads]);Wd.RG.N.forEach(([x,y],k)=>{if(k%2===0)clearSpot(Wd,x,y,.55)});clearSpot(Wd,...Wd.MS);peakClouds(Wd,MAS[4]);peakClouds(Wd,MAS[3]);Wd.MAS4=MAS[4];Wd.GUARD=mkGuards(TP,AX,MT,HM);placeGuards(Wd,Wd.MS);bridges(Wd,resample([[POI.porto.x+POI.porto.ur[0]*3,POI.porto.y+POI.porto.ur[1]*3],[POI.ilha.x-POI.ilha.ur[0]*4.6,POI.ilha.y-POI.ilha.ur[1]*4.6]],.15),true);
  Wd.cam={x:Wd.P(...TP[0])[0]-VW/2,y:Wd.P(...TP[0])[1]-VH/2-20};
  return Wd}
 /* ===== construções das regiões novas do Reino ===== */
