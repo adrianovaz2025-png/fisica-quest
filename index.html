@@ -1508,14 +1508,14 @@ function buildTribeWorld(levels){
  Wd.podPos=(ti,k)=>{const q=POD[ti],o=[0,-1,1,-2,2][k],f=[.45,.15,.15,-.1,-.1][k];return[q[0]+q[2][0]*o*q[3]+f,q[1]+q[2][1]*o*q[3]+f]};
  const inPod=(x,y,m=4.4,f=0)=>POD.some(q=>x-q[0]>-m&&x-q[0]<m+f&&y-q[1]>-m&&y-q[1]<m+f);Wd.inPod=inPod;
  const ang=TP.map(T=>Math.atan2(T[1]-C[1],T[0]-C[0]));
- const MAS=ang.map((a,i)=>{let d=ang[(i+1)%5]-a;while(d<=-Math.PI)d+=2*Math.PI;while(d>Math.PI)d-=2*Math.PI;const m=a+d/2;return{x:C[0]+Math.cos(m)*29,y:C[1]+Math.sin(m)*29,ur:[Math.cos(m),Math.sin(m)],a:[120,135,0,140,175][i],m,br:1,terr:false}});
+ const MAS=ang.map((a,i)=>{let d=ang[(i+1)%5]-a;while(d<=-Math.PI)d+=2*Math.PI;while(d>Math.PI)d-=2*Math.PI;const m=a+d/2;return{x:C[0]+Math.cos(m)*29,y:C[1]+Math.sin(m)*29,ur:[Math.cos(m),Math.sin(m)],a:[120,135,85,140,175][i],m,br:1,terr:false}});
  const at=(a,r)=>({x:C[0]+Math.cos(a)*r,y:C[1]+Math.sin(a)*r,ur:[Math.cos(a),Math.sin(a)]});
  const MT=MAS.map((m,i)=>({...at(m.m,34.5),ph:13,i})).filter(()=>false);
  const HM=ang.map((a,i)=>({...at(a+(i===0?.32:0),40.5),ph:10,i}));
- const POI={santuario:{...at(MAS[0].m,42),ph:11,r:4.6},arena:{...at(MAS[1].m,42),ph:9,r:6.4},neon:{...at(MAS[3].m+.2,41),r:4.4},lago2:{...at(MAS[2].m+.2,41),r:3.6},lago3:{...at(MAS[0].m-.62,30),r:2.8},porto:{...at(MAS[4].m,47.5),ph:5,r:4},ilha:{...at(MAS[4].m,60),r:5.6}};
+ const POI={santuario:{...at(MAS[0].m,42),ph:11,r:4.6},arena:{...at(MAS[1].m,42),ph:9,r:6.4},neon:{...at(MAS[3].m+.2,41),r:4.4},lago2:{...at(MAS[2].m+.2,41),r:3.6},lago3:{...at(MAS[0].m-.62,30),r:2.8},porto:{...at(MAS[4].m,47.5),ph:5,r:4},ilha:{...at(MAS[4].m,60),r:8.4}};
  Wd.MT=MT;Wd.HM=HM;Wd.POI=POI;const PL=[...MT.map(m=>[m,3.2]),...HM.map(m=>[m,2.4]),...['santuario','arena','porto'].map(k=>[POI[k],POI[k].r])];
- const NP={...MAS[2],r:9.4,lv:[7.2,5,2.8]};Wd.NP=NP;
- const hf=(X,Y)=>{const dC=Math.hypot(X-C[0],Y-C[1]),d=dC/IR;if(dC>58.5&&Math.hypot(X-POI.ilha.x,Y-POI.ilha.y)>POI.ilha.r+3)return -24;
+ const NP={...MAS[2],r:9.4,lv:[7.2,5,2.8]};Wd.NP=NP;const ISLETS=[];{const I=POI.ilha;[[-1.95,11,2],[-1.55,13.5,2.6],[-1.15,12.5,1.8],[-1.7,19,1.6],[1.95,11,2],[1.55,13.5,2.6],[1.2,13,1.7],[1.75,19.5,1.8]].forEach(([a,d,r])=>{const x=I.x+Math.cos(a)*d,y=I.y+Math.sin(a)*d;if(x>r+2&&y>r+2&&x<N-r-2&&y<N-r-2&&Math.hypot(x-C[0],y-C[1])>55.5+r)ISLETS.push({x,y,r})})}Wd.ISLETS=ISLETS;
+ const hf=(X,Y)=>{const dC=Math.hypot(X-C[0],Y-C[1]),d=dC/IR;if(dC>58.5&&Math.hypot(X-POI.ilha.x,Y-POI.ilha.y)>POI.ilha.r+3&&!ISLETS.some(q=>Math.hypot(X-q.x,Y-q.y)<q.r+2))return -24;
   const coast=1-d+(fbm(X*.06,Y*.06,sd)-.5)*.34+(fbm(X*.2,Y*.2,sd+1)-.5)*.1-sstep(52,57,dC)*1.6;let h=coast>0?2+coast*22:Math.max(-24,coast*44);const land=clamp(coast*5,0,1);
   h+=(fbm(X*.12,Y*.12,sd+2)-.5)*16*land;
   let rid=-1,rid2=0;if(land>0)for(const m of MAS){const dx=X-m.x,dy=Y-m.y;if(dx*dx+dy*dy>300)continue;if(rid<0){rid=1-Math.abs(2*fbm(X*.21,Y*.21,sd+7)-1);rid2=1-Math.abs(2*fbm(X*.45,Y*.45,sd+17)-1)}const dr=dx*m.ur[0]+dy*m.ur[1],dt=-dx*m.ur[1]+dy*m.ur[0];for(const[o2,s2]of[[0,1],[-3.6,.8],[3.8,.76],[-7.2,.55],[7.4,.5]]){const q=(dr/3.2)**2+((dt-o2)/3.1)**2;if(q<7)h+=Math.exp(-q*(m.br?1.4:1.15))*m.a*s2*(m.br?(.15+rid*.95+rid2*.7):(.3+rid*.75+rid2*.35))*land}}
@@ -1530,7 +1530,7 @@ function buildTribeWorld(levels){
   for(const k of['neon','lago2','lago3']){const L=POI[k],dd=Math.hypot(X-L.x,Y-L.y)+(fbm(X*.35,Y*.35,sd+80)-.5)*1.6;if(dd<L.r+2.2)h=lerp(h,dd<L.r?-4:Math.min(h,6),sstep(L.r+2.2,L.r,dd))}
   {const dn=1e9+(fbm(X*.3,Y*.3,sd+90)-.5)*1.2;if(dn<NP.r+1.5){const st=clamp(Math.floor((NP.r-dn)/2.2)+1,0,4),fr=(NP.r-dn)/2.2-Math.floor((NP.r-dn)/2.2),th=8+st*17+(st>0&&fr<.1?(fr/.1-1)*17:0)+(st===4?2:0);h=Math.max(h,lerp(h,th,sstep(NP.r+1.5,NP.r,dn)))}
    {const qx=X-NP.x+2.6,qy=Y-NP.y+2.6,q=(qx*qx+qy*qy)/10;if(false){const rg=1-Math.abs(2*fbm(X*.32,Y*.32,sd+95)-1);h=Math.max(h,10+215*Math.exp(-q*.85)*(.5+rg*.65))}}}
-  {const dc=Math.hypot(X-NP.x,Y-NP.y);if(dc<8.8)h=lerp(h,10,sstep(8.8,7,dc))}
+  for(const q of ISLETS){const dd=Math.hypot(X-q.x,Y-q.y)+(fbm(X*.5,Y*.5,sd+120)-.5)*1.1;if(dd<q.r+1.2)h=Math.max(h,dd<q.r-.8?4+(fbm(X*.6,Y*.6,sd+121)-.5)*3:lerp(-8,4,sstep(q.r+.6,q.r-.8,dd)))}
   {const I=POI.ilha,dd=Math.hypot(X-I.x,Y-I.y)+(fbm(X*.4,Y*.4,sd+60)-.5)*1.2;if(dd<I.r+1.5)h=Math.max(h,dd<I.r-1.6?10+(fbm(X*.5,Y*.5,sd+61)-.5)*2:lerp(-8,10,sstep(I.r+.8,I.r-1.6,dd)))}
   return h};
  const RADS=[2.8,4.4,5.8,7,7.2,7.4];
@@ -1544,7 +1544,7 @@ function buildTribeWorld(levels){
  const ff2=(X,Y)=>{const dC=Math.hypot(X-C[0],Y-C[1]);if(dC>57&&Math.hypot(X-POI.ilha.x,Y-POI.ilha.y)>POI.ilha.r+2)return 0;let v=ff(X,Y);if(dC>36&&dC<49)v=Math.max(v,sstep(.42,.6,fbm(X*.09,Y*.09,sd+71,3))*.9);for(const[p,rr]of PL)if(Math.hypot(X-p.x,Y-p.y)<rr+1.6)return 0;if(Math.abs(dC-44)<1.2)return 0;return v};
  genTerrain(Wd,{pal:PAL.grass,height:hf,dirt:df,forest:ff2,roads:[...roads,ring,coast,...mroads],roadW:.5,seed:sd});
  Wd.TP=TP;Wd.levels=levels.slice();Wd.C=C;
- Wd.NOF=[NP.x,NP.y,NP.r+2];TP.forEach((T,i)=>buildTown(Wd,T,TURMAS[i],levels[i],AX[i]));buildCidadela(Wd,NP);
+ Wd.NOF=[NP.x,NP.y,NP.r+2];TP.forEach((T,i)=>buildTown(Wd,T,TURMAS[i],levels[i],AX[i]));buildCidadela(Wd,POI.ilha);
  MT.forEach(m=>buildMountTown(Wd,m));HM.forEach(m=>buildHamlet(Wd,m));buildPOIs(Wd,POI);
  for(const p of[...roads,ring])bridges(Wd,resample(p,.15),false);
  Wd.ISL=ISL;Wd.BRA=BRA;Wd.BRB=BRB;Wd.PROF=[BRA[0]+.5,BRA[1]+.5];
@@ -1553,7 +1553,7 @@ function buildTribeWorld(levels){
  // natureza
  const r=rng(sd+50),P=Wd.pal;
  for(let Y=1;Y<N-1;Y+=.78)for(let X=1;X<N-1;X+=.78){const x=X+r()*.6,y=Y+r()*.6,hh=Wd.q('fh',x,y);if(hh<1)continue;
-  if(Wd.q('fr',x,y)<1.3)continue;if(inPod(x,y,4.4,3))continue;if(Math.hypot(x-ISL[0],y-ISL[1])<7.6||polyDist(x,y,[BRA,BRB],2)<1.6||Math.hypot(x-BRA[0],y-BRA[1])<2.4)continue;const tcd=Math.min(...TP.map(T=>Math.max(Math.abs(x-T[0]),Math.abs(y-T[1]))));if(tcd<7.4)continue;if(tcd<11&&r()>.08)continue;if(Math.hypot(x-C[0],y-C[1])<9.4)continue;if(PL.some(([p,rr])=>Math.hypot(x-p.x,y-p.y)<rr+1.2)||Math.hypot(x-POI.ilha.x,y-POI.ilha.y)<3.6||Math.hypot(x-NP.x,y-NP.y)<8.2)continue;
+  if(Wd.q('fr',x,y)<1.3)continue;if(inPod(x,y,4.4,3))continue;if(Math.hypot(x-ISL[0],y-ISL[1])<7.6||polyDist(x,y,[BRA,BRB],2)<1.6||Math.hypot(x-BRA[0],y-BRA[1])<2.4)continue;const tcd=Math.min(...TP.map(T=>Math.max(Math.abs(x-T[0]),Math.abs(y-T[1]))));if(tcd<7.4)continue;if(tcd<11&&r()>.08)continue;if(Math.hypot(x-C[0],y-C[1])<9.4)continue;if(PL.some(([p,rr])=>Math.hypot(x-p.x,y-p.y)<rr+1.2)||Math.hypot(x-POI.ilha.x,y-POI.ilha.y)<3.6||Math.hypot(x-POI.ilha.x,y-POI.ilha.y)<7.6)continue;
   const sl=Wd.q('fsl',x,y),fo=Wd.q('ffo',x,y);let sp=null,hg=10;
   if(hh<P.beachH+.6){if(r()<.07){sp=palmS(r()*6|0);hg=34}}
   else if(sl>P.rockS){if(r()<.025){sp=rockS(r()*8|0,ROCKP.gray);hg=8}}
@@ -1567,7 +1567,7 @@ function buildTribeWorld(levels){
  for(let i=0;i<8;i++)Wd.birds.push({x:r()*Wd.w,y:r()*Wd.h,vx:(.018+r()*.012)*(r()<.5?1:-1),vy:(r()-.5)*.008,ph:r()*9});
  for(let i=0;i<5;i++)Wd.clouds.push({x:r()*Wd.w,y:r()*Wd.h,vx:.006+r()*.004});
  finalize(Wd);nightTint(Wd,ISL);bridges(Wd,resample([BRA,BRB],.15),true);Wd.minZ=.5;
- Wd.MS=[NP.x+.3,NP.y+6.4];for(const p of[coast,...mroads])bridges(Wd,resample(p,.15),false);Wd.RG=mkRoadGraph(Wd,[...roads,ring,coast,...mroads]);Wd.RG.N.forEach(([x,y],k)=>{if(k%2===0)clearSpot(Wd,x,y,.55)});clearSpot(Wd,...Wd.MS);peakClouds(Wd,MAS[4]);peakClouds(Wd,MAS[3]);Wd.MAS4=MAS[4];Wd.GUARD=mkGuards(TP,AX,MT,HM);placeGuards(Wd,Wd.MS);bridges(Wd,resample([[POI.porto.x+POI.porto.ur[0]*3,POI.porto.y+POI.porto.ur[1]*3],[POI.ilha.x-POI.ilha.ur[0]*4.6,POI.ilha.y-POI.ilha.ur[1]*4.6]],.15),true);
+ Wd.MS=[POI.ilha.x+.3,POI.ilha.y+6.1];for(const p of[coast,...mroads])bridges(Wd,resample(p,.15),false);Wd.RG=mkRoadGraph(Wd,[...roads,ring,coast,...mroads]);Wd.RG.N.forEach(([x,y],k)=>{if(k%2===0)clearSpot(Wd,x,y,.55)});clearSpot(Wd,...Wd.MS);peakClouds(Wd,MAS[4]);peakClouds(Wd,MAS[3]);Wd.MAS4=MAS[4];Wd.GUARD=mkGuards(TP,AX,MT,HM);placeGuards(Wd,Wd.MS);bridges(Wd,resample([[POI.porto.x+POI.porto.ur[0]*3,POI.porto.y+POI.porto.ur[1]*3],[POI.ilha.x-POI.ilha.ur[0]*4.6,POI.ilha.y-POI.ilha.ur[1]*4.6]],.15),true);
  Wd.cam={x:Wd.P(...TP[0])[0]-VW/2,y:Wd.P(...TP[0])[1]-VH/2-20};
  return Wd}
 /* ===== construções das regiões novas do Reino ===== */
@@ -1598,7 +1598,7 @@ function buildPOIs(Wd,P){
  {const A=P.arena;addSpr(Wd,colosseoS(),A.x-3.2,A.y-3.2);TURMAS.forEach((t,i)=>{const a=i/5*6.283+.3,X=A.x+Math.cos(a)*3.9,Y=A.y+Math.sin(a)*3.9;Wd.spr.push({x:Wd.P(X,Y)[0]-4,y:Wd.P(X,Y)[1]-26,w:16,h:28,dep:X+Y,draw:(x,cx,cy,tt)=>{const[px,py]=Wd.P(X,Y);R(x,px-cx,py-cy-24,1,24,'#3a2a1a');drawFlag(x,px-cx,py-cy-24,t.cor.f,tt+i*300,false)}})})}
  for(const k of['neon','lago2','lago3']){const L=P[k],rr=rng(hstr(k));for(let j=0;j<5;j++){const a=rr()*6.283,d=L.r+1+rr()*.8;addSpr(Wd,rockS(rr()*8|0,ROCKP.gray),L.x+Math.cos(a)*d-.3,L.y+Math.sin(a)*d-.3)}}
  {const Pt=P.porto,ux=Pt.ur[0],uy=Pt.ur[1];addSpr(Wd,pierS(),Pt.x+ux*2.4-1.7,Pt.y+uy*2.4-.5);addSpr(Wd,stallS('#2a6a9a'),Pt.x-.7,Pt.y-.5);addSpr(Wd,barrelS(),Pt.x+.9,Pt.y+.6);addSpr(Wd,chainS(),Pt.x+ux*3.4-.6,Pt.y+uy*3.4-.6)}
- {const I=P.ilha;addSpr(Wd,rockS(3,ROCKP.gray),I.x,I.y);addSpr(Wd,pineS(2,false),I.x+1.4,I.y-.8);addSpr(Wd,pineS(4,false),I.x-1.2,I.y+1);addSpr(Wd,totemS('#c8a020'),I.x-.3,I.y-.3)}}
+ }
 /* guardiões das vilas: cavaleiros de armadura avançada com nome de cientista */
 const GSETS={tribo:['lupus','aquila','ursa','serpens','draco'],mt:['leaod','leao','fenix','ouro','cometa'],hm:['prata','eletro','eletro','prata','bronze']};
 const GNAMES={tribo:['GUARDIÃO GALILEU','GUARDIÃ HIPÁTIA','GUARDIÃO FARADAY','GUARDIÃ MARIE CURIE','GUARDIÃO NEWTON'],mt:['SENHOR EINSTEIN','DAMA LISE MEITNER','GUARDIÃO CÉSAR LATTES','GUARDIÃ EMMY NOETHER','GUARDIÃO SANTOS DUMONT'],hm:['SENTINELA TESLA','SENTINELA VOLTA','SENTINELA AMPÈRE','SENTINELA KEPLER','SENTINELA HUYGENS']};
