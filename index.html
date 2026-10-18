@@ -200,6 +200,18 @@ select.inp{appearance:none;-webkit-appearance:none}
 <canvas id="scr"></canvas>
 <div id="rot">GIRE O CELULAR<br>PARA JOGAR<br><br>&#8635;</div>
 
+<div class="ov" id="gedit"><div class="box" style="width:min(620px,94vw)"><button class="x" id="geX">X</button><h2 id="geT">EDITAR GUARDIÃO</h2>
+<div style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start"><canvas id="geCv" width="160" height="160" style="width:160px;height:160px;background:#1a1020;border:3px solid #5a3a22"></canvas>
+<div style="flex:1;min-width:230px;display:grid;grid-template-columns:auto 1fr;gap:6px 8px;font-size:8px;align-items:center">
+<label>NOME</label><input id="geNome" maxlength="28" style="font:inherit;font-size:9px;padding:4px">
+<label>ARMADURA</label><select id="geSet" style="font:inherit;font-size:9px"></select>
+<label>ARMA</label><select id="geArma" style="font:inherit;font-size:9px"></select>
+<label>CABELO</label><select id="geHs" style="font:inherit;font-size:9px"></select>
+<label>COR</label><input type="color" id="geHc">
+<label>PELE</label><select id="geSk" style="font:inherit;font-size:9px"></select>
+<label>FALA</label><textarea id="geFala" rows="3" maxlength="220" placeholder="(vazio = fala padrão)" style="font:inherit;font-size:8px;padding:4px"></textarea></div></div>
+<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button class="big" id="geOk">SALVAR</button><button class="big" id="geRs" style="background:#6a5a7a">RESTAURAR PADRÃO</button></div>
+<p style="font-size:7px;color:#b8a890;text-align:center;margin-top:10px">As mudanças valem para todos os alunos.</p></div></div>
 <div class="ov" id="quiz"><div class="box" id="qbox">
   <button class="x" id="qx">X</button>
   <h2 id="qv"></h2><h3 id="qt"></h3>
@@ -1496,7 +1508,7 @@ function buildTribeWorld(levels){
  Wd.podPos=(ti,k)=>{const q=POD[ti],o=[0,-1,1,-2,2][k],f=[.45,.15,.15,-.1,-.1][k];return[q[0]+q[2][0]*o*q[3]+f,q[1]+q[2][1]*o*q[3]+f]};
  const inPod=(x,y,m=4.4,f=0)=>POD.some(q=>x-q[0]>-m&&x-q[0]<m+f&&y-q[1]>-m&&y-q[1]<m+f);Wd.inPod=inPod;
  const ang=TP.map(T=>Math.atan2(T[1]-C[1],T[0]-C[0]));
- const MAS=ang.map((a,i)=>{let d=ang[(i+1)%5]-a;while(d<=-Math.PI)d+=2*Math.PI;while(d>Math.PI)d-=2*Math.PI;const m=a+d/2;return{x:C[0]+Math.cos(m)*29,y:C[1]+Math.sin(m)*29,ur:[Math.cos(m),Math.sin(m)],a:[120,135,85,140,175][i],m,br:1,terr:false}});
+ const MAS=ang.map((a,i)=>{let d=ang[(i+1)%5]-a;while(d<=-Math.PI)d+=2*Math.PI;while(d>Math.PI)d-=2*Math.PI;const m=a+d/2;return{x:C[0]+Math.cos(m)*29,y:C[1]+Math.sin(m)*29,ur:[Math.cos(m),Math.sin(m)],a:[120,135,0,140,175][i],m,br:1,terr:false}});
  const at=(a,r)=>({x:C[0]+Math.cos(a)*r,y:C[1]+Math.sin(a)*r,ur:[Math.cos(a),Math.sin(a)]});
  const MT=MAS.map((m,i)=>({...at(m.m,34.5),ph:13,i})).filter(()=>false);
  const HM=ang.map((a,i)=>({...at(a+(i===0?.32:0),40.5),ph:10,i}));
@@ -1518,6 +1530,7 @@ function buildTribeWorld(levels){
   for(const k of['neon','lago2','lago3']){const L=POI[k],dd=Math.hypot(X-L.x,Y-L.y)+(fbm(X*.35,Y*.35,sd+80)-.5)*1.6;if(dd<L.r+2.2)h=lerp(h,dd<L.r?-4:Math.min(h,6),sstep(L.r+2.2,L.r,dd))}
   {const dn=1e9+(fbm(X*.3,Y*.3,sd+90)-.5)*1.2;if(dn<NP.r+1.5){const st=clamp(Math.floor((NP.r-dn)/2.2)+1,0,4),fr=(NP.r-dn)/2.2-Math.floor((NP.r-dn)/2.2),th=8+st*17+(st>0&&fr<.1?(fr/.1-1)*17:0)+(st===4?2:0);h=Math.max(h,lerp(h,th,sstep(NP.r+1.5,NP.r,dn)))}
    {const qx=X-NP.x+2.6,qy=Y-NP.y+2.6,q=(qx*qx+qy*qy)/10;if(false){const rg=1-Math.abs(2*fbm(X*.32,Y*.32,sd+95)-1);h=Math.max(h,10+215*Math.exp(-q*.85)*(.5+rg*.65))}}}
+  {const dc=Math.hypot(X-NP.x,Y-NP.y);if(dc<8.8)h=lerp(h,10,sstep(8.8,7,dc))}
   {const I=POI.ilha,dd=Math.hypot(X-I.x,Y-I.y)+(fbm(X*.4,Y*.4,sd+60)-.5)*1.2;if(dd<I.r+1.5)h=Math.max(h,dd<I.r-1.6?10+(fbm(X*.5,Y*.5,sd+61)-.5)*2:lerp(-8,10,sstep(I.r+.8,I.r-1.6,dd)))}
   return h};
  const RADS=[2.8,4.4,5.8,7,7.2,7.4];
@@ -1531,7 +1544,7 @@ function buildTribeWorld(levels){
  const ff2=(X,Y)=>{const dC=Math.hypot(X-C[0],Y-C[1]);if(dC>57&&Math.hypot(X-POI.ilha.x,Y-POI.ilha.y)>POI.ilha.r+2)return 0;let v=ff(X,Y);if(dC>36&&dC<49)v=Math.max(v,sstep(.42,.6,fbm(X*.09,Y*.09,sd+71,3))*.9);for(const[p,rr]of PL)if(Math.hypot(X-p.x,Y-p.y)<rr+1.6)return 0;if(Math.abs(dC-44)<1.2)return 0;return v};
  genTerrain(Wd,{pal:PAL.grass,height:hf,dirt:df,forest:ff2,roads:[...roads,ring,coast,...mroads],roadW:.5,seed:sd});
  Wd.TP=TP;Wd.levels=levels.slice();Wd.C=C;
- Wd.NOF=[NP.x,NP.y,NP.r+2];TP.forEach((T,i)=>buildTown(Wd,T,TURMAS[i],levels[i],AX[i]));
+ Wd.NOF=[NP.x,NP.y,NP.r+2];TP.forEach((T,i)=>buildTown(Wd,T,TURMAS[i],levels[i],AX[i]));buildCidadela(Wd,NP);
  MT.forEach(m=>buildMountTown(Wd,m));HM.forEach(m=>buildHamlet(Wd,m));buildPOIs(Wd,POI);
  for(const p of[...roads,ring])bridges(Wd,resample(p,.15),false);
  Wd.ISL=ISL;Wd.BRA=BRA;Wd.BRB=BRB;Wd.PROF=[BRA[0]+.5,BRA[1]+.5];
@@ -1540,7 +1553,7 @@ function buildTribeWorld(levels){
  // natureza
  const r=rng(sd+50),P=Wd.pal;
  for(let Y=1;Y<N-1;Y+=.78)for(let X=1;X<N-1;X+=.78){const x=X+r()*.6,y=Y+r()*.6,hh=Wd.q('fh',x,y);if(hh<1)continue;
-  if(Wd.q('fr',x,y)<1.3)continue;if(inPod(x,y,4.4,3))continue;if(Math.hypot(x-ISL[0],y-ISL[1])<7.6||polyDist(x,y,[BRA,BRB],2)<1.6||Math.hypot(x-BRA[0],y-BRA[1])<2.4)continue;const tcd=Math.min(...TP.map(T=>Math.max(Math.abs(x-T[0]),Math.abs(y-T[1]))));if(tcd<7.4)continue;if(tcd<11&&r()>.08)continue;if(Math.hypot(x-C[0],y-C[1])<9.4)continue;if(PL.some(([p,rr])=>Math.hypot(x-p.x,y-p.y)<rr+1.2)||Math.hypot(x-POI.ilha.x,y-POI.ilha.y)<3.6)continue;
+  if(Wd.q('fr',x,y)<1.3)continue;if(inPod(x,y,4.4,3))continue;if(Math.hypot(x-ISL[0],y-ISL[1])<7.6||polyDist(x,y,[BRA,BRB],2)<1.6||Math.hypot(x-BRA[0],y-BRA[1])<2.4)continue;const tcd=Math.min(...TP.map(T=>Math.max(Math.abs(x-T[0]),Math.abs(y-T[1]))));if(tcd<7.4)continue;if(tcd<11&&r()>.08)continue;if(Math.hypot(x-C[0],y-C[1])<9.4)continue;if(PL.some(([p,rr])=>Math.hypot(x-p.x,y-p.y)<rr+1.2)||Math.hypot(x-POI.ilha.x,y-POI.ilha.y)<3.6||Math.hypot(x-NP.x,y-NP.y)<8.2)continue;
   const sl=Wd.q('fsl',x,y),fo=Wd.q('ffo',x,y);let sp=null,hg=10;
   if(hh<P.beachH+.6){if(r()<.07){sp=palmS(r()*6|0);hg=34}}
   else if(sl>P.rockS){if(r()<.025){sp=rockS(r()*8|0,ROCKP.gray);hg=8}}
@@ -1554,7 +1567,7 @@ function buildTribeWorld(levels){
  for(let i=0;i<8;i++)Wd.birds.push({x:r()*Wd.w,y:r()*Wd.h,vx:(.018+r()*.012)*(r()<.5?1:-1),vy:(r()-.5)*.008,ph:r()*9});
  for(let i=0;i<5;i++)Wd.clouds.push({x:r()*Wd.w,y:r()*Wd.h,vx:.006+r()*.004});
  finalize(Wd);nightTint(Wd,ISL);bridges(Wd,resample([BRA,BRB],.15),true);Wd.minZ=.5;
- Wd.MS=[BRA[0]+2.6,BRA[1]-.4];for(const p of[coast,...mroads])bridges(Wd,resample(p,.15),false);Wd.RG=mkRoadGraph(Wd,[...roads,ring,coast,...mroads]);Wd.RG.N.forEach(([x,y],k)=>{if(k%2===0)clearSpot(Wd,x,y,.55)});clearSpot(Wd,...Wd.MS);peakClouds(Wd,MAS[4]);peakClouds(Wd,MAS[3]);Wd.MAS4=MAS[4];Wd.GUARD=mkGuards(TP,AX,MT,HM);placeGuards(Wd,Wd.MS);bridges(Wd,resample([[POI.porto.x+POI.porto.ur[0]*3,POI.porto.y+POI.porto.ur[1]*3],[POI.ilha.x-POI.ilha.ur[0]*4.6,POI.ilha.y-POI.ilha.ur[1]*4.6]],.15),true);
+ Wd.MS=[NP.x+.3,NP.y+6.4];for(const p of[coast,...mroads])bridges(Wd,resample(p,.15),false);Wd.RG=mkRoadGraph(Wd,[...roads,ring,coast,...mroads]);Wd.RG.N.forEach(([x,y],k)=>{if(k%2===0)clearSpot(Wd,x,y,.55)});clearSpot(Wd,...Wd.MS);peakClouds(Wd,MAS[4]);peakClouds(Wd,MAS[3]);Wd.MAS4=MAS[4];Wd.GUARD=mkGuards(TP,AX,MT,HM);placeGuards(Wd,Wd.MS);bridges(Wd,resample([[POI.porto.x+POI.porto.ur[0]*3,POI.porto.y+POI.porto.ur[1]*3],[POI.ilha.x-POI.ilha.ur[0]*4.6,POI.ilha.y-POI.ilha.ur[1]*4.6]],.15),true);
  Wd.cam={x:Wd.P(...TP[0])[0]-VW/2,y:Wd.P(...TP[0])[1]-VH/2-20};
  return Wd}
 /* ===== construções das regiões novas do Reino ===== */
@@ -1592,7 +1605,7 @@ const GNAMES={tribo:['GUARDIÃO GALILEU','GUARDIÃ HIPÁTIA','GUARDIÃO FARADAY'
 function gEq(t){const p={bronze:['elmo','armadura','botas_bronze'],prata:['elmo_prata','arm_prata','botas_prata'],eletro:['elmo_cristal','arm_cristal','botas_cristal'],ouro:['elmo_ouro','arm_ouro','botas_ouro']}[t]||['elmo_'+t,'arm_'+t,'botas_'+t];return{cabeca:p[0],peito:p[1],botas:p[2]}}
 function mkGuards(TP,AX,MT,HM){const out=[],HS=['topete','assim','coque','rabo','raspado','chanel','moicano','trancas','franjao','afro','dreads'],SK=['#e0a870','#7a4a2c','#f6cfa6','#c08052','#5e3820','#ecbe90','#a06640','#ffe2c8'],HC=['#1e1614','#3a2418','#dcdce8','#a83a2a','#e8c060','#2a1a12'],WP=['montante','katana','nebular','gravit','prisma','magnetica','newton'];
  const look=k=>({name:'',skin:SK[k%SK.length],hair:{s:HS[k%HS.length],c1:HC[(k*3)%HC.length],c2:'#888'},top:{s:'gola',c1:'#34304a',c2:'#9a5ad8'},pants:'#3e4a5a',eyes:{s:0,c:['#4a2a14','#3a6ac8','#3a8a4a','#5a3414'][k%4]}});
- const add=(X,Y,kind,i,k)=>{const eq=gEq(GSETS[kind][i]);eq.arma=WP[k%WP.length];out.push({X,Y,L:look(k+3),eq,name:GNAMES[kind][i]})};
+ const add=(X,Y,kind,i,k)=>{const eq=gEq(GSETS[kind][i]);eq.arma=WP[k%WP.length];out.push({X,Y,L:look(k+3),eq,name:GNAMES[kind][i],key:GNAMES[kind][i]})};
  TP.forEach((T,i)=>{const a=AX[i];add(T[0]+a[0]*9+a[1]*1.6,T[1]+a[1]*9-a[0]*1.6,'tribo',i,i)});
  MT.forEach((m,i)=>add(m.x-m.ur[0]*3.6,m.y-m.ur[1]*3.6,'mt',i,i+5));
  HM.forEach((m,i)=>add(m.x-m.ur[0]*2.4,m.y-m.ur[1]*2.4,'hm',i,i+10));return out}
@@ -1656,6 +1669,15 @@ function colosseoS(){if(BC.colo)return BC.colo;const s=SB(6.4,6.4,70,10),cx=3.2,
  for(let k=0;k<7;k++){const r0=R*(.97-k*.075),r1=r0-R*.075,z=Math.round(H*.9-k*H*.115);for(let r=r1;r<r0;r+=.02)for(let a=0;a<6.283;a+=.0035)put(cx+Math.cos(a)*r,cy+Math.sin(a)*r,z,SEAT[k%2],(r-r1)/(r0-r1)>.75?1.12:.94)}
  const zf=Math.round(H*.9-7*H*.115);for(let r=0;r<R*.46;r+=.018)for(let a=0;a<6.283;a+=.005)put(cx+Math.cos(a)*r,cy+Math.sin(a)*r,zf,Math.floor(r*9)%3?SAND:SANDD);
  wall(true);fin(s,EDGE);return BC.colo={cv:s.cv,ax:s.ax,ay:s.ay,w:6.4,d:6.4,h:H,smoke:[],flags:[]}}
+/* Cidadela do Mestre: vitrine do máximo que um reino pode alcançar */
+function cidS(){if(BC.cid)return BC.cid;const s=FORTS.cidadela();return BC.cid={cv:s.cv,ax:s.ax,ay:s.ay,w:10,d:10,h:340,smoke:[],flags:[],crystal:[s.crystal[0]-s.ax,s.crystal[1]-s.ay]}}
+function buildCidadela(Wd,C){const sp=cidS(),e=addSpr(Wd,sp,C.x-5,C.y-5),[px,py]=Wd.P(C.x-5,C.y-5),cx0=px+sp.crystal[0],cy0=py+sp.crystal[1];Wd.CID=[C.x,C.y];
+ Wd.spr.push({x:cx0-30,y:cy0-40,w:60,h:70,dep:e.dep+.2,draw:(x,cx,cy,t)=>{const X=cx0-cx,Yc=cy0-cy-8+Math.sin(t/600)*3,pu=.6+.4*Math.sin(t/300);
+  x.save();x.globalCompositeOperation='lighter';const g=x.createRadialGradient(X,Yc,1,X,Yc,26);g.addColorStop(0,`rgba(120,230,255,${.55*pu})`);g.addColorStop(1,'rgba(120,230,255,0)');x.fillStyle=g;x.beginPath();x.arc(X,Yc,26,0,6.283);x.fill();x.restore();
+  x.fillStyle='#1a3a6a';x.beginPath();x.moveTo(X,Yc-11);x.lineTo(X+6,Yc);x.lineTo(X,Yc+11);x.lineTo(X-6,Yc);x.closePath();x.fill();
+  x.fillStyle='#6ae8ff';x.beginPath();x.moveTo(X,Yc-10);x.lineTo(X+5,Yc);x.lineTo(X,Yc+10);x.lineTo(X-5,Yc);x.closePath();x.fill();
+  x.fillStyle='#e8ffff';x.beginPath();x.moveTo(X-1,Yc-8);x.lineTo(X+2,Yc-1);x.lineTo(X-1,Yc+2);x.lineTo(X-3,Yc-1);x.closePath();x.fill();
+  for(let k=0;k<4;k++){const a=t/900+k*1.57,r=14;x.fillStyle='#c8f8ff';x.fillRect(Math.round(X+Math.cos(a)*r),Math.round(Yc+Math.sin(a)*r*.45),2,2)}}})}
 
 function resample(p,st){const o=[];for(let i=0;i<p.length-1;i++){const a=p[i],b=p[i+1],L=Math.hypot(b[0]-a[0],b[1]-a[1]),n=Math.max(1,Math.ceil(L/st));for(let j=0;j<n;j++)o.push([lerp(a[0],b[0],j/n),lerp(a[1],b[1],j/n)])}o.push(p[p.length-1]);return o}
 
@@ -2144,6 +2166,34 @@ K.mago=()=>{const s=SB(8.4,8.4,300,16),P=mkP(s),ST='#4a4860',ST2='#3a3a50',RC='#
  /* ponte de corda */
  {const a=s.p(1.3,7.6,26),b=s.p(3.6,7.4,40),C=[110,80,50];for(let t=0;t<=1;t+=.01){const x0=Math.round(a[0]+(b[0]-a[0])*t),y0=Math.round(a[1]+(b[1]-a[1])*t+Math.sin(t*Math.PI)*10);s.x.px(x0,y0,...C);if((t*100|0)%6===0){s.x.px(x0,y0-1,150,110,70);s.x.px(x0,y0+1,80,56,34)}s.x.px(x0,y0-8+Math.round(Math.sin(t*Math.PI)*-1),70,52,34)}}
  fin(s,EDGE);s.crystal=s.p(4.6,2.5,232);s.crystal=[s.crystal[0],s.crystal[1]];return s};
+/* CIDADELA DO MESTRE — além do Reino: três anéis de mármore, torres azuis e douradas, castelo central com espiras e cristal flutuante */
+K.cidadela=()=>{const s=SB(10,10,340,16),P=mkP(s),M='#ece8f4',M2='#cdc8dc',M3='#b4aec8',RB='#2a4ab8',G='#e8b020';
+ P.plat(0,0,0,10,10,10,'#7a768a','stone',1);P.grass(0,0,10,10,10,'#4a8a3a');
+ /* fundo: muralhas de trás e da esquerda */
+ P.wall(.3,.3,10,9.4,.4,22,M,'ashlar',2);P.wall(.3,.3,10,.4,9.4,22,M,'ashlar',3);
+ P.tower(.6,.6,10,.75,52,M,RB,32,{lit:1});P.tower(9.4,.6,10,.75,52,M,RB,32,{lit:1});P.tower(.6,9.4,10,.75,52,M,RB,32,{lit:1});
+ P.tower(5,.6,10,.55,40,M,G,24,{lit:1});P.tower(.6,5,10,.55,40,M,G,24,{lit:1});
+ /* 2º anel */
+ P.plat(2,2,10,6,6,28,M2,'stone',4);
+ P.wall(2.2,2.2,38,5.6,.35,16,M,'ashlar',5);P.wall(2.2,2.2,38,.35,5.6,16,M,'ashlar',6);
+ P.tower(2.4,2.4,38,.55,58,M,RB,30,{lit:1});P.tower(7.6,2.4,38,.55,58,M,RB,30,{lit:1});P.tower(2.4,7.6,38,.55,58,M,RB,30,{lit:1});
+ /* 3º anel e castelo central */
+ P.plat(3.4,3.4,38,3.2,3.2,24,M3,'ashlar',7);
+ P.tower(3.65,3.65,62,.3,118,M,RB,44,{lit:1});P.tower(6.35,3.65,62,.3,104,M,G,40,{lit:1});P.tower(3.65,6.35,62,.3,104,M,G,40,{lit:1});
+ P.keep(4.1,4.1,62,1.8,1.8,92,M,{roof:'hip',rc:G,rh:52,ban:RB,rows:5,sd:12});
+ P.tower(6.35,6.35,62,.3,124,M,RB,46,{lit:1});
+ /* frente do 2º anel */
+ P.wall(2.2,7.45,38,2.2,.35,16,M,'ashlar',8);P.wall(5.6,7.45,38,2.2,.35,16,M,'ashlar',9);P.wall(7.45,2.2,38,.35,5.6,16,M,'ashlar',10);
+ P.tower(7.6,7.6,38,.6,64,M,RB,32,{lit:1});
+ P.stairs(4.35,9.1,10,1.3,9,.12,3.1,'#dcd8e6');
+ /* frente: muralha da direita e da frente com portão */
+ P.wall(9.3,.3,10,.4,9.4,22,M,'ashlar',11);P.wall(.3,9.3,10,3.9,.4,22,M,'ashlar',12);P.wall(5.8,9.3,10,3.9,.4,22,M,'ashlar',13);
+ P.tower(9.4,5,10,.55,40,M,G,24,{lit:1});P.tower(5,9.4,10,.55,40,M,G,24,{lit:1});
+ P.tower(4.05,9.5,10,.5,46,M,G,26,{lit:1});P.tower(5.95,9.5,10,.5,46,M,G,26,{lit:1});
+ P.tower(9.4,9.4,10,.8,58,M,RB,34,{lit:1});
+ P.statue(3.4,9.85,10,G);P.statue(6.6,9.85,10,G);P.torch(4.5,9.9,10);P.torch(5.5,9.9,10);
+ P.flagPole(.6,.6,94,26,G);P.flagPole(9.4,9.4,102,26,G);P.flagPole(5,5,206,30,'#2a4ab8');
+ fin(s,EDGE);s.crystal=s.p(5,5,262);return s};
 window.FORTS=K;
 })();
 
@@ -2324,7 +2374,7 @@ const Demo={
  async saveLook(v,pr){const u=this.me();u.visual=v;u.personagem=pr;this.save()},
  async tribes(){return TURMAS.map(t=>{const us=Object.values(this.db.users).filter(u=>u.turma===t.id);return{id:t.id,pontos:us.reduce((a,u)=>a+u.pontos,0),membros:us.length}})},
  async members(turma){const list=[];Object.values(this.db.users).filter(u=>u.turma===turma).forEach(u=>list.push({nick:u.nick,personagem:u.personagem,pontos:u.pontos,fases:u.fases,visual:u.visual,equip:u.equip}));return list.sort((a,b)=>b.pontos-a.pontos)},
- async mestre(){const u=Object.values(this.db.users).find(u=>u.admin);return u?{nick:u.nick,visual:u.visual,equip:(u.equip&&u.equip.s)||{}}:null},
+ async mestre(){const u=Object.values(this.db.users).find(u=>u.admin);return u?{nick:u.nick,visual:u.visual,equip:(u.equip&&u.equip.s)||{},guard:(u.equip&&u.equip.guard)||{}}:null},
  async alunos(){if(!this.me()||!this.me().admin)return[];return Object.values(this.db.users).filter(u=>u.turma!=='PROF').map(u=>({nome:u.nome||'',nick:u.nick,turma:u.turma,pontos:u.pontos,simulados:(u.equip&&u.equip.enem&&u.equip.enem.n)||0,criado_em:u.criado||null}))},
  setLevel(turma,L){const real=Object.values(this.db.users).filter(u=>u.turma===turma).reduce((a,u)=>a+u.pontos,0);this.db.extra[turma]=Math.max(0,CONFIG.NIVEIS[L]+20-real);this.save()}
 };
@@ -2483,7 +2533,7 @@ function drawGame(){
   /* o Mestre fica numa clareira perto da ponte da Torre do Arquimago (discreto) */
   loadMestre();const adm=isAdm();if(W.BRA&&(adm||MESTRE)){const MWp=null,MX=W.MS?W.MS[0]:W.BRA[0]+MSPOT[0],MY=W.MS?W.MS[1]:W.BRA[1]+MSPOT[1],mp=W.P(MX,MY),L2=adm?CH():(MESTRE.visual&&MESTRE.visual.hair?MESTRE.visual:LOOKS[0]),E2=adm?eqNow():(MESTRE.equip||{});
    ex.push({dep:MX+MY+.2,hi:{mestre:1,L:L2,eq:E2,fr:MWp?walkF():idleF(0),back:MWp&&MWp.back,P:mp,nick:adm?me.nick:MESTRE.nick,arrow:0}})}
-  (W.MONKS||[]).forEach((mk,k)=>{const a=.785+Math.sin(mk.a0+T0*mk.sp*3)*1.75,X=mk.C[0]+Math.cos(a)*mk.R,Y=mk.C[1]+Math.sin(a)*mk.R,a2=.785+Math.sin(mk.a0+(T0+60)*mk.sp*3)*1.75,bk=(Math.cos(a2)+Math.sin(a2))*mk.R<(Math.cos(a)+Math.sin(a))*mk.R;ex.push({dep:X+Y,hi:{monk:1,L:{name:'',skin:mk.sk,hair:{s:'raspado',c1:mk.sk,c2:'#888'},top:{s:'gola',c1:'#8a1a1a',c2:'#e8a020'},pants:'#7a1414',eyes:{s:0,c:'#3a2414'}},eq:{},fr:[1,0,2,0][Math.floor(T0/170+k)%4],back:bk,P:W.P(X,Y)}})});(W.GUARD||[]).forEach((gd,k)=>ex.push({dep:gd.X+gd.Y,hi:{L:gd.L,eq:gd.eq,fr:idleF(k),P:W.P(gd.X,gd.Y),guard:gd.name}}));
+  (W.MONKS||[]).forEach((mk,k)=>{const a=.785+Math.sin(mk.a0+T0*mk.sp*3)*1.75,X=mk.C[0]+Math.cos(a)*mk.R,Y=mk.C[1]+Math.sin(a)*mk.R,a2=.785+Math.sin(mk.a0+(T0+60)*mk.sp*3)*1.75,bk=(Math.cos(a2)+Math.sin(a2))*mk.R<(Math.cos(a)+Math.sin(a))*mk.R;ex.push({dep:X+Y,hi:{monk:1,L:{name:'',skin:mk.sk,hair:{s:'raspado',c1:mk.sk,c2:'#888'},top:{s:'gola',c1:'#8a1a1a',c2:'#e8a020'},pants:'#7a1414',eyes:{s:0,c:'#3a2414'}},eq:{},fr:[1,0,2,0][Math.floor(T0/170+k)%4],back:bk,P:W.P(X,Y)}})});(W.GUARD||[]).forEach((g0,k)=>{const gd=gApply(g0);ex.push({dep:gd.X+gd.Y,hi:{L:gd.L,eq:gd.eq,fr:idleF(k),P:W.P(gd.X,gd.Y),guard:gd.name,fala:gd.fala,g0}})});
   if(!meOn&&!adm)ex.push({dep:hx2+hy,hi:{L:CH(),eq:eqNow(),fr:idleF(0),P:W.P(hx2,hy),arrow:1}});
   if(W.PROF)ex.push({dep:W.PROF[0]+W.PROF[1],hi:{prof:1,P:W.P(W.PROF[0],W.PROF[1])}});
   renderWorld(W,ex)}
@@ -2533,6 +2583,7 @@ function uiTribos(){const W=tribeWorld;if(!W)return;const cx=W.cam.x,cy=W.cam.y,
  TURMAS.forEach((t,i)=>{const[px,py]=W.P(...W.TP[i]),x=(px-cx)*Z,y=(py-cy-[70,74,86,96,104,118][lv[i]])*Z;if(x<-80||x>VW+80||y<-30||y>VH+30)return;
   const w=104;panel(x-w/2,y-12,w,24,'#2a1d14','#e8c070','#5a3a22');c.fillStyle=t.cor.f;c.fillRect(x-w/2+3,y-9,6,18);
   T(t.tribo,x+4,y-8,7,'#fff','center');T(`${NIVEL_NOME[lv[i]]} ${'★'.repeat(lv[i]+1)}`,x+4,y+3,5,GOLD,'center');btns.push({x:x-w/2,y:y-12,w,h:24,fn:()=>openTribe(i)})});
+ if(W.CID){const[px,py]=W.P(W.CID[0]+5.2,W.CID[1]+5.2),x=(px-cx)*Z,y=(py-cy+18)*Z;if(x>-80&&x<VW+80&&y>-20&&y<VH){const w=112;panel(x-w/2,y-10,w,20,'#2a2040','#e8c860','#3a2c5a');T('CIDADELA DO MESTRE',x,y-6,5,'#fff0c0','center');T('ALÉM DO REINO',x,y+3,4,'#9ae8ff','center');btns.push({x:x-w/2,y:y-10,w,h:20,fn:()=>toast('A CIDADELA MOSTRA ATÉ ONDE UM REINO PODE CHEGAR!',3000)})}}
  if(W.ENEMT){const[px,py,sp]=W.ENEMT,x=(px-cx)*Z,y=(py-cy+sp.d*16+14)*Z;if(x>-80&&x<VW+80&&y>-20&&y<VH){const w=88;panel(x-w/2,y-10,w,20,'#1e1a40','#9ae8ff','#3a3a7a');T('TORRE ENEM',x,y-6,6,'#c8f4ff','center');T('SIMULADOS',x,y+3,4,GOLD,'center');btns.push({x:x-w/2,y:y-10,w,h:20,fn:()=>setTab('enem')})}}
  if(W.PROF){const[px,py]=W.P(...W.PROF),x=(px-cx)*Z,y=(py-cy)*Z+12;if(x>-60&&x<VW+60&&y>-20&&y<VH){const w=70;panel(x-w/2,y-9,w,13,'#2a1e48','#b890ff','#3a2a5a');T('ARQUIMAGO',x,y-5.5,5,'#e8d8ff','center');btns.push({x:x-w/2,y:y-9,w,h:13,fn:profTalk})}}
  panel(4,29,206,16,'#2a1d14','#5a3a22','#1a1020');T('ARRASTE E USE DOIS DEDOS P/ ZOOM',107,34,5,'#f4e4c0','center');
@@ -2822,6 +2873,8 @@ const pick=a=>a[Math.floor(Math.random()*a.length)];
 function charSay(name,L,eq,lines){profSay(lines);PFS={L,eq};$('pfNm').textContent=name}
 function talkTo(h){
  if(h.monk){charSay('MONGE',h.L,h.eq,[pick(['Namastê, jovem aprendiz!','Tashi delek! Que bom ver você por aqui.','Paz, viajante. Suba devagar: o ar aqui é rarefeito.']),pick(['Quanto mais alto, menor a pressão do ar. Por isso a água ferve abaixo de 100 °C aqui em cima.','A mente calma resolve melhor. Respire fundo antes de cada questão.','O som não viaja no vácuo, mas o silêncio da montanha ensina muito.'])]);return}
+ if(h.guard&&isAdm()&&h.g0){openGEdit(h.g0);return}
+ if(h.guard&&h.fala){charSay(h.guard,h.L,h.eq,[h.fala]);return}
  if(h.guard){const key=Object.keys(GFALA).find(k=>h.guard.endsWith(k)),tit=h.guard.split(' ')[0].toLowerCase();
   charSay(h.guard,h.L,h.eq,[pick(['Saudações, viajante!','Alto lá, aprendiz!','Bem-vindo, jovem herói!'])+' Sou '+h.guard.replace(/^\S+ /,'')+' e protejo esta região.',key?GFALA[key]:'A Física protege quem a estuda.']);return}
  if(h.mestre){charSay('MESTRE',h.L,h.eq,['Saudações, aprendiz! Eu sou o Mestre'+(h.nick?' '+h.nick:'')+'.',pick(['Estou patrulhando as trilhas do reino. Continue firme nos estudos!','Cada questão do ENEM que você acerta fortalece a sua tribo. Bora!','Dúvida em Física? Me procure na aula ou pergunte ao Arquimago!'])]);return}
@@ -2830,6 +2883,26 @@ function talkTo(h){
  if(w.bot){charSay(w.nick+' (BOT)',h.L,h.eq,['Bip bop! Eu sou um BOT, um aluno de mentirinha que segura o lugar na aldeia dos '+w.tribo+'.','Quando mais alunos de verdade se cadastrarem, eu dou o lugar pra eles!']);return}
  charSay(w.nick,h.L,h.eq,[pick(['Opa! Eu sou '+w.nick+', dos '+w.tribo+'!','E aí! '+w.nick+' aqui, orgulho dos '+w.tribo+'!','Salve! Sou '+w.nick+'. Bem-vindo à nossa aldeia!']),pick(['Tô em '+(w.rank+1)+'º lugar na minha tribo. Vem me alcançar!','Bora pra Torre ENEM? Cada acerto faz a aldeia crescer!','Ontem errei uma de cinemática... hoje não erro mais!','Já viu a fortaleza dos Dragões? Um dia a nossa fica assim!'])])}
 
+/* ===== professor edita os guardiões (nome, armadura, arma, visual e fala); fica salvo no perfil do professor ===== */
+const GE_SETS=[['bronze','Bronze'],['prata','Prata'],['eletro','Elétrum'],['ouro','Ouro'],['leao','Leão Escarlate'],['leaod','Leão Dourado'],['lupus','Lobo (1A)'],['aquila','Águia (1B)'],['ursa','Urso (2A)'],['serpens','Serpente (2B)'],['draco','Dragão (3A)'],['cometa','Cometa'],['fenix','Fênix'],['estelar','Estelar']];
+const GE_SK=['#ffe2c8','#f6cfa6','#ecbe90','#e0a870','#c08052','#a06640','#7a4a2c','#5e3820'];
+function gOv(key){const src=isAdm()?(me&&me.equip&&me.equip.guard):(MESTRE&&MESTRE.guard);return src&&src[key]||null}
+function gApply(gd){const o=gOv(gd.key||gd.name);if(!o)return gd;const L=JSON.parse(JSON.stringify(gd.L));if(o.skin)L.skin=o.skin;if(o.hs)L.hair.s=o.hs;if(o.hc)L.hair.c1=o.hc;
+ const eq=o.set?gEq(o.set):{...gd.eq};eq.arma=o.arma||gd.eq.arma;return{...gd,L,eq,name:(o.nome||gd.name).toUpperCase(),fala:o.fala||''}}
+let GEk=null;
+function openGEdit(gd){GEk=gd.key||gd.name;const o=gOv(GEk)||{},b=$('gedit'),sel=(id,opts,v)=>{const s=$(id);s.innerHTML='';opts.forEach(([val,lab])=>{const op=document.createElement('option');op.value=val;op.textContent=lab;if(val===v)op.selected=true;s.appendChild(op)})};
+ const curSet=o.set||((GSETS.tribo.concat(GSETS.hm)).find(t=>gEq(t).peito===gd.eq.peito))||'prata';
+ $('geT').textContent='EDITAR '+gd.name;$('geNome').value=o.nome||gd.name;
+ sel('geSet',GE_SETS,curSet);sel('geArma',Object.keys(SWD).map(k=>[k,(IT[k]&&IT[k].full)||k]),o.arma||gd.eq.arma);
+ sel('geHs',HAIRS.map(h=>[h[0],h[1]]),o.hs||gd.L.hair.s);sel('geSk',GE_SK.map((c,i)=>[c,'Tom '+(i+1)]),o.skin||gd.L.skin);
+ $('geHc').value=o.hc||gd.L.hair.c1;$('geFala').value=o.fala||'';b.classList.add('on');geDraw()}
+function geCur(){return{nome:$('geNome').value.trim().slice(0,28),set:$('geSet').value,arma:$('geArma').value,hs:$('geHs').value,hc:$('geHc').value,skin:$('geSk').value,fala:$('geFala').value.trim().slice(0,220)}}
+function geDraw(){if(!$('gedit').classList.contains('on'))return;const o=geCur(),gd=(tribeWorld&&tribeWorld.GUARD||[]).find(g=>(g.key||g.name)===GEk);if(!gd)return;const L=JSON.parse(JSON.stringify(gd.L));L.skin=o.skin;L.hair.s=o.hs;L.hair.c1=o.hc;const eq=gEq(o.set);eq.arma=o.arma;
+ const x=$('geCv').getContext('2d');x.setTransform(1,0,0,1,0,0);x.clearRect(0,0,160,160);x.imageSmoothingEnabled=false;drawChar(x,L,eq,idleF(0),80,156,4.6)}
+function geSave(){const e=eqState();e.guard={...(e.guard||{}),[GEk]:geCur()};me.equip=e;saveEq();$('gedit').classList.remove('on');toast('GUARDIÃO ATUALIZADO!')}
+function geReset(){const e=eqState();if(e.guard){const g={...e.guard};delete g[GEk];e.guard=g}me.equip=e;saveEq();$('gedit').classList.remove('on');toast('GUARDIÃO RESTAURADO')}
+
+$('geX').onclick=()=>$('gedit').classList.remove('on');$('geOk').onclick=geSave;$('geRs').onclick=geReset;['geSet','geArma','geHs','geHc','geSk'].forEach(i=>{$(i).oninput=geDraw;$(i).onchange=geDraw});
 function profTalk(){profSay([PROF_DICAS[Math.floor(Math.random()*PROF_DICAS.length)]])}
 
 /* ============================ PAINÉIS HTML (posição sobre o canvas) ============================ */
