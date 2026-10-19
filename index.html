@@ -2448,7 +2448,7 @@ function busyBuild(fn){if(building)return;building=true;busy(true,'CONSTRUINDO M
 
 /* ---------- tribos ---------- */
 let tribeTop={};
-async function loadTops(){if(!me)return;for(const t of TURMAS){let real=[];try{real=(await API.members(t.id)).slice(0,8)}catch(e){}const npc=demoKids(t.id).map(m=>({...m,npc:1})).filter(n=>!real.some(r=>r.nick===n.nick));tribeTop[t.id]=[...real,...npc.slice(0,Math.max(0,5-real.length))]}}
+async function loadTops(){if(!me)return;for(const t of TURMAS){let real=[];try{real=(await API.members(t.id)).slice(0,8)}catch(e){}const npc=demoKids(t.id).map(m=>({...m,npc:1})).filter(n=>!real.some(r=>r.nick===n.nick));tribeTop[t.id]=[...real,...(real.length?[]:npc.slice(0,5))]}}
 async function refreshTribes(){if(me)loadTops();try{tribeData=(await API.tribes()).filter(x=>TURMAS.some(t=>t.id===x.id))}catch(e){if(!tribeData)tribeData=TURMAS.map(t=>({id:t.id,pontos:0,membros:0}))}
  const lv=levelsOf(tribeData);if(!tribeWorld||tribeWorld.levels.join()!==lv.join())tribeDirty=true;return lv}
 function ensureTribeWorld(cb){const lv=levelsOf(tribeData);if(tribeWorld&&!tribeDirty&&tribeWorld.levels.join()===lv.join()){cb&&cb();return}
