@@ -2368,7 +2368,8 @@ const Demo={
  async login(nick,senha){const u=this.db.users[nick.toLowerCase()];if(!u||u.pass!==senha)throw new Error('Nick ou senha incorretos.');this.db.sess=nick.toLowerCase();this.save();return this.pub(u)},
  async logout(){this.db.sess=null;this.save()},
  async completePhase(n){const u=this.me();if(u.fases===n&&n<24){u.fases++;u.pontos=pontosDe(u.fases)+(u.bonus||0)}this.save();return this.pub(u)},
- async simulado(ac,tot){const u=this.me(),hoje=new Date().toISOString().slice(0,10);if(u.bonusDia!==hoje){u.bonusDia=hoje;u.bonusHoje=0}const g=u.turma==='PROF'?0:Math.max(0,Math.min(ac,tot,45)*2);u.bonusHoje+=g;u.bonus=(u.bonus||0)+g;u.pontos=pontosDe(u.fases)+u.bonus;this.save();return{me:this.pub(u),ganho:g}},
+ async limites(){const u=this.me(),hoje=new Date().toISOString().slice(0,10);return u.limDia===hoje?{erros:u.errosDia||0,pontos:u.pontosDia||0,max_erros:20,max_pontos:400}:{erros:0,pontos:0,max_erros:20,max_pontos:400}},
+ async simulado(ac,tot){const u=this.me(),hoje=new Date().toISOString().slice(0,10);if(u.bonusDia!==hoje){u.bonusDia=hoje;u.bonusHoje=0}if(u.limDia!==hoje){u.limDia=hoje;u.errosDia=0;u.pontosDia=0}tot=Math.max(0,Math.min(tot,45));ac=Math.max(0,Math.min(ac,tot));let g=u.turma==='PROF'||u.errosDia>=20?0:ac*2;g=Math.min(g,Math.max(0,400-u.pontosDia));u.errosDia+=tot-ac;u.pontosDia+=g;u.bonusHoje+=g;u.bonus=(u.bonus||0)+g;u.pontos=pontosDe(u.fases)+u.bonus;this.save();return{me:this.pub(u),ganho:g}},
  async saveEquip(eq){this.me().equip=eq;this.save()},
  async setChar(c){this.me().personagem=c;this.save()},
  async saveLook(v,pr){const u=this.me();u.visual=v;u.personagem=pr;this.save()},
@@ -2389,6 +2390,7 @@ const Supa={
  async login(nick,senha){const{data,error}=await this.sb.auth.signInWithPassword({email:this.email(nick),password:senha});if(error)throw error;this.uid=data.user.id;return this.profile()},
  async logout(){await this.sb.auth.signOut();this.uid=null},
  async completePhase(n){const{data,error}=await this.sb.rpc('concluir_fase',{p_fase:n});if(error)throw error;return data},
+ async limites(){const{data,error}=await this.sb.rpc('limites_hoje');if(error)throw error;return data},
  async simulado(ac,tot){const{data,error}=await this.sb.rpc('registrar_simulado',{p_acertos:ac,p_total:tot});if(error)throw error;return{me:await this.profile(),ganho:data||0}},
  async saveEquip(eq){const{error}=await this.sb.from('perfis').update({equip:eq}).eq('id',this.uid);if(error)throw error},
  async setChar(c){const{error}=await this.sb.from('perfis').update({personagem:c}).eq('id',this.uid);if(error)throw error},
@@ -2912,7 +2914,7 @@ function placePanel(el,kind){const r=scr.getBoundingClientRect(),st=el.style;
  if(st.zoom!==String(z))st.zoom=z;if(st.left!==L)st.left=L;if(st.top!==T)st.top=T;if(st.width!==Wd)st.width=Wd;if(st.height!==Hg)st.height=Hg}
 
 /* ============================ ABA ENEM ============================ */
-const ES={src:'enem',ano:'all',scr:'home',mat:'fis',n:10,mode:'treino',qs:[],cur:0,t0:0,t1:0,confirmEnd:false,rev:false,res:null};
+let LIMD=null,LIMT=-1e9;const ES={src:'enem',ano:'all',scr:'home',mat:'fis',n:10,mode:'treino',qs:[],cur:0,t0:0,t1:0,confirmEnd:false,rev:false,res:null};
 function enemState(){const e=eqState();if(!e.enem)e.enem={n:0,best:0,hist:[],areas:{}};return e.enem}
 function diasEnem(){const d=new Date(CONFIG.ENEM_DATA+'T13:00:00-03:00')-Date.now();return Math.ceil(d/86400000)}
 function enemSync(){const on=screen==='game'&&tab==='enem'&&!!me,h=$('enem');if(on!==h.classList.contains('on')){h.classList.toggle('on',on);if(on)renderEnem()}if(on){placePanel(h);if(ES.scr==='quiz')updTimer()}}
@@ -2924,6 +2926,7 @@ function eHome(B){const st=enemState(),d=diasEnem();const L=el('div','ecol'),cv=
  const cd=el('div','ecount');cd.innerHTML=d>0?`⏳ FALTAM <b>${d}</b> DIAS PARA O ENEM`:d===0?'⏳ <b>É HOJE!</b> BOA PROVA!':'O ENEM DESTE ANO JÁ PASSOU. CONTINUE TREINANDO!';R2.appendChild(cd);
  R2.appendChild(el('div','esub','1º dia: 8/nov · 2º dia (Ciências da Natureza e Matemática): 15/nov'));
  const sx=el('div','estats');sx.innerHTML=`<span>SIMULADOS<b>${st.n}</b></span><span>MELHOR NOTA<b>${st.n?st.best+'%':'—'}</b></span><span>PONTOS P/ TRIBO<b>+2</b><i>por acerto</i></span>`;R2.appendChild(sx);
+ if(!isAdm()){const lm=el('div','emsg',LIMD?(LIMD.erros>=20?`⚠ HOJE VOCÊ JÁ ERROU ${LIMD.erros} QUESTÕES (LIMITE 20). OS SIMULADOS SÓ VOLTAM A DAR PONTOS AMANHÃ. TREINE COM CALMA!`:LIMD.pontos>=400?'⚠ VOCÊ JÁ FEZ 400 PONTOS HOJE (MÁXIMO DO DIA). VOLTE AMANHÃ!':`HOJE: ${LIMD.pontos}/400 PONTOS · ${LIMD.erros}/20 ERROS`):'LIMITES DO DIA: 400 PONTOS E 20 ERROS');lm.style.margin='6px 0';R2.appendChild(lm);{const F=['Cada acerto de hoje é um tijolo a mais no castelo da sua tribo!','Constância vence talento: um simulado por dia faz diferença no ENEM.','Errar faz parte. Leia com calma, pense e tente de novo!','Seu eu do futuro agradece cada questão que você resolve hoje.','Pequenos passos todo dia levam ao topo da torre.','Quem treina hoje comemora no dia da prova!','A sua tribo conta com você: bora pra mais um simulado?'],fr=el('div','emsg','💡 '+F[Math.floor(Date.now()/864e5)%F.length]+(LIMD&&LIMD.pontos<400&&LIMD.erros<20?` Ainda dá pra ganhar ${400-LIMD.pontos} pontos hoje!`:''));fr.style.color='#f0d890';fr.style.margin='4px 0 8px';R2.appendChild(fr)}if(!LIMD||T0-LIMT>15000){LIMT=T0;API.limites&&API.limites().then(d=>{if(d&&(!LIMD||d.erros!==LIMD.erros||d.pontos!==LIMD.pontos)){LIMD=d;if(ES.scr==='home')renderEnem()}else LIMD=d}).catch(()=>{})}}
  R2.appendChild(eBtn('▶ SIMULADO','big2 ebig',()=>{ES.scr='mat';renderEnem()}));R2.appendChild(eBtn('MEU DESEMPENHO','sm ebig2',()=>{ES.scr='perf';renderEnem()}));B.appendChild(R2)}
 function eHead(B,t,back){const h=el('div','ehead');h.appendChild(eBtn('< VOLTAR','sm',()=>{ES.scr=back;renderEnem()}));h.appendChild(el('span','etit2',t));B.appendChild(h)}
 function eMat(B){eHead(B,'ESCOLHA A MATÉRIA','home');const g=el('div','elist');
@@ -2968,11 +2971,11 @@ async function finishSim(parc){parc=parc===true;const qs=parc?ES.qs.filter(x=>ES
  const ar={};for(const q of qs){const a=qArea(q);ar[a]=ar[a]||[0,0];ar[a][1]++;if(isOk(q))ar[a][0]++}
  st.n++;if(!parc)st.best=Math.max(st.best,pct);st.hist=[{d:new Date().toISOString().slice(0,10),ac,n,t:Math.round(t),mat:ES.mat,src:ES.src,mode:ES.mode,parc:parc?tot:0},...st.hist].slice(0,15);for(const a in ar){st.areas[a]=st.areas[a]||[0,0];st.areas[a][0]+=ar[a][0];st.areas[a][1]+=ar[a][1]}saveEq();
  ES.res={ac,n,t,pct,ganho:null,parc:parc?tot:0};ES.qs=qs;ES.scr='res';ES.rev=false;renderEnem();
- try{const r=await API.simulado(ac,n);if(r){const k=me.equip;me=r.me;if(k&&k.v===2)me.equip=k;ES.res.ganho=r.ganho;afterProgress();if(ES.scr==='res')renderEnem()}}catch(e){ES.res.ganho=0;if(ES.scr==='res')renderEnem()}
+ try{const r=await API.simulado(ac,n);if(r){const k=me.equip;me=r.me;if(k&&k.v===2)me.equip=k;ES.res.ganho=r.ganho;LIMT=-1e9;try{LIMD=API.limites?await API.limites():LIMD}catch(e){}if(r.ganho<ac*2&&LIMD&&(LIMD.erros>=20||LIMD.pontos>=400))ES.res.lim=1;afterProgress();if(ES.scr==='res')renderEnem()}}catch(e){ES.res.ganho=0;if(ES.scr==='res')renderEnem()}
  const msg=pct>=90?'Espetacular! Até a minha barba ficou arrepiada!':pct>=70?'Muito bem! Mais um pouco de treino e você brilha como o Sol.':pct>=50?'Bom caminho! Revise as questões que errou: é aí que mora o aprendizado.':'Toda grande jornada começa com um passo... e com uma revisão! Vamos de novo?';
  if(ES.res)ES.res.msg=msg;if(ES.scr==='res')renderEnem()}
 function eRes(B){const r=ES.res;eHead(B,'RESULTADO DO SIMULADO','home');const sc=el('div','escore');
- sc.innerHTML=`<div class="enota">${r.ac}<small>/${r.n}</small></div><div class="einfo"><b>${r.pct}% DE ACERTOS${r.parc?` · PARCIAL (${r.n} DE ${r.parc})`:''}</b><span>TEMPO TOTAL ${fmtT(r.t)} · MÉDIA ${fmtT(r.t/r.n)} POR QUESTÃO</span><span class="eganho">${r.ganho==null?'Registrando pontos...':r.ganho>0?`+${r.ganho} PONTOS PARA A TRIBO ${TURMA(me.turma).tribo}!`:r.ac===0?'Acerte questões para ganhar pontos para a sua tribo!':(isAdm()?'Conta de professor: não soma pontos.':'Aguarde alguns segundos entre um simulado e outro para pontuar.')}</span>${r.msg?`<span class="emsg">ARQUIMAGO: ${r.msg}</span>`:''}</div>`;B.appendChild(sc);
+ sc.innerHTML=`<div class="enota">${r.ac}<small>/${r.n}</small></div><div class="einfo"><b>${r.pct}% DE ACERTOS${r.parc?` · PARCIAL (${r.n} DE ${r.parc})`:''}</b><span>TEMPO TOTAL ${fmtT(r.t)} · MÉDIA ${fmtT(r.t/r.n)} POR QUESTÃO</span><span class="eganho">${r.ganho==null?'Registrando pontos...':r.ganho>0?`+${r.ganho} PONTOS PARA A TRIBO ${TURMA(me.turma).tribo}!`:r.ac===0?'Acerte questões para ganhar pontos para a sua tribo!':(isAdm()?'Conta de professor: não soma pontos.':r.lim?'Limite do dia atingido (20 erros ou 400 pontos). Amanhã tem mais!':'Aguarde alguns segundos entre um simulado e outro para pontuar.')}</span>${r.lim&&r.ganho>0?'<span class="emsg">Você bateu o limite do dia: os próximos simulados de hoje não dão pontos.</span>':''}${r.msg?`<span class="emsg">ARQUIMAGO: ${r.msg}</span>`:''}</div>`;B.appendChild(sc);
  const r2=el('div','erow');r2.appendChild(eBtn(ES.rev?'ESCONDER REVISÃO':'REVISAR QUESTÕES','sm',()=>{ES.rev=!ES.rev;renderEnem()}));r2.appendChild(eBtn('NOVO SIMULADO','big2',()=>{ES.scr='qtd';renderEnem()}));B.appendChild(r2);
  if(ES.rev){const L=el('div','erev');ES.qs.forEach((q,k)=>{const ok=isOk(q),d=el('div','eri '+(ok?'ok':'bad'));
   if(q.e){const X=q.X;d.appendChild(el('b',null,`${ok?'✔':'✘'} QUESTÃO ${k+1} · ENEM ${X.ano} Q${X.num} · ${AREAS[X.area]}`));const t=X.modo==='img'?null:X.parts.find(p=>p.t&&!p.src&&p.t.length>30);if(t){const pp=el('p');pp.innerHTML=fracH(t.t.length>240?t.t.slice(0,240)+'…':t.t);d.appendChild(pp)}
