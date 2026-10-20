@@ -212,6 +212,7 @@ select.inp{appearance:none;-webkit-appearance:none}
 <label>FALA</label><textarea id="geFala" rows="3" maxlength="220" placeholder="(vazio = fala padrão)" style="font:inherit;font-size:8px;padding:4px"></textarea></div></div>
 <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button class="big" id="geOk">SALVAR</button><button class="big" id="geRs" style="background:#6a5a7a">RESTAURAR PADRÃO</button></div>
 <p style="font-size:7px;color:#b8a890;text-align:center;margin-top:10px">As mudanças valem para todos os alunos.</p></div></div>
+<div class="ov" id="manut" style="z-index:50;background:rgba(8,4,14,.94)"><div class="box center" style="max-width:520px"><h2>🔧 SERVIDOR EM MANUTENÇÃO</h2><p class="q" style="margin-top:14px">O Mestre está preparando novidades para o Império.<br>Volte em alguns minutos!</p><p style="font-size:8px;color:#b8a890;margin-top:10px">Seus pontos e itens estão guardados.</p></div></div>
 <div class="ov" id="quiz"><div class="box" id="qbox">
   <button class="x" id="qx">X</button>
   <h2 id="qv"></h2><h3 id="qt"></h3>
@@ -2375,7 +2376,7 @@ const Demo={
  async saveLook(v,pr){const u=this.me();u.visual=v;u.personagem=pr;this.save()},
  async tribes(){return TURMAS.map(t=>{const us=Object.values(this.db.users).filter(u=>u.turma===t.id);return{id:t.id,pontos:us.reduce((a,u)=>a+u.pontos,0),membros:us.length}})},
  async members(turma){const list=[];Object.values(this.db.users).filter(u=>u.turma===turma).forEach(u=>list.push({nick:u.nick,personagem:u.personagem,pontos:u.pontos,fases:u.fases,visual:u.visual,equip:u.equip}));return list.sort((a,b)=>b.pontos-a.pontos)},
- async mestre(){const u=Object.values(this.db.users).find(u=>u.admin);return u?{nick:u.nick,visual:u.visual,equip:(u.equip&&u.equip.s)||{},guard:(u.equip&&u.equip.guard)||{}}:null},
+ async mestre(){const u=Object.values(this.db.users).find(u=>u.admin);return u?{nick:u.nick,visual:u.visual,equip:(u.equip&&u.equip.s)||{},guard:(u.equip&&u.equip.guard)||{},manut:!!(u.equip&&u.equip.manut)}:null},
  async alunos(){if(!this.me()||!this.me().admin)return[];return Object.values(this.db.users).filter(u=>u.turma!=='PROF').map(u=>({nome:u.nome||'',nick:u.nick,turma:u.turma,pontos:u.pontos,simulados:(u.equip&&u.equip.enem&&u.equip.enem.n)||0,criado_em:u.criado||null}))},
  setLevel(turma,L){const real=Object.values(this.db.users).filter(u=>u.turma===turma).reduce((a,u)=>a+u.pontos,0);this.db.extra[turma]=Math.max(0,CONFIG.NIVEIS[L]+20-real);this.save()}
 };
@@ -3034,9 +3035,11 @@ function renderEnemQ(qa,q,showAns){const X=q.X,cap=`ENEM ${X.ano} · Q${X.num}`,
 
 /* ============================ PAINEL DO PROFESSOR ============================ */
 const AD={rows:null,sort:'pontos',dir:-1,q:'',err:''};
-function adminSync(){const on=screen==='game'&&tab==='admin'&&isAdm(),h=$('admin');if(on!==h.classList.contains('on')){h.classList.toggle('on',on);if(on)adminLoad()}if(on)placePanel(h)}
+function manutSync(){if(me&&!isAdm())loadMestre();const on=!!(MESTRE&&MESTRE.manut&&me&&!isAdm()),m=$('manut');if(on!==m.classList.contains('on'))m.classList.toggle('on',on)}
+function toggleManut(){const e=eqState();e.manut=!e.manut;me.equip=e;saveEq();toast(e.manut?'MANUTENÇÃO LIGADA: ALUNOS VEEM O AVISO':'MANUTENÇÃO DESLIGADA',3000);renderAdmin()}
+function adminSync(){manutSync();const on=screen==='game'&&tab==='admin'&&isAdm(),h=$('admin');if(on!==h.classList.contains('on')){h.classList.toggle('on',on);if(on)adminLoad()}if(on)placePanel(h)}
 async function adminLoad(){AD.err='';AD.rows=null;renderAdmin();try{AD.rows=await API.alunos()}catch(e){AD.err=errPT(e)}renderAdmin()}
-function renderAdmin(){const B=$('adBody');B.innerHTML='';const h=el('div','ehead');h.appendChild(el('span','etit2','PAINEL DO PROFESSOR · ALUNOS CADASTRADOS'));h.appendChild(eBtn('↻ ATUALIZAR','sm',adminLoad));B.appendChild(h);
+function renderAdmin(){const B=$('adBody');B.innerHTML='';const h=el('div','ehead');h.appendChild(el('span','etit2','PAINEL DO PROFESSOR · ALUNOS CADASTRADOS'));h.appendChild(eBtn('↻ ATUALIZAR','sm',adminLoad));h.appendChild(eBtn(me&&me.equip&&me.equip.manut?'🔧 DESLIGAR MANUTENÇÃO':'🔧 MODO MANUTENÇÃO','sm',toggleManut));B.appendChild(h);
  if(AD.err){B.appendChild(el('p','esub',AD.err));return}if(!AD.rows){B.appendChild(el('p','esub','Carregando...'));return}
  const rows=AD.rows.filter(r=>!AD.q||(r.nome+' '+r.nick).toLowerCase().includes(AD.q.toLowerCase()));
  const tot=AD.rows.reduce((a,r)=>a+(+r.pontos||0),0);const sx=el('div','estats');sx.innerHTML=`<span>ALUNOS<b>${AD.rows.length}</b></span><span>PONTOS SOMADOS<b>${tot}</b></span><span>SIMULADOS FEITOS<b>${AD.rows.reduce((a,r)=>a+(+r.simulados||0),0)}</b></span>`;B.appendChild(sx);
