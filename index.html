@@ -526,7 +526,8 @@ const mk=(w,h)=>{const k=document.createElement('canvas');k.width=Math.max(1,Mat
 const scr=$('scr'),c=scr.getContext('2d');
 const low=mk(760,VH),g=low.getContext('2d');g.imageSmoothingEnabled=false;
 let K=1;
-function resize(){const d=window.devicePixelRatio||1;VW=clamp(Math.round(VH*innerWidth/Math.max(1,innerHeight)),400,760);const k=Math.min(innerWidth/VW,innerHeight/VH);K=k*d;scr.width=Math.round(VW*K);scr.height=Math.round(VH*K);scr.style.width=Math.round(VW*k)+'px';scr.style.height=Math.round(VH*k)+'px'}
+let RESQ=1,PERF={n:0,t:0,slow:0};
+function resize(){let d=Math.min(2,window.devicePixelRatio||1)*RESQ;VW=clamp(Math.round(VH*innerWidth/Math.max(1,innerHeight)),400,760);const k=Math.min(innerWidth/VW,innerHeight/VH);{const px=VW*k*d*VH*k*d;if(px>2.1e6)d*=Math.sqrt(2.1e6/px);d=Math.max(1,d)}K=k*d;scr.width=Math.round(VW*K);scr.height=Math.round(VH*K);scr.style.width=Math.round(VW*k)+'px';scr.style.height=Math.round(VH*k)+'px'}
 addEventListener('resize',resize);
 
 function hash(x,y,s){let h=(Math.imul(x|0,374761393)+Math.imul(y|0,668265263)+Math.imul(s|0,1442695041))|0;h=Math.imul(h^(h>>>13),1274126177);h^=h>>>16;return(h>>>0)/4294967296}
@@ -1059,6 +1060,9 @@ function fxFront(F){const{x,t,eq,walk,back}=F;
  if(eq.cabeca==='elmo_estelar'&&!back)fxRing(F,true);
  if(eq.colar==='atomo')fxAtom(F,true)}
 const GLC=mk(MS,MS),glx=GLC.getContext('2d');
+const SCC=new WeakMap();let SCN=0;function scaledSpr(img,tp){let m=SCC.get(img);if(!m){m=new Map();SCC.set(img,m)}let o=m.get(tp);if(o)return o;if(m.size>6)m.clear();if(SCN++>4000){SCN=0}o=mk(tp,tp);const q=o.getContext('2d');q.imageSmoothingEnabled=true;q.imageSmoothingQuality='high';
+ let src=img,w=img.width;while(w/2>=tp*1.4){const h=mk(Math.ceil(w/2),Math.ceil(w/2)),hq=h.getContext('2d');hq.imageSmoothingEnabled=true;hq.imageSmoothingQuality='high';hq.drawImage(src,0,0,w,w,0,0,h.width,h.width);src=h;w=h.width}
+ q.drawImage(src,0,0,w,w,0,0,tp,tp);m.set(tp,o);return o}
 function drawChar(x,ch,eq,fr,px,py,s=1,back=false){eq=normEq(eq);
  x.imageSmoothingEnabled=false;x.fillStyle='rgba(10,5,20,.35)';x.fillRect(Math.round(px-5*s),Math.round(py-s),10*s,2*s);x.fillRect(Math.round(px-3*s),Math.round(py+s),6*s,s);
  const t=T0,b=fr===3?2:0,P=s/2,U=u=>px-16*s+u*P,V=v=>py-31*s+(v+b)*P,F={x,t,P,U,V,eq,fr,back,walk:fr===1||fr===2};
@@ -1066,7 +1070,7 @@ function drawChar(x,ch,eq,fr,px,py,s=1,back=false){eq=normEq(eq);
  let img=sprite(ch,eq,fr,back);
  const pt=IT[eq.peito]&&IT[eq.peito].t;
  if(!back&&SHINY(pt)){const ph=(t+Math.abs(px*7|0))%3400;if(ph<520){glx.globalCompositeOperation='source-over';glx.clearRect(0,0,MS,MS);glx.drawImage(img,0,0);glx.globalCompositeOperation='source-atop';glx.fillStyle=pt==='estelar'?'rgba(210,190,255,.5)':'rgba(255,255,235,.6)';const u=-30+ph/520*190,y0=(29+b)*Q,y1=(48+b)*Q;glx.beginPath();glx.moveTo(u,y0);glx.lineTo(u+9,y0);glx.lineTo(u-15,y1);glx.lineTo(u-24,y1);glx.closePath();glx.fill();glx.globalCompositeOperation='source-over';img=GLC}}
- const sc=x.getTransform?Math.abs(x.getTransform().a)||1:1;if(32*s*sc<MS*.98){x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high'}
+ const sc=x.getTransform?Math.abs(x.getTransform().a)||1:1,tp=Math.round(32*s*sc);if(tp<MS*.98&&img!==GLC){img=scaledSpr(img,tp);x.imageSmoothingEnabled=false}else if(tp<MS*.98){x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high'}
  x.drawImage(img,Math.round(px-16*s),Math.round(py-31*s),32*s,32*s);x.imageSmoothingEnabled=false;
  drawGroundHelm(x,eq,px,py,s);fxFront(F)}
 
@@ -2483,23 +2487,37 @@ function update(dt){
 const FLAKES=Array.from({length:90},()=>({x:Math.random()*VW,y:Math.random()*VH,s:.4+Math.random()*.8}));
 const WB=mk(1540,VH*2+4),wb=WB.getContext('2d');wb.imageSmoothingEnabled=false;
 let MESTRE=null,mestreT=-1e9,MSPOT=[2.6,-.4];function loadMestre(){if(T0-mestreT<90000)return;mestreT=T0;try{API.mestre().then(d=>{MESTRE=d&&d.nick?d:null}).catch(()=>{})}catch(e){}}
+function farBake(W){const cv=mk(Math.ceil(W.w/2),Math.ceil(W.h/2)),x=cv.getContext('2d');x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';x.drawImage(W.dec,0,0,cv.width,cv.height);
+ for(const o of W.spr.slice().sort((a,b)=>a.dep-b.dep)){if(o.hi)continue;if(o.img)x.drawImage(o.img,o.x/2,o.y/2,o.img.width/2,o.img.height/2);else if(o.draw){x.save();x.scale(.5,.5);try{o.draw(x,0,0,1000)}catch(e){}x.restore()}}
+ W._hiS=W.spr.filter(o=>o.hi);return cv}
+function renderFar(W,extra){const Z=ZM(W),RW=Math.ceil(VW/Z),RH=Math.ceil(VH/Z),cx=Math.round(W.cam.x),cy=Math.round(W.cam.y);if(!W.far)W.far=farBake(W);
+ g.fillStyle='#1a3a5a';g.fillRect(0,0,VW,VH);g.imageSmoothingEnabled=true;g.imageSmoothingQuality='low';g.drawImage(W.far,cx/2,cy/2,RW/2,RH/2,0,0,VW,VH);g.imageSmoothingEnabled=false;
+ const vis=[];for(const s of W._hiS){const[px,py]=s.hi.P;if(px-cx>-20&&px-cx<RW+20&&py-cy>-40&&py-cy<RH+40)vis.push(s)}
+ for(const u of W.units){const[ox,oy]=ringPos(u),X=u.tx+ox,Y=u.ty+oy,[px,py]=W.P(X,Y);if(px-cx<-10||px-cx>RW+10||py-cy<-14||py-cy>RH+14)continue;vis.push({dep:X+Y,draw:(x)=>{const f=u.pause>0?0:Math.floor(T0/180+u.s*3)%2;x.drawImage(villager(u.col,u.sold,f),Math.round(px-cx-5),Math.round(py-cy-13))}})}
+ for(const b of W.boats){const X=b.x!=null?b.x:b.C[0]+Math.cos(b.a)*b.r,Y=b.x!=null?b.y:b.C[1]+Math.sin(b.a)*b.r,[px,py]=W.Pf(X,Y);if(px-cx<-40||px-cx>RW+40||py-cy<-40||py-cy>RH+20)continue;const dX=b.x!=null?Math.cos(b.h):-Math.sin(b.a)*Math.sign(b.sp),dY=b.x!=null?Math.sin(b.h):Math.cos(b.a)*Math.sign(b.sp);vis.push({dep:X+Y,draw:x=>drawBoat(x,px-cx,py-cy,(dX-dY)<0,b.col,T0)})}
+ if(extra)vis.push(...extra);vis.sort((a,b)=>a.dep-b.dep);W._hi=[];W._cx=cx;W._cy=cy;
+ g.setTransform(Z,0,0,Z,0,0);for(const s of vis){if(s.hi){const[px,py]=s.hi.P;W._hi.push({...s.hi,px,py,occ:[]});continue}if(s.img)g.drawImage(s.img,Math.round(s.x-cx),Math.round(s.y-cy));else s.draw(g,cx,cy,T0)}g.setTransform(1,0,0,1,0,0)}
 function renderWorld(W,extra){
+ if(W===tribeWorld&&ZM(W)<=.56){clampCam(W);return renderFar(W,extra)}
+ if(W===tribeWorld&&!W.far&&!W._farQ){W._farQ=1;setTimeout(()=>{if(!W.far&&tribeWorld===W)W.far=farBake(W)},2500)}
  clampCam(W);const Z=ZM(W),RW=Math.ceil(VW/Z),RH=Math.ceil(VH/Z);wb.clearRect(0,0,RW+2,RH+2);const cx=Math.round(W.cam.x),cy=Math.round(W.cam.y);
  wb.drawImage(W.dec,cx,cy,RW,RH,0,0,RW,RH);
- wb.fillStyle=W.shimC;for(const s of W.shim){const x=s[0]-cx,y=s[1]-cy;if(x<-3||y<0||x>RW||y>RH)continue;const a=Math.sin(T0/420+s[2]);if(a>.62)wb.fillRect(x,y,a>.9?3:2,1)}
- const fcol=W.foamC;for(const f of W.foam){const x=f[0]-cx,y=f[1]-cy;if(x<0||y<0||x>=RW||y>=RH)continue;const a=Math.sin(T0/650+f[2]);if(a>.3){wb.fillStyle=a>.82?'#ffffff':fcol;wb.fillRect(x,y,1,1)}}
+ if(!W._fb){const B=(arr)=>{const m=new Map();for(const p of arr){const k=((p[0]>>7)<<12)|(p[1]>>7);let a=m.get(k);if(!a)m.set(k,a=[]);a.push(p)}return m};W._fb=B(W.foam);W._sb=B(W.shim)}
+ const inV=(m,fn)=>{for(let bx=(cx>>7)-1;bx<=((cx+RW)>>7);bx++)for(let by=(cy>>7)-1;by<=((cy+RH)>>7);by++){const a=m.get((bx<<12)|by);if(a)for(const p of a)fn(p)}};
+ if(Z>=.7){wb.fillStyle=W.shimC;inV(W._sb,s=>{const x=s[0]-cx,y=s[1]-cy;if(x<-3||y<0||x>RW||y>RH)return;const a=Math.sin(T0/420+s[2]);if(a>.62)wb.fillRect(x,y,a>.9?3:2,1)});
+ const fcol=W.foamC;wb.fillStyle=fcol;const FW=[];inV(W._fb,f=>{const x=f[0]-cx,y=f[1]-cy;if(x<0||y<0||x>=RW||y>=RH)return;const a=Math.sin(T0/650+f[2]);if(a>.3){if(a>.82)FW.push(x,y);else wb.fillRect(x,y,1,1)}});wb.fillStyle='#ffffff';for(let i=0;i<FW.length;i+=2)wb.fillRect(FW[i],FW[i+1],1,1);}
  const vis=[];for(const s of W.spr)if(s.x-cx<RW&&s.x+s.w-cx>0&&s.y-cy<RH&&s.y+s.h-cy>0)vis.push(s);
  for(const u of W.units){const[ox,oy]=ringPos(u),X=u.tx+ox,Y=u.ty+oy,[px,py]=W.P(X,Y);if(px-cx<-10||px-cx>RW+10||py-cy<-14||py-cy>RH+14)continue;vis.push({dep:X+Y,draw:(x)=>{const f=u.pause>0?0:Math.floor(T0/180+u.s*3)%2;x.drawImage(villager(u.col,u.sold,f),Math.round(px-cx-5),Math.round(py-cy-13))}})}
  for(const b of W.boats){const X=b.C[0]+Math.cos(b.a)*b.r,Y=b.C[1]+Math.sin(b.a)*b.r,[px,py]=W.Pf(X,Y);if(px-cx<-40||px-cx>RW+40||py-cy<-40||py-cy>RH+20)continue;if(X>0&&Y>0&&X<W.N&&Y<W.N&&W.q('fh',X,Y)>-1.2)continue;const sg=Math.sign(b.sp),dX=-Math.sin(b.a)*sg,dY=Math.cos(b.a)*sg;vis.push({dep:X+Y,draw:x=>drawBoat(x,px-cx,py-cy,(dX-dY)<0,b.col,T0)})}
  if(extra)vis.push(...extra);
  vis.sort((a,b)=>a.dep-b.dep);
  W._hi=[];W._cx=cx;W._cy=cy;
- for(const s of vis){if(s.hi){const[px,py]=s.hi.P;W._hi.push({...s.hi,px,py,occ:vis.filter(o=>o.img&&o.dep>s.dep&&o.x<px+16&&o.x+o.w>px-16&&o.y<py+2&&o.y+o.h>py-31)});continue}if(s.img)wb.drawImage(s.img,Math.round(s.x-cx),Math.round(s.y-cy));else s.draw(wb,cx,cy,T0)}
+ for(const s of vis){if(s.hi){const[px,py]=s.hi.P;const occ=[];for(let j=vis.length-1;j>=0;j--){const o=vis[j];if(o.dep<=s.dep)break;if(o.img&&o.x<px+16&&o.x+o.w>px-16&&o.y<py+2&&o.y+o.h>py-31)occ.push(o)}occ.reverse();W._hi.push({...s.hi,px,py,occ});continue}if(s.img)wb.drawImage(s.img,Math.round(s.x-cx),Math.round(s.y-cy));else s.draw(wb,cx,cy,T0)}
  for(const p of W.puffs){const x=p.x-cx,y=p.y-cy;if(x<-12||x>RW+12||y<-12||y>RH)continue;wb.globalAlpha=p.l*.5;disc(wb,x,y,1+(1-p.l)*3*p.s,p.s>2?(p.l>.6?'#8a8088':'#5a5258'):(p.l>.6?'#d8d0c8':'#a8a0a0'))}wb.globalAlpha=1;
  for(const b of W.birds){const x=Math.round(b.x-cx),y=Math.round(b.y-cy);if(x<-10||x>RW+10||y<-10||y>RH+60)continue;const f=Math.floor(T0/170+b.ph)%2;wb.fillStyle='rgba(10,10,20,.22)';wb.fillRect(x+14,y+46,4,1);wb.fillStyle='#ffffff';const d=f?-1:1;wb.fillRect(x-2,y+d,1,1);wb.fillRect(x-1,y,3,1);wb.fillRect(x+2,y+d,1,1);wb.fillStyle='#7a7a8a';wb.fillRect(x,y+1,1,1)}
  wb.globalAlpha=.13;for(const cl of W.clouds){const x=cl.x-cx,y=cl.y-cy;if(x>RW||y>RH||x<-240||y<-120)continue;wb.drawImage(CLOUD,Math.round(x),Math.round(y))}wb.globalAlpha=1;
  if(W.theme==='lava'||W.theme==='mundo')for(const e of W.emb){wb.fillStyle=e.l>.5?'#ffd060':'#f06018';wb.fillRect(Math.round(e.x-cx),Math.round(e.y-cy),1,1)}
-  if(Z<1){g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high'}g.drawImage(WB,0,0,RW,RH,0,0,RW*Z,RH*Z);g.imageSmoothingEnabled=false;
+  if(Z<1){g.imageSmoothingEnabled=true;g.imageSmoothingQuality=Z<.75?'medium':'low'}g.drawImage(WB,0,0,RW,RH,0,0,RW*Z,RH*Z);g.imageSmoothingEnabled=false;
  if(W.theme==='snow'){g.fillStyle='#ffffff';for(const f of FLAKES)g.fillRect(Math.round(f.x),Math.round(f.y),f.s>.9?2:1,f.s>.9?2:1)}
 }
 
@@ -3181,7 +3199,8 @@ function drawHiWorld(){const W=screen==='game'?curW():null;if(!W||!W._hi)return;
   if(h.tag)tagHi(vx,vy-(h.tag.up?33:33)*Z-(h.tag.up?0:0),h.tag,Z);
   if(h.arrow){const bb=Math.sin(T0/200)*2;c.fillStyle=GOLD;for(let k=0;k<4;k++)c.fillRect(vx-3*Z+k*Z,vy+(-36+bb+k)*Z,(7-2*k)*Z,Z)}}}
 let FQERR=0;function frame(now){try{frameBody(now)}catch(e){if(FQERR++<20)console.error('[FQ] erro no quadro:',e&&e.stack||e)}requestAnimationFrame(frame)}
-function frameBody(now){const dt=Math.min(50,now-last);last=now;T0+=dt;update(dt);
+function perfTick(dt){if(screen!=='game')return;PERF.n++;PERF.t+=dt;if(PERF.n>=90){const avg=PERF.t/PERF.n;PERF.n=0;PERF.t=0;if(avg>26&&RESQ>.55){RESQ=Math.max(.55,RESQ-.15);resize()}}}
+function frameBody(now){perfTick(now-last);const dt=Math.min(50,now-last);last=now;T0+=dt;update(dt);
  btns=[];g.clearRect(0,0,VW,VH);
  if(screen==='boot')R(g,0,0,VW,VH,'#0b0710');else if(screen==='title')drawTitle();else if(screen==='select')drawSelect();else drawGame();
  c.setTransform(1,0,0,1,0,0);c.imageSmoothingEnabled=false;c.drawImage(low,0,0,VW,VH,0,0,scr.width,scr.height);
