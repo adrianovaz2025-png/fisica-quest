@@ -2808,7 +2808,7 @@ const idleF=i=>Math.floor(T0/450+i*.7)%2?3:0;
 const walkF=()=>[1,0,2,0][Math.floor(T0/130)%4];
 function toast(m,ms=2000){toastM=m;toastT=T0+ms}
 function busy(on,txt){$('busyT').textContent=txt||'CARREGANDO...';$('busy').classList.toggle('on',!!on)}
-let DEMOLV=[9,7,5,3,1];const levelsOf=d=>DEMOLV.slice();const levelsOfReal=d=>TURMAS.map(t=>{if(CONFIG.VILAS_FIXAS&&t.id in CONFIG.VILAS_FIXAS)return CONFIG.VILAS_FIXAS[t.id];const x=(d||[]).find(r=>r.id===t.id);return nivelDe(x?Number(x.pontos):0)});
+const levelsOf=d=>TURMAS.map(t=>{if(CONFIG.VILAS_FIXAS&&t.id in CONFIG.VILAS_FIXAS)return CONFIG.VILAS_FIXAS[t.id];const x=(d||[]).find(r=>r.id===t.id);return nivelDe(x?Number(x.pontos):0)});
 
 /* ---------- jornada ---------- */
 function curNodeFor(v){if(hero.node[v]!=null)return hero.node[v];return clamp(me.fases-v*6,0,5)}
@@ -2991,7 +2991,7 @@ function drawMini(W){const mw=66,CX0=W.w*.2,CW=W.w*.6,CY0=W.h*.06,CH=W.h*.86,mh=
  const i=TURMAS.findIndex(t=>t.id===me.turma);if(i>=0&&Math.floor(T0/400)%2){const[a,b]=M(W.TP[i][0],W.TP[i][1]);c.strokeStyle='#fff';c.lineWidth=1;c.strokeRect(Math.round(a-4),Math.round(b-4),8,8);T('VOCÊ',a,b-10,3,'#fff','center')}
  const Z=ZM(W);c.strokeStyle=GOLD;c.lineWidth=1;c.save();c.beginPath();c.rect(x0,yy,mw,mh);c.clip();c.strokeRect(Math.round(x0+(W.cam.x-CX0)*sx),Math.round(yy+(W.cam.y-CY0)*sy),Math.round(VW/Z*sx),Math.round(VH/Z*sy));c.restore();
  btns.push({x:x0,y:yy,w:mw,h:mh,fn:()=>{const px=(mouse.x-x0)/sx+CX0,py=(mouse.y-yy)/sy+CY0;centerOn(W,px,py)}})}
-function uiTribos(){uiTribos0();if(tribeWorld)drawMini(tribeWorld);{const w=170,x0=8,y0=VH-58;panel(x0,y0,w,18,'#2a1e48','#b890ff','#3a2a5a');T('TESTE: VER OUTROS NÍVEIS ⟳',x0+w/2,y0+6,5,'#e8d8ff','center');btns.push({x:x0,y:y0,w,h:18,fn:()=>{DEMOLV=DEMOLV[0]===9?[8,6,4,2,0]:[9,7,5,3,1];toast('MONTANDO NÍVEIS '+DEMOLV.map(v=>v+1).join(', ')+'...');setTimeout(()=>{tribeWorld=buildTribeWorld(DEMOLV.slice());MMW=null},60)}})}}
+function uiTribos(){uiTribos0();if(tribeWorld)drawMini(tribeWorld);}
 function uiTribos0(){const W=tribeWorld;if(!W)return;const cx=W.cam.x,cy=W.cam.y,lv=W.levels,Z=ZM(W);
  TURMAS.forEach((t,i)=>{const[px,py]=W.P(...W.TP[i]),x=(px-cx)*Z,y=(py-cy-[70,74,86,96,104,118][lv[i]])*Z;if(x<-80||x>VW+80||y<-30||y>VH+30)return;
   const w=104;panel(x-w/2,y-12,w,24,'#2a1d14','#e8c070','#5a3a22');c.fillStyle=t.cor.f;c.fillRect(x-w/2+3,y-9,6,18);
