@@ -3427,7 +3427,7 @@ function zoomApply(){const i=$('zvImg');if(i)i.style.transform=`translate(${ZV.x
 /* ---------- renderização de uma questão ENEM ---------- */
 function qImg(f,cap,cls){const w=el('button','efig '+(cls||''));const im=new Image();im.src=QDIR+'img/'+f.img;im.alt='figura';im.loading='lazy';im.style.aspectRatio=f.w+'/'+f.h;w.appendChild(im);w.appendChild(el('i','ezm','🔍'));w.onclick=e=>{e.stopPropagation();zoomOpen(QDIR+'img/'+f.img,cap)};return w}
 function qOrigBtn(X,txt){return eBtn(txt||'📄 VER ORIGINAL','sm eorig',()=>zoomOpen(QDIR+'orig/'+X.orig,`ENEM ${X.ano} · QUESTÃO ${X.num}`))}
-function renderEnemQ(qa,q,showAns){const X=q.X,cap=`ENEM ${X.ano} · Q${X.num}`,wide=$('enem').getBoundingClientRect().width>=560;
+function renderEnemQ(qa,q,showAns){if(!q.X.alts||q.X.alts.length<2)q.X.alts='ABCDE'.split('').map(l=>({l,imgs:[]}));const X=q.X,cap=`ENEM ${X.ano} · Q${X.num}`,wide=$('enem').getBoundingClientRect().width>=560;
  const tg=el('div','etagrow');tg.appendChild(el('div','etag',`ENEM ${X.ano} · Q${X.num} · ${AREAS[X.area]}`));tg.appendChild(qOrigBtn(X));qa.appendChild(tg);
  const figs=X.modo==='img'?[]:X.parts.filter(p=>p.img);
  const box=el('div','eqx'+(wide&&(figs.length||X.modo==='img')?' split':''));qa.appendChild(box);
