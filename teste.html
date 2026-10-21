@@ -14,7 +14,7 @@
 html,body{margin:0;height:100%;background:#0b0710;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;font-family:'Press Start 2P',monospace}
 #scr{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);image-rendering:pixelated}
 .ov{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(8,4,14,.72);z-index:5}
-.ov.on{display:flex}
+.ov.on{display:flex}.sbox{width:min(760px,94vw)}.sbox h2{font-size:12px}.sbox h3{font-size:8px;color:#f8d870;margin:16px 0 6px}.sx{position:absolute;top:8px;right:8px}.sdim{font:13px/1.4 system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;color:#c8b898;margin:4px 0}.sst{width:100%;border-collapse:collapse;font:13px/1.35 system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif}.sst th{text-align:left;color:#f8d870;font-size:11px;padding:4px 6px;border-bottom:2px solid #5a3a22}.sst td{padding:5px 6px;border-bottom:1px solid #3a2a1e}.sst .n{text-align:right;white-space:nowrap}.sst .b{width:28%}.sst em{color:#ff9a8a;font-style:normal;font-size:11px}.sbar{display:block;height:9px;background:#1a1220;border:1px solid #5a3a22}.sbar i{display:block;height:100%}.stabs{display:flex;gap:4px;flex-wrap:wrap;margin:6px 0}.stabs .on{background:#e8c070;color:#2a1d14}.adt tr.clk{cursor:pointer}.adt tr.clk:hover td{background:#3a2a1e}
 .box{position:relative;background:#2a1d14;border:4px solid #1a1020;box-shadow:inset 0 0 0 3px #e8c070,inset 0 0 0 6px #5a3a22,0 8px 0 #000a;color:#f4e4c0;padding:24px 20px 20px;width:min(560px,92vw);max-height:92vh;overflow:auto;touch-action:pan-y}
 .box h2{margin:0 0 8px;font-size:10px;color:#f8d870;line-height:1.6}
 .box h3{margin:0 0 14px;font-size:14px;color:#fff;line-height:1.5;text-shadow:2px 2px 0 #1a1020}
@@ -2759,7 +2759,8 @@ const Demo={
  async tribes(){return TURMAS.map(t=>{const us=Object.values(this.db.users).filter(u=>u.turma===t.id);return{id:t.id,pontos:us.reduce((a,u)=>a+u.pontos,0),membros:us.length}})},
  async members(turma){const list=[];Object.values(this.db.users).filter(u=>u.turma===turma).forEach(u=>list.push({nick:u.nick,personagem:u.personagem,pontos:u.pontos,fases:u.fases,visual:u.visual,equip:u.equip}));return list.sort((a,b)=>b.pontos-a.pontos)},
  async mestre(){const u=Object.values(this.db.users).find(u=>u.admin);return u?{nick:u.nick,visual:u.visual,equip:(u.equip&&u.equip.s)||{},guard:(u.equip&&u.equip.guard)||{},manut:!!(u.equip&&u.equip.manut)}:null},
- async alunos(){if(!this.me()||!this.me().admin)return[];return Object.values(this.db.users).filter(u=>u.turma!=='PROF').map(u=>({nome:u.nome||'',nick:u.nick,turma:u.turma,pontos:u.pontos,simulados:(u.equip&&u.equip.enem&&u.equip.enem.n)||0,criado_em:u.criado||null}))},
+ async enemTodos(){if(!this.me()||!this.me().admin)return[];return Object.values(this.db.users).filter(u=>u.turma!=='PROF').map(u=>({nick:u.nick,turma:u.turma,enem:(u.equip&&u.equip.enem)||{}}))},
+async alunos(){if(!this.me()||!this.me().admin)return[];return Object.values(this.db.users).filter(u=>u.turma!=='PROF').map(u=>({nome:u.nome||'',nick:u.nick,turma:u.turma,pontos:u.pontos,simulados:(u.equip&&u.equip.enem&&u.equip.enem.n)||0,criado_em:u.criado||null}))},
  setLevel(turma,L){const real=Object.values(this.db.users).filter(u=>u.turma===turma).reduce((a,u)=>a+u.pontos,0);this.db.extra[turma]=Math.max(0,CONFIG.NIVEIS[L]+20-real);this.save()}
 };
 function loadScript(src){return new Promise((ok,err)=>{const s=document.createElement('script');s.src=src;s.onload=ok;s.onerror=()=>err(new Error('Não foi possível carregar o Supabase (sem internet?).'));document.head.appendChild(s)})}
@@ -2780,7 +2781,8 @@ const Supa={
  async saveLook(v,pr){const{error}=await this.sb.from('perfis').update({visual:v,personagem:pr}).eq('id',this.uid);if(error)throw error},
  async tribes(){const{data,error}=await this.sb.rpc('placar_tribos');if(error)throw error;return data},
  async mestre(){const{data,error}=await this.sb.rpc('mestre');if(error)throw error;return data},
- async alunos(){const{data,error}=await this.sb.rpc('admin_alunos');if(error)throw error;return data||[]},
+ async enemTodos(){const{data,error}=await this.sb.rpc('admin_enem');if(error)throw error;return data||[]},
+async alunos(){const{data,error}=await this.sb.rpc('admin_alunos');if(error)throw error;return data||[]},
  async members(t){const{data,error}=await this.sb.rpc('membros_tribo',{p_turma:t});if(error)throw error;return data}
 };
 const API=ONLINE?Supa:Demo;
@@ -3380,6 +3382,7 @@ function eQuiz(B){const q=ES.qs[ES.cur],Q2=q.e?null:ES.bank[q.i],n=ES.qs.length,
  B.appendChild(ft);updTimer();const fb=qa0.querySelector('.efb');if(fb)setTimeout(()=>fb.scrollIntoView({block:'nearest'}),30)}
 async function finishSim(parc){parc=parc===true;const qs=parc?ES.qs.filter(x=>ES.mode==='treino'?x.conf:x.sel!==null):ES.qs,tot=ES.qs.length,n=qs.length,ac=qs.filter(isOk).length,t=(Date.now()-ES.t0)/1000,pct=Math.round(ac/n*100),st=enemState();
  const ar={};for(const q of qs){const a=qArea(q);ar[a]=ar[a]||[0,0];ar[a][1]++;if(isOk(q))ar[a][0]++}
+ {if(!st.mt){st.mt={};st.mt0=st.n}const M=st.mt[ES.mat]=st.mt[ES.mat]||{n:0,q:0,ac:0,tp:{}};M.n++;M.q+=n;M.ac+=ac;for(const q of qs){const k=q.e?(q.X.tema||q.X.area):ES.bank[q.i][0];M.tp[k]=M.tp[k]||[0,0];M.tp[k][1]++;if(isOk(q))M.tp[k][0]++}}
  st.n++;if(!parc)st.best=Math.max(st.best,pct);st.hist=[{d:new Date().toISOString().slice(0,10),ac,n,t:Math.round(t),mat:ES.mat,src:ES.src,mode:ES.mode,parc:parc?tot:0},...st.hist].slice(0,15);for(const a in ar){st.areas[a]=st.areas[a]||[0,0];st.areas[a][0]+=ar[a][0];st.areas[a][1]+=ar[a][1]}saveEq();
  ES.res={ac,n,t,pct,ganho:null,parc:parc?tot:0};ES.qs=qs;ES.scr='res';ES.rev=false;renderEnem();
  try{const r=await API.simulado(ac,n);if(r){const k=me.equip;me=r.me;if(k&&k.v===2)me.equip=k;ES.res.ganho=r.ganho;LIMT=-1e9;try{LIMD=API.limites?await API.limites():LIMD}catch(e){}if(r.ganho<ac*2&&LIMD&&(LIMD.erros>=20||LIMD.pontos>=400))ES.res.lim=1;afterProgress();if(ES.scr==='res')renderEnem()}}catch(e){ES.res.ganho=0;if(ES.scr==='res')renderEnem()}
@@ -3449,16 +3452,58 @@ function manutSync(){if(me&&!isAdm())loadMestre();const on=!!(MESTRE&&MESTRE.man
 function toggleManut(){const e=eqState();e.manut=!e.manut;me.equip=e;saveEq();toast(e.manut?'MANUTENÇÃO LIGADA: ALUNOS VEEM O AVISO':'MANUTENÇÃO DESLIGADA',3000);renderAdmin()}
 function adminSync(){manutSync();const on=screen==='game'&&tab==='admin'&&isAdm(),h=$('admin');if(on!==h.classList.contains('on')){h.classList.toggle('on',on);if(on)adminLoad()}if(on)placePanel(h)}
 async function adminLoad(){AD.err='';AD.rows=null;renderAdmin();try{AD.rows=await API.alunos()}catch(e){AD.err=errPT(e)}renderAdmin()}
-function renderAdmin(){const B=$('adBody');B.innerHTML='';const h=el('div','ehead');h.appendChild(el('span','etit2','PAINEL DO PROFESSOR · ALUNOS CADASTRADOS'));h.appendChild(eBtn('↻ ATUALIZAR','sm',adminLoad));h.appendChild(eBtn(me&&me.equip&&me.equip.manut?'🔧 DESLIGAR MANUTENÇÃO':'🔧 MODO MANUTENÇÃO','sm',toggleManut));B.appendChild(h);
+
+/* ============ ESTATÍSTICAS DO ALUNO E DA TURMA (painel do professor) ============ */
+const TEMAS={"fis": {"MEC": "Mecânica", "TER": "Termologia", "OPT": "Óptica", "OND": "Ondas", "ELE": "Eletricidade", "MOD": "Energia e Física Moderna"}, "mat": {"EST": "Estatística e probabilidade", "GEO": "Geometria", "FUN": "Funções e gráficos", "PRO": "Razão, proporção e porcentagem", "CON": "Contagem e combinatória", "ARI": "Aritmética e álgebra"}, "qui": {"ORG": "Química orgânica", "ELE": "Eletroquímica", "SOL": "Soluções e estequiometria", "EQU": "Equilíbrio, ácidos e bases", "TER": "Termoquímica e cinética", "AMB": "Química ambiental e materiais", "GER": "Química geral"}, "bio": {"ECO": "Ecologia e meio ambiente", "GEN": "Genética e evolução", "CEL": "Citologia e bioquímica", "FIS": "Fisiologia humana e saúde", "BOT": "Botânica e zoologia", "GER": "Biologia geral"}},MATN={fis:'FÍSICA',mat:'MATEMÁTICA',qui:'QUÍMICA',bio:'BIOLOGIA'},LEGA={MAT:'mat',QUI:'qui',BIO:'bio'};
+async function adEnem(force){if(AD.enem&&!force)return AD.enem;const L=await API.enemTodos();AD.enem={};for(const r of L)AD.enem[String(r.nick).toLowerCase()]=r;return AD.enem}
+/* junta o histórico antigo (só totais) com o novo (matéria + tópico) */
+function statsDe(st){st=st||{};const A=st.areas||{},mt=st.mt||{},R={};
+ for(const m in MATN)R[m]={sim:0,q:0,ac:0,tp:{}};
+ for(const k in A){const v=A[k];if(!v)continue;const m=LEGA[k]||'fis';R[m].q+=v[1];R[m].ac+=v[0];if(m==='fis'){R.fis.tp[k]=R.fis.tp[k]||[0,0];R.fis.tp[k][0]+=v[0];R.fis.tp[k][1]+=v[1]}}
+ for(const m in mt){if(!R[m])continue;R[m].sim+=mt[m].n;if(m!=='fis')for(const k in mt[m].tp){R[m].tp[k]=R[m].tp[k]||[0,0];R[m].tp[k][0]+=mt[m].tp[k][0];R[m].tp[k][1]+=mt[m].tp[k][1]}}
+ const nNovo=Object.values(mt).reduce((a,x)=>a+x.n,0),hist=st.hist||[];let semMat=Math.max(0,(st.n||0)-nNovo);
+ hist.slice(nNovo).forEach(h=>{if(semMat>0&&R[h.mat]){R[h.mat].sim++;semMat--}});
+ return{R,n:st.n||0,best:st.best||0,hist,semMat}}
+const pctC=p=>p<40?'#e8584a':p<60?'#e8b030':'#5ac86a';
+function bar(p){return`<span class="sbar"><i style="width:${p}%;background:${pctC(p)}"></i></span>`}
+function topicsHTML(m,tp){const ks=Object.keys(tp).filter(k=>tp[k][1]>0);if(!ks.length)return'<p class="sdim">Sem questões respondidas por tópico ainda.</p>';
+ const L=ks.map(k=>({k,n:(TEMAS[m]&&TEMAS[m][k])||k,ac:tp[k][0],q:tp[k][1],p:Math.round(tp[k][0]/tp[k][1]*100)})).sort((a,b)=>(a.q>=3?0:1)-(b.q>=3?0:1)||a.p-b.p);
+ return'<table class="sst">'+L.map((t,i)=>`<tr><td>${t.n}${i===0&&t.q>=3&&t.p<60?' <em>⚠ mais dificuldade</em>':''}</td><td class="n">${t.ac}/${t.q}</td><td class="n">${t.p}%</td><td class="b">${bar(t.p)}</td></tr>`).join('')+'</table>'}
+function subjHTML(R){let h='<table class="sst"><tr><th>MATÉRIA</th><th class="n">SIMULADOS</th><th class="n">QUESTÕES</th><th class="n">ACERTOS</th><th class="n">%</th><th></th></tr>';
+ for(const m in MATN){const x=R[m];if(!x.q&&!x.sim)continue;const p=x.q?Math.round(x.ac/x.q*100):0;h+=`<tr><td>${MATN[m]}</td><td class="n">${x.sim}</td><td class="n">${x.q}</td><td class="n">${x.ac}</td><td class="n">${p}%</td><td class="b">${bar(p)}</td></tr>`}
+ return h+'</table>'}
+function adStatsOpen(html){let o=$('adst');if(!o){o=el('div','ov');o.id='adst';o.style.zIndex=8;o.innerHTML='<div class="box sbox"><button class="sm sx" id="adstX">✕</button><div id="adstB"></div></div>';document.body.appendChild(o);$('adstX').onclick=()=>o.classList.remove('on');o.onclick=e=>{if(e.target===o)o.classList.remove('on')}}
+ $('adstB').innerHTML=html;o.classList.add('on')}
+async function adAluno(r){adStatsOpen('<p class="sdim">Carregando estatísticas...</p>');let E;try{E=await adEnem()}catch(e){adStatsOpen(`<h2>${r.nome||r.nick}</h2><p class="sdim">Não foi possível carregar: ${errPT(e)}</p>`);return}
+ const x=E[String(r.nick).toLowerCase()],S=statsDe(x&&x.enem),R=S.R,qt=Object.values(R).reduce((a,v)=>a+v.q,0),ac=Object.values(R).reduce((a,v)=>a+v.ac,0);
+ let h=`<h2>${r.nome||r.nick}</h2><p class="sdim">${r.nick} · ${TURMA(r.turma).nome} · ${r.pontos||0} pontos</p>
+  <div class="estats"><span>SIMULADOS<b>${S.n}</b></span><span>QUESTÕES<b>${qt}</b></span><span>ACERTOS<b>${ac}</b></span><span>APROVEITAMENTO<b>${qt?Math.round(ac/qt*100):0}%</b></span><span>MELHOR SIMULADO<b>${S.best}%</b></span></div>`;
+ if(!qt){adStatsOpen(h+'<p class="sdim">Este aluno ainda não fez simulados na Torre ENEM.</p>');return}
+ h+='<h3>POR MATÉRIA</h3>'+subjHTML(R);if(S.semMat)h+=`<p class="sdim">${S.semMat} simulado(s) antigo(s) sem matéria registrada.</p>`;
+ for(const m in MATN){if(!R[m].q)continue;h+=`<h3>${MATN[m]} · POR TÓPICO</h3>`+topicsHTML(m,R[m].tp);if(m!=='fis'&&!Object.keys(R[m].tp).length)h+=''}
+ if(['mat','qui','bio'].some(m=>R[m].q&&!Object.keys(R[m].tp).length))h+='<p class="sdim">Em Matemática, Química e Biologia os tópicos começam a ser contados a partir de hoje (21/10).</p>';
+ if(S.hist.length){h+='<h3>ÚLTIMOS SIMULADOS</h3><table class="sst"><tr><th>DATA</th><th>MATÉRIA</th><th class="n">ACERTOS</th><th class="n">TEMPO</th></tr>'+S.hist.map(z=>`<tr><td>${z.d.split('-').reverse().join('/')}</td><td>${MATN[z.mat]||'—'}${z.src==='rap'?' (rápidas)':''}</td><td class="n">${z.ac}/${z.n}</td><td class="n">${fmtT(z.t)}</td></tr>`).join('')+'</table>'}
+ adStatsOpen(h)}
+async function adTurma(tid){adStatsOpen('<p class="sdim">Carregando...</p>');let E;try{E=await adEnem()}catch(e){adStatsOpen(`<p class="sdim">Não foi possível carregar: ${errPT(e)}</p>`);return}
+ const tabs=[['all','TODAS'],...TURMAS.map(t=>[t.id,t.nome])];let h='<h2>ANÁLISE POR TURMA</h2><div class="stabs">'+tabs.map(([k,n])=>`<button class="sm${k===tid?' on':''}" data-t="${k}">${n}</button>`).join('')+'</div>';
+ const rows=(AD.rows||[]).filter(r=>tid==='all'||r.turma===tid),T={};for(const m in MATN)T[m]={sim:0,q:0,ac:0,tp:{}};const worst=[];
+ for(const r of rows){const x=E[String(r.nick).toLowerCase()];const S=statsDe(x&&x.enem);for(const m in MATN){const a=S.R[m],b=T[m];b.sim+=a.sim;b.q+=a.q;b.ac+=a.ac;for(const k in a.tp){b.tp[k]=b.tp[k]||[0,0];b.tp[k][0]+=a.tp[k][0];b.tp[k][1]+=a.tp[k][1]}}
+  const f=S.R.fis.tp,ks=Object.keys(f).filter(k=>f[k][1]>=3);if(ks.length){ks.sort((a,b)=>f[a][0]/f[a][1]-f[b][0]/f[b][1]);const k=ks[0];worst.push([r,TEMAS.fis[k]||k,Math.round(f[k][0]/f[k][1]*100)])}}
+ const qt=Object.values(T).reduce((a,v)=>a+v.q,0);h+=`<p class="sdim">${rows.length} aluno(s) · ${qt} questões respondidas</p>`;
+ if(!qt)h+='<p class="sdim">Nenhum simulado feito por esta turma ainda.</p>';else{h+='<h3>POR MATÉRIA</h3>'+subjHTML(T);for(const m in MATN)if(T[m].q)h+=`<h3>${MATN[m]} · ONDE A TURMA TEM MAIS DIFICULDADE</h3>`+topicsHTML(m,T[m].tp);
+  if(worst.length){worst.sort((a,b)=>a[2]-b[2]);h+='<h3>FÍSICA · TÓPICO MAIS DIFÍCIL DE CADA ALUNO</h3><table class="sst">'+worst.map(([r,t,p])=>`<tr><td>${r.nome||r.nick}</td><td>${t}</td><td class="n">${p}%</td><td class="b">${bar(p)}</td></tr>`).join('')+'</table>'}}
+ adStatsOpen(h);$('adstB').querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>adTurma(b.dataset.t))}
+
+function renderAdmin(){const B=$('adBody');B.innerHTML='';const h=el('div','ehead');h.appendChild(el('span','etit2','PAINEL DO PROFESSOR · ALUNOS CADASTRADOS'));h.appendChild(eBtn('↻ ATUALIZAR','sm',()=>{AD.enem=null;adminLoad()}));h.appendChild(eBtn('📊 ANÁLISE POR TURMA','sm',()=>adTurma('all')));h.appendChild(eBtn(me&&me.equip&&me.equip.manut?'🔧 DESLIGAR MANUTENÇÃO':'🔧 MODO MANUTENÇÃO','sm',toggleManut));B.appendChild(h);
  if(AD.err){B.appendChild(el('p','esub',AD.err));return}if(!AD.rows){B.appendChild(el('p','esub','Carregando...'));return}
  const rows=AD.rows.filter(r=>!AD.q||(r.nome+' '+r.nick).toLowerCase().includes(AD.q.toLowerCase()));
- const tot=AD.rows.reduce((a,r)=>a+(+r.pontos||0),0);const sx=el('div','estats');sx.innerHTML=`<span>ALUNOS<b>${AD.rows.length}</b></span><span>PONTOS SOMADOS<b>${tot}</b></span><span>SIMULADOS FEITOS<b>${AD.rows.reduce((a,r)=>a+(+r.simulados||0),0)}</b></span>`;B.appendChild(sx);
+ B.appendChild(el('p','sdim','Clique em um aluno para ver as estatísticas dele por matéria e tópico.'));const tot=AD.rows.reduce((a,r)=>a+(+r.pontos||0),0);const sx=el('div','estats');sx.innerHTML=`<span>ALUNOS<b>${AD.rows.length}</b></span><span>PONTOS SOMADOS<b>${tot}</b></span><span>SIMULADOS FEITOS<b>${AD.rows.reduce((a,r)=>a+(+r.simulados||0),0)}</b></span>`;B.appendChild(sx);
  const f=el('input','inp adq');f.placeholder='Buscar por nome ou nick...';f.value=AD.q;f.oninput=()=>{AD.q=f.value;const pos=f.selectionStart;renderAdmin();const n=$('adBody').querySelector('.adq');n.focus();n.setSelectionRange(pos,pos)};B.appendChild(f);
  const cols=[['nome','NOME'],['nick','NICK'],['turma','TURMA'],['pontos','PONTOS'],['simulados','SIMULADOS']];
  rows.sort((a,b)=>{const x=a[AD.sort],y=b[AD.sort];return(typeof x==='number'||AD.sort==='pontos'||AD.sort==='simulados'?((+x||0)-(+y||0)):String(x||'').localeCompare(String(y||''),'pt'))*AD.dir});
  const wrap=el('div','adw'),tb=el('table','adt'),tr=el('tr');tr.appendChild(el('th',null,'#'));
  for(const[k,l]of cols){const th=el('th',AD.sort===k?'on':null,l+(AD.sort===k?(AD.dir<0?' ▼':' ▲'):''));th.onclick=()=>{if(AD.sort===k)AD.dir=-AD.dir;else{AD.sort=k;AD.dir=(k==='pontos'||k==='simulados')?-1:1}renderAdmin()};tr.appendChild(th)}tb.appendChild(tr);
- rows.forEach((r,i)=>{const t=el('tr');t.appendChild(el('td',null,String(i+1)));t.appendChild(el('td',null,r.nome||'—'));t.appendChild(el('td',null,r.nick));t.appendChild(el('td',null,TURMA(r.turma).nome));t.appendChild(el('td','n',String(r.pontos||0)));t.appendChild(el('td','n',String(r.simulados||0)));tb.appendChild(t)});
+ rows.forEach((r,i)=>{const t=el('tr');t.className='clk';t.title='Ver estatísticas';t.onclick=()=>adAluno(r);t.appendChild(el('td',null,String(i+1)));t.appendChild(el('td',null,r.nome||'—'));t.appendChild(el('td',null,r.nick));t.appendChild(el('td',null,TURMA(r.turma).nome));t.appendChild(el('td','n',String(r.pontos||0)));t.appendChild(el('td','n',String(r.simulados||0)));tb.appendChild(t)});
  if(!rows.length){const t=el('tr'),d=el('td',null,AD.rows.length?'Nenhum aluno encontrado.':'Nenhum aluno cadastrado ainda.');d.colSpan=6;t.appendChild(d);tb.appendChild(t)}
  wrap.appendChild(tb);B.appendChild(wrap)}
 
