@@ -3210,7 +3210,7 @@ const rwx=$('rwc').getContext('2d');
 function drawRewPreview(){rwx.setTransform(1,0,0,1,0,0);rwx.clearRect(0,0,160,160);drawChar(rwx,CH(),rewEq,walkF(),80,150,4.5)}
 /* ============================ BANCO DE QUESTÕES (FÍSICA) ============================ */
 /* [área, enunciado, [CERTA, errada, errada, errada, errada], resolução] — as alternativas são embaralhadas na hora */
-const AREAS={MAT:'MATEMÁTICA',QUI:'QUÍMICA',BIO:'BIOLOGIA',MEC:'MECÂNICA',TER:'TERMOLOGIA',OPT:'ÓPTICA',OND:'ONDAS',ELE:'ELETRICIDADE',MOD:'ENERGIA E FÍSICA MODERNA'};
+const AREAS={LIN:'LINGUAGENS',HUM:'CIÊNCIAS HUMANAS',MAT:'MATEMÁTICA',QUI:'QUÍMICA',BIO:'BIOLOGIA',MEC:'MECÂNICA',TER:'TERMOLOGIA',OPT:'ÓPTICA',OND:'ONDAS',ELE:'ELETRICIDADE',MOD:'ENERGIA E FÍSICA MODERNA'};
 const QB_FIS=[
 ['MEC','Um ônibus percorre 120 km em 1 h 30 min. Qual é a velocidade média do ônibus nesse trajeto?',['80 km/h','60 km/h','70 km/h','90 km/h','120 km/h'],'Velocidade média = distância ÷ tempo = 120 km ÷ 1,5 h = 80 km/h.'],
 ['MEC','Um carro parte do repouso e atinge 20 m/s em 5 s. Qual é a sua aceleração média?',['4 m/s²','2 m/s²','5 m/s²','10 m/s²','100 m/s²'],'a = Δv ÷ Δt = 20 ÷ 5 = 4 m/s².'],
@@ -3264,7 +3264,7 @@ const QB_FIS=[
 ['MOD','Nos exames de raios X, os ossos aparecem claros na imagem porque:',['Absorvem mais os raios X do que os tecidos moles','Refletem os raios X como um eco','São transparentes aos raios X','Emitem luz própria','Os raios X são ondas sonoras'],'Os raios X atravessam facilmente os tecidos moles, mas são mais absorvidos pelos ossos, que ficam claros no filme.'],
 ['MOD','A energia do Sol é produzida principalmente pela:',['Fusão de núcleos de hidrogênio, formando hélio','Fissão de núcleos de urânio','Queima de carvão','Combustão do oxigênio','Atrito entre camadas de gás'],'No núcleo do Sol, núcleos leves se fundem e uma pequena parte da massa vira energia.'],
 ['MOD','O efeito fotoelétrico, explicado por Einstein, mostra que a luz:',['Pode arrancar elétrons de metais, comportando-se como partículas (fótons)','Sempre se curva ao passar perto de objetos pequenos','É uma onda mecânica','Não transporta energia','Só existe no vácuo'],'Cada fóton entrega uma quantidade definida de energia; se for suficiente, arranca um elétron do metal.']];
-const MATERIAS=[['fis','FÍSICA',QB_FIS],['mat','MATEMÁTICA',[]],['qui','QUÍMICA',[]],['bio','BIOLOGIA',[]]];
+const MATERIAS=[['fis','FÍSICA',QB_FIS],['mat','MATEMÁTICA',[]],['qui','QUÍMICA',[]],['bio','BIOLOGIA',[]],['lin','LINGUAGENS',[]],['hum','CIÊNCIAS HUMANAS',[]]];
 
 /* ============================ DIÁLOGOS DO ARQUIMAGO ============================ */
 const PROF_OI=['Olá, jovem aprendiz! Eu sou o ARQUIMAGO, guardião do Castelo da Física. Hmm... cuidado com a minha barba!','Na JORNADA você pode explorar o mapa dos 4 bimestres. Os desafios de lá chegam em breve!','Em TRIBOS, cada ponto seu faz a sua tribo crescer: de acampamento a reino. Meu castelo fica do outro lado da ponte de pedra!','Na Torre ENEM, no centro da ilha, você resolve questões reais do ENEM. Cada acerto vale 2 pontos para a sua tribo!','Agora vá! E que a FORÇA esteja com você... dividida pela massa!'];
@@ -3343,12 +3343,13 @@ function eHome(B){const st=enemState(),d=diasEnem();const L=el('div','ecol'),cv=
  R2.appendChild(eBtn('▶ SIMULADO','big2 ebig',()=>{ES.scr='mat';renderEnem()}));R2.appendChild(eBtn('MEU DESEMPENHO','sm ebig2',()=>{ES.scr='perf';renderEnem()}));B.appendChild(R2)}
 function eHead(B,t,back){const h=el('div','ehead');h.appendChild(eBtn('< VOLTAR','sm',()=>{ES.scr=back;renderEnem()}));h.appendChild(el('span','etit2',t));B.appendChild(h)}
 function eMat(B){eHead(B,'ESCOLHA A MATÉRIA','home');const g=el('div','elist');
- for(const[id,n,qb]of MATERIAS){const b=eBtn(qb?`⚡ ${n}`:`🔒 ${n} — em breve`,'eopt'+(qb?'':' off'),()=>{if(!qb)return;ES.mat=id;ES.scr='qtd';ES.ano='all';QX=QXS[id]||null;if(id!=='fis')ES.src='enem';loadQX(()=>{if(ES.scr==='qtd')renderEnem()},id);renderEnem()});if(qb){const s=el('small',null,id==='fis'?`ENEM 2017–2025 + ${qb.length} rápidas`:id!=='fis'&&QXF[id]?'ENEM 2020–2025':`${qb.length} questões no banco`);b.appendChild(s)}g.appendChild(b)}B.appendChild(g)}
+ for(const[id,n,qb]of MATERIAS){const b=eBtn(qb?`⚡ ${n}`:`🔒 ${n} — em breve`,'eopt'+(qb?'':' off'),()=>{if(!qb)return;ES.mat=id;ES.scr='qtd';ES.ano='all';QX=QXS[id]||null;if(id!=='fis')ES.src='enem';loadQX(()=>{if(ES.scr==='qtd')renderEnem()},id);renderEnem()});if(qb){const s=el('small',null,id==='fis'?`ENEM 2017–2025 + ${qb.length} rápidas`:id!=='fis'&&QXF[id]?(id==='lin'||id==='hum'?'ENEM 2020–2023 e 2025':'ENEM 2020–2025'):`${qb.length} questões no banco`);b.appendChild(s)}g.appendChild(b)}B.appendChild(g)}
 function eQtd(B){eHead(B,'QUANTIDADE DE QUESTÕES','mat');
  if(ES.mat==='fis'){B.appendChild(el('div','elab','FONTE'));const fs=el('div','elist two');
   for(const[k,l,d]of[['enem','ENEM REAL',QX?`${QX.length} questões de 2017 a 2025`:'carregando...'],['rap','QUESTÕES RÁPIDAS',`${QB_FIS.length} questões curtas do Arquimago`]]){const b=eBtn('','eopt'+(ES.src===k?' on':''),()=>{ES.src=k;if(k==='enem')loadQX(()=>renderEnem());renderEnem()});b.innerHTML=`<b>${l}</b><small>${d}</small>`;fs.appendChild(b)}B.appendChild(fs);
 }
  else if(QXF[ES.mat])ES.src='enem';else ES.src='rap';
+ if(ES.mat==='lin'){B.appendChild(el('div','elab','LÍNGUA ESTRANGEIRA (QUESTÕES 1 A 5)'));const lc=el('div','echips');for(const[k,l]of[['i','INGLÊS'],['e','ESPANHOL']])lc.appendChild(eBtn(l,'echip'+((ES.lg||'i')===k?' on':''),()=>{ES.lg=k;renderEnem()}));B.appendChild(lc)}
  if(ES.src==='enem'&&QX){B.appendChild(el('div','elab','ANO DA PROVA'+(ES.mat!=='fis'?` · ${QX.length} QUESTÕES`:'')));const an=el('div','echips'),A=qAnos();
    for(const a of['all',...Object.keys(A).map(Number).sort()]){an.appendChild(eBtn(a==='all'?'TODOS':String(a),'echip'+(ES.ano===a?' on':''),()=>{ES.ano=a;renderEnem()}))}B.appendChild(an)}
  const qb=qPool(),mx=qb.length;B.appendChild(el('div','elab','QUANTIDADE'));const g=el('div','elist two');
@@ -3397,12 +3398,12 @@ function eRes(B){const r=ES.res;eHead(B,'RESULTADO DO SIMULADO','home');const sc
   else{const Q2=ES.bank[q.i];d.appendChild(el('b',null,`${ok?'✔':'✘'} QUESTÃO ${k+1} · ${AREAS[Q2[0]]}`));d.appendChild(el('p',null,Q2[1]));
   d.appendChild(el('p','eans',`Sua resposta: ${q.sel===null?'—':'ABCDE'[q.sel]+') '+Q2[2][q.ord[q.sel]]}`));if(!ok)d.appendChild(el('p','eans ok',`Correta: ${'ABCDE'[q.ord.indexOf(0)]}) ${Q2[2][0]}`));d.appendChild(el('p','eres',Q2[3]))}L.appendChild(d)});B.appendChild(L)}}
 /* ============================ BANCO ENEM REAL (2017–2025) ============================ */
-const QXF={fis:'questoes.json',mat:'matematica.json',qui:'quimica.json',bio:'biologia.json'},QXS={},QXL={};let QX=null;
+const QXF={fis:'questoes.json',mat:'matematica.json',qui:'quimica.json',bio:'biologia.json',lin:'linguagens.json',hum:'humanas.json'},QXS={},QXL={};let QX=null;
 const QDIR='q/';
 function loadQX(cb,m){m=m||ES.mat;if(!QXF[m]){cb&&cb();return}if(QXS[m]){if(m===ES.mat)QX=QXS[m];cb&&cb();return}if(!QXL[m])QXL[m]=fetch(QDIR+QXF[m]).then(r=>r.json()).then(a=>{QXS[m]=a.filter(q=>q.gab&&!q.anulada);return QXS[m]}).catch(e=>{QXL[m]=null;throw e});QXL[m].then(()=>{if(m===ES.mat)QX=QXS[m];cb&&cb()}).catch(()=>toast('NÃO FOI POSSÍVEL CARREGAR O BANCO ENEM'))}
 const fracH=t=>String(t||'').replace(/\[\[(.*?)\|(.*?)\]\]/g,'<span class="fr"><span>$1</span><span>$2</span></span>');
 function qAnos(){const s={};for(const q of QX||[])s[q.ano]=(s[q.ano]||0)+1;return s}
-function qPool(){if(ES.src!=='enem')return MATERIAS.find(m=>m[0]===ES.mat)[2];return (QX||[]).filter(q=>ES.ano==='all'||q.ano===ES.ano)}
+function qPool(){if(ES.src!=='enem')return MATERIAS.find(m=>m[0]===ES.mat)[2];const lg=ES.lg||'i';return (QX||[]).filter(q=>(ES.ano==='all'||q.ano===ES.ano)&&(!q.lg||q.lg===lg))}
 /* acessores unificados (banco rápido x ENEM real) */
 const qOk=q=>q.e?'ABCDE'.indexOf(q.X.gab):q.ord.indexOf(0);
 const isOk=q=>q.sel!==null&&q.sel===qOk(q);
@@ -3454,7 +3455,7 @@ function adminSync(){manutSync();const on=screen==='game'&&tab==='admin'&&isAdm(
 async function adminLoad(){AD.err='';AD.rows=null;renderAdmin();try{AD.rows=await API.alunos()}catch(e){AD.err=errPT(e)}renderAdmin()}
 
 /* ============ ESTATÍSTICAS DO ALUNO E DA TURMA (painel do professor) ============ */
-const TEMAS={"fis": {"MEC": "Mecânica", "TER": "Termologia", "OPT": "Óptica", "OND": "Ondas", "ELE": "Eletricidade", "MOD": "Energia e Física Moderna"}, "mat": {"EST": "Estatística e probabilidade", "GEO": "Geometria", "FUN": "Funções e gráficos", "PRO": "Razão, proporção e porcentagem", "CON": "Contagem e combinatória", "ARI": "Aritmética e álgebra"}, "qui": {"ORG": "Química orgânica", "ELE": "Eletroquímica", "SOL": "Soluções e estequiometria", "EQU": "Equilíbrio, ácidos e bases", "TER": "Termoquímica e cinética", "AMB": "Química ambiental e materiais", "GER": "Química geral"}, "bio": {"ECO": "Ecologia e meio ambiente", "GEN": "Genética e evolução", "CEL": "Citologia e bioquímica", "FIS": "Fisiologia humana e saúde", "BOT": "Botânica e zoologia", "GER": "Biologia geral"}},MATN={fis:'FÍSICA',mat:'MATEMÁTICA',qui:'QUÍMICA',bio:'BIOLOGIA'},LEGA={MAT:'mat',QUI:'qui',BIO:'bio'};
+const TEMAS={lin:{"LIT": "Literatura", "ART": "Artes", "EDF": "Educação Física e corpo", "TEC": "Tecnologia e comunicação", "POR": "Português e interpretação", "ING": "Inglês", "ESP": "Espanhol"},hum:{"FIL": "Filosofia", "SOC": "Sociologia", "HIS": "História", "GEO": "Geografia"},"fis": {"MEC": "Mecânica", "TER": "Termologia", "OPT": "Óptica", "OND": "Ondas", "ELE": "Eletricidade", "MOD": "Energia e Física Moderna"}, "mat": {"EST": "Estatística e probabilidade", "GEO": "Geometria", "FUN": "Funções e gráficos", "PRO": "Razão, proporção e porcentagem", "CON": "Contagem e combinatória", "ARI": "Aritmética e álgebra"}, "qui": {"ORG": "Química orgânica", "ELE": "Eletroquímica", "SOL": "Soluções e estequiometria", "EQU": "Equilíbrio, ácidos e bases", "TER": "Termoquímica e cinética", "AMB": "Química ambiental e materiais", "GER": "Química geral"}, "bio": {"ECO": "Ecologia e meio ambiente", "GEN": "Genética e evolução", "CEL": "Citologia e bioquímica", "FIS": "Fisiologia humana e saúde", "BOT": "Botânica e zoologia", "GER": "Biologia geral"}},MATN={fis:'FÍSICA',mat:'MATEMÁTICA',qui:'QUÍMICA',bio:'BIOLOGIA',lin:'LINGUAGENS',hum:'CIÊNCIAS HUMANAS'},LEGA={MAT:'mat',QUI:'qui',BIO:'bio',LIN:'lin',HUM:'hum'};
 async function adEnem(force){if(AD.enem&&!force)return AD.enem;const L=await API.enemTodos();AD.enem={};for(const r of L)AD.enem[String(r.nick).toLowerCase()]=r;return AD.enem}
 /* junta o histórico antigo (só totais) com o novo (matéria + tópico) */
 function statsDe(st){st=st||{};const A=st.areas||{},mt=st.mt||{},R={};
@@ -3481,7 +3482,7 @@ async function adAluno(r){adStatsOpen('<p class="sdim">Carregando estatísticas.
  if(!qt){adStatsOpen(h+'<p class="sdim">Este aluno ainda não fez simulados na Torre ENEM.</p>');return}
  h+='<h3>POR MATÉRIA</h3>'+subjHTML(R);if(S.semMat)h+=`<p class="sdim">${S.semMat} simulado(s) antigo(s) sem matéria registrada.</p>`;
  for(const m in MATN){if(!R[m].q)continue;h+=`<h3>${MATN[m]} · POR TÓPICO</h3>`+topicsHTML(m,R[m].tp);if(m!=='fis'&&!Object.keys(R[m].tp).length)h+=''}
- if(['mat','qui','bio'].some(m=>R[m].q&&!Object.keys(R[m].tp).length))h+='<p class="sdim">Em Matemática, Química e Biologia os tópicos começam a ser contados a partir de hoje (21/10).</p>';
+ if(['mat','qui','bio','lin','hum'].some(m=>R[m].q&&!Object.keys(R[m].tp).length))h+='<p class="sdim">Em Matemática, Química e Biologia os tópicos começam a ser contados a partir de hoje (21/10).</p>';
  if(S.hist.length){h+='<h3>ÚLTIMOS SIMULADOS</h3><table class="sst"><tr><th>DATA</th><th>MATÉRIA</th><th class="n">ACERTOS</th><th class="n">TEMPO</th></tr>'+S.hist.map(z=>`<tr><td>${z.d.split('-').reverse().join('/')}</td><td>${MATN[z.mat]||'—'}${z.src==='rap'?' (rápidas)':''}</td><td class="n">${z.ac}/${z.n}</td><td class="n">${fmtT(z.t)}</td></tr>`).join('')+'</table>'}
  adStatsOpen(h)}
 async function adTurma(tid){adStatsOpen('<p class="sdim">Carregando...</p>');let E;try{E=await adEnem()}catch(e){adStatsOpen(`<p class="sdim">Não foi possível carregar: ${errPT(e)}</p>`);return}
