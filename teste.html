@@ -2817,7 +2817,7 @@ function curNodeFor(v){if(hero.node[v]!=null)return hero.node[v];return clamp(me
 function placeHero(){const W=getVolWorld(curVol),n=W.nodes[curNodeFor(curVol)];hero.X=n[0];hero.Y=n[1];hero.walking=false;centerOn(W,...W.P(n[0],n[1]))}
 const ZM=W=>W.zoom||1;
 function centerOn(W,px,py){const Z=ZM(W);W.cam.x=px-VW/2/Z;W.cam.y=py-VH/2/Z-10/Z;clampCam(W)}
-function clampCam(W){const Z=ZM(W);W.cam.x=clamp(W.cam.x,0,W.w-VW/Z);W.cam.y=clamp(W.cam.y,0,W.h-VH/Z)}
+function clampCam(W){const Z=ZM(W),mx=W.w-VW/Z,my=W.h-VH/Z;W.cam.x=mx<0?mx/2:clamp(W.cam.x,0,mx);W.cam.y=my<0?my/2:clamp(W.cam.y,0,my)}
 function setZoom(W,z,sx=VW/2,sy=VH/2){const Z0=ZM(W),Z=clamp(z,W.minZ||1,3),wx=W.cam.x+sx/Z0,wy=W.cam.y+sy/Z0;W.zoom=Z;W.cam.x=wx-sx/Z;W.cam.y=wy-sy/Z;clampCam(W)}
 const curW=()=>screen!=='game'?null:tab==='jornada'?(jView==='mundo'?mundoW:VOLW[curVol]):tab==='tribos'?tribeWorld:null;
 function route(W,a,b){let p=[];if(b>a)for(let i=a;i<b;i++)p=p.concat(W.segs[i]);else for(let i=a-1;i>=b;i--)p=p.concat(W.segs[i].slice().reverse());return p}
@@ -2880,7 +2880,7 @@ function renderFar(W,extra){const Z=ZM(W),RW=Math.ceil(VW/Z),RH=Math.ceil(VH/Z),
 function renderWorld(W,extra){
  if(W===tribeWorld&&ZM(W)<=.56){clampCam(W);return renderFar(W,extra)}
  if(W===tribeWorld&&!W.far&&!W._farQ){W._farQ=1;setTimeout(()=>{if(!W.far&&tribeWorld===W)W.far=farBake(W)},2500)}
- clampCam(W);const Z=ZM(W),RW=Math.ceil(VW/Z),RH=Math.ceil(VH/Z);wb.clearRect(0,0,RW+2,RH+2);const cx=Math.round(W.cam.x),cy=Math.round(W.cam.y);
+ clampCam(W);const Z=ZM(W),RW=Math.ceil(VW/Z),RH=Math.ceil(VH/Z);if(WB.width<RW+2||WB.height<RH+2){WB.width=Math.max(WB.width,RW+2);WB.height=Math.max(WB.height,RH+2);wb.imageSmoothingEnabled=false}wb.fillStyle=(W.pal&&W.pal.water&&!W.pal.lava)?W.pal.water[4]:'#0b0710';wb.fillRect(0,0,RW+2,RH+2);const cx=Math.round(W.cam.x),cy=Math.round(W.cam.y);
  wb.drawImage(W.dec,cx,cy,RW,RH,0,0,RW,RH);
  if(!W._fb){const B=(arr)=>{const m=new Map();for(const p of arr){const k=((p[0]>>7)<<12)|(p[1]>>7);let a=m.get(k);if(!a)m.set(k,a=[]);a.push(p)}return m};W._fb=B(W.foam);W._sb=B(W.shim)}
  const inV=(m,fn)=>{for(let bx=(cx>>7)-1;bx<=((cx+RW)>>7);bx++)for(let by=(cy>>7)-1;by<=((cy+RH)>>7);by++){const a=m.get((bx<<12)|by);if(a)for(const p of a)fn(p)}};
