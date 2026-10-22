@@ -3359,7 +3359,7 @@ function placePanel(el,kind){const r=scr.getBoundingClientRect(),st=el.style;
 
 /* ============================ ABA ENEM ============================ */
 let LIMD=null,LIMT=-1e9;const ES={src:'enem',ano:'all',scr:'home',mat:'fis',n:10,mode:'treino',qs:[],cur:0,t0:0,t1:0,confirmEnd:false,rev:false,res:null};
-function enemState(){const e=eqState();if(!e.enem)e.enem={n:0,best:0,hist:[],areas:{},ep:ESTAT_EP};if(e.enem.ep!==ESTAT_EP){e.enem=enemCorte(e.enem);saveEq()}return e.enem}
+function enemState(){const e=eqState();if(!e.enem)e.enem={n:0,best:0,hist:[],areas:{}};if(e.enem.arq){e.enem=enemTotal(e.enem);saveEq()}return e.enem}
 function diasEnem(){const d=new Date(CONFIG.ENEM_DATA+'T13:00:00-03:00')-Date.now();return Math.ceil(d/86400000)}
 function enemSync(){const on=screen==='game'&&tab==='enem'&&!!me,h=$('enem');if(on!==h.classList.contains('on')){h.classList.toggle('on',on);if(on)renderEnem()}if(on){placePanel(h);if(ES.scr==='quiz')updTimer()}}
 const fmtT=s=>{s=Math.max(0,Math.floor(s));return`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`};
@@ -3501,12 +3501,15 @@ async function adminLoad(){AD.err='';AD.rows=null;renderAdmin();try{AD.rows=awai
 const TEMAS={lin:{"LIT": "Literatura", "ART": "Artes", "EDF": "Educação Física e corpo", "TEC": "Tecnologia e comunicação", "POR": "Português e interpretação", "ING": "Inglês", "ESP": "Espanhol"},hum:{"FIL": "Filosofia", "SOC": "Sociologia", "HIS": "História", "GEO": "Geografia"},"fis": {"FIS": "Física (sem tópico registrado)", "MEC": "Mecânica", "TER": "Termologia", "OPT": "Óptica", "OND": "Ondas", "ELE": "Eletricidade", "MOD": "Energia e Física Moderna"}, "mat": {"EST": "Estatística e probabilidade", "GEO": "Geometria", "FUN": "Funções e gráficos", "PRO": "Razão, proporção e porcentagem", "CON": "Contagem e combinatória", "ARI": "Aritmética e álgebra"}, "qui": {"ORG": "Química orgânica", "ELE": "Eletroquímica", "SOL": "Soluções e estequiometria", "EQU": "Equilíbrio, ácidos e bases", "TER": "Termoquímica e cinética", "AMB": "Química ambiental e materiais", "GER": "Química geral"}, "bio": {"ECO": "Ecologia e meio ambiente", "GEN": "Genética e evolução", "CEL": "Citologia e bioquímica", "FIS": "Fisiologia humana e saúde", "BOT": "Botânica e zoologia", "GER": "Biologia geral"}},MATN={fis:'FÍSICA',mat:'MATEMÁTICA',qui:'QUÍMICA',bio:'BIOLOGIA',lin:'LINGUAGENS',hum:'CIÊNCIAS HUMANAS'},LEGA={MAT:'mat',QUI:'qui',BIO:'bio',LIN:'lin',HUM:'hum'};
 async function adEnem(force){if(AD.enem&&!force)return AD.enem;const L=await API.enemTodos();AD.enem={};for(const r of L)AD.enem[String(r.nick).toLowerCase()]=r;return AD.enem}
 /* junta o histórico antigo (só totais) com o novo (matéria + tópico) */
-const ESTAT_DESDE='2026-10-22',ESTAT_EP=Date.parse(ESTAT_DESDE+'T00:00:00-03:00'),M2AREA={mat:'MAT',qui:'QUI',bio:'BIO',lin:'LIN',hum:'HUM',fis:'FIS'};
-/* estatísticas contam só a partir de ESTAT_DESDE: o que veio antes fica guardado em "arq", fora das contas */
-function enemCorte(st){st=st||{};if(st.ep===ESTAT_EP)return st;const h=(st.hist||[]).filter(x=>x&&x.d>=ESTAT_DESDE),N={n:h.length,best:0,hist:h,areas:{},mt:{},ep:ESTAT_EP,arq:{n:st.n||0,best:st.best||0,areas:st.areas||{},mt:st.mt||{},ate:ESTAT_DESDE}};
- for(const x of h){if(!x.parc&&x.n)N.best=Math.max(N.best,Math.round(x.ac/x.n*100));const m=x.mat;if(!M2AREA[m])continue;const k=M2AREA[m];N.areas[k]=N.areas[k]||[0,0];N.areas[k][0]+=x.ac||0;N.areas[k][1]+=x.n||0;const M=N.mt[m]=N.mt[m]||{n:0,q:0,ac:0,tp:{}};M.n++;M.q+=x.n||0;M.ac+=x.ac||0}
- N.mt0=0;return N}
-function statsDe(st){st=enemCorte(st||{});const A=st.areas||{},mt=st.mt||{},R={};
+/* estatística total (todo o histórico). Desfaz o corte de 22/10 para quem chegou a passar por ele:
+   volta o arquivo e soma só o que veio depois do corte (questões com tópico); a parte refeita do histórico de hoje é descartada para não contar em dobro */
+const AREA_DE={mat:'MAT',qui:'QUI',bio:'BIO',lin:'LIN',hum:'HUM'};
+function enemTotal(st){st=st||{};if(!st.arq)return st;const A=st.arq,R={n:Math.max(A.n||0,st.n||0),best:Math.max(A.best||0,st.best||0),hist:st.hist||[],areas:JSON.parse(JSON.stringify(A.areas||{})),mt:JSON.parse(JSON.stringify(A.mt||{}))};
+ for(const k in st.areas||{}){if(k==='FIS'||k in{MAT:1,QUI:1,BIO:1,LIN:1,HUM:1})continue;R.areas[k]=R.areas[k]||[0,0];R.areas[k][0]+=st.areas[k][0];R.areas[k][1]+=st.areas[k][1]}
+ for(const m in st.mt||{}){const tp=st.mt[m].tp||{};let q=0,ac=0;const M=R.mt[m]=R.mt[m]||{n:0,q:0,ac:0,tp:{}};M.tp=M.tp||{};for(const k in tp){q+=tp[k][1];ac+=tp[k][0];if(m!=='fis'){M.tp[k]=M.tp[k]||[0,0];M.tp[k][0]+=tp[k][0];M.tp[k][1]+=tp[k][1]}}M.q+=q;M.ac+=ac;if(q)M.n++;
+  if(AREA_DE[m]&&q){R.areas[AREA_DE[m]]=R.areas[AREA_DE[m]]||[0,0];R.areas[AREA_DE[m]][0]+=ac;R.areas[AREA_DE[m]][1]+=q}}
+ if(st.mt0!=null&&A.mt0!=null)R.mt0=A.mt0;return R}
+function statsDe(st){st=enemTotal(st||{});const A=st.areas||{},mt=st.mt||{},R={};
  for(const m in MATN)R[m]={sim:0,q:0,ac:0,tp:{}};
  for(const k in A){const v=A[k];if(!v)continue;const m=LEGA[k]||'fis';R[m].q+=v[1];R[m].ac+=v[0];if(m==='fis'){R.fis.tp[k]=R.fis.tp[k]||[0,0];R.fis.tp[k][0]+=v[0];R.fis.tp[k][1]+=v[1]}}
  for(const m in mt){if(!R[m])continue;R[m].sim+=mt[m].n;if(m!=='fis')for(const k in mt[m].tp){R[m].tp[k]=R[m].tp[k]||[0,0];R[m].tp[k][0]+=mt[m].tp[k][0];R[m].tp[k][1]+=mt[m].tp[k][1]}}
