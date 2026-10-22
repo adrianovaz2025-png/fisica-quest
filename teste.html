@@ -2799,7 +2799,7 @@ const Supa={
  async logout(){await this.sb.auth.signOut();this.uid=null},
  async completePhase(n){const{data,error}=await this.sb.rpc('concluir_fase',{p_fase:n});if(error)throw error;return data},
  async limites(){const{data,error}=await this.sb.rpc('limites_hoje');if(error)throw error;return data},
- async simulado(ac,tot){const{data,error}=await this.sb.rpc('registrar_simulado',{p_acertos:ac,p_total:tot});if(error)throw error;return{me:await this.profile(),ganho:data||0}},
+ async simulado(ac,tot){const{data,error}=await this.sb.rpc('registrar_simulado',{p_acertos:ac,p_total:tot,p_fonte:ES.src==='enem'?'enem':'rap'});if(error)throw error;return{me:await this.profile(),ganho:data||0}},
  async saveEquip(eq){const{error}=await this.sb.from('perfis').update({equip:eq}).eq('id',this.uid);if(error)throw error},
  async setChar(c){const{error}=await this.sb.from('perfis').update({personagem:c}).eq('id',this.uid);if(error)throw error},
  async saveLook(v,pr){const{error}=await this.sb.from('perfis').update({visual:v,personagem:pr}).eq('id',this.uid);if(error)throw error},
