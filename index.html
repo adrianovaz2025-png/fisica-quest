@@ -2784,6 +2784,7 @@ const Supa={
  async mestre(){const{data,error}=await this.sb.rpc('mestre');if(error)throw error;return data},
  async codDiretor(c){const{error}=await this.sb.rpc('admin_codigo_diretor',{p_novo:c});if(error)throw error},
 async foraEstat(n,v){const{error}=await this.sb.rpc('admin_fora_estat',{p_nick:n,p_fora:v});if(error)throw error},
+async novaSenha(n,p){const{error}=await this.sb.rpc('admin_redefinir_senha',{p_nick:n,p_senha:p});if(error)throw error},
 async enemTodos(){const{data,error}=await this.sb.rpc('admin_enem');if(error)throw error;return data||[]},
 async alunos(){const{data,error}=await this.sb.rpc('admin_alunos');if(error)throw error;return data||[]},
  async members(t){const{data,error}=await this.sb.rpc('membros_tribo',{p_turma:t});if(error)throw error;return data}
@@ -3490,17 +3491,19 @@ function subjHTML(R){let h='<table class="sst"><tr><th>MATÉRIA</th><th class="n
  return h+'</table>'}
 function adStatsOpen(html){let o=$('adst');if(!o){o=el('div','ov');o.id='adst';o.style.zIndex=8;o.innerHTML='<div class="box sbox"><button class="sm sx" id="adstX">✕</button><div id="adstB"></div></div>';document.body.appendChild(o);$('adstX').onclick=()=>o.classList.remove('on');o.onclick=e=>{if(e.target===o)o.classList.remove('on')}}
  $('adstB').innerHTML=html;o.classList.add('on')}
+function senhaBox(r){return`<div class="codrow" style="margin:8px 0 4px"><p>🔑 <b>Esqueceu a senha?</b> Crie uma senha nova para <b>${r.nick}</b> (mínimo 6 caracteres) e passe para o aluno. O login dele continua sendo o nick <b>${r.nick}</b>.</p><input class="inp" id="nsIn" type="text" autocomplete="off" placeholder="Nova senha"><button class="sm" id="nsBt">REDEFINIR SENHA</button><span class="sdim" id="nsMsg"></span></div>`}
+function senhaWire(r){const b=$('nsBt');if(!b)return;b.onclick=async()=>{const v=$('nsIn').value.trim(),m=$('nsMsg');if(v.length<6){m.textContent='A senha precisa ter pelo menos 6 caracteres.';return}b.disabled=true;m.textContent='Salvando...';try{if(!API.novaSenha)throw new Error('Disponível só no modo online.');await API.novaSenha(r.nick,v);m.innerHTML='✔ Senha redefinida. Anote e passe para o aluno.'}catch(e){m.textContent=/nao_encontrado/.test(e.message)?'Aluno não encontrado.':errPT(e)}b.disabled=false}}
 async function adAluno(r){adStatsOpen('<p class="sdim">Carregando estatísticas...</p>');let E;try{E=await adEnem()}catch(e){adStatsOpen(`<h2>${r.nome||r.nick}</h2><p class="sdim">Não foi possível carregar: ${errPT(e)}</p>`);return}
  const x=E[String(r.nick).toLowerCase()],S=statsDe(x&&x.enem),R=S.R,qt=Object.values(R).reduce((a,v)=>a+v.q,0),ac=Object.values(R).reduce((a,v)=>a+v.ac,0);
  let h=`<h2>${r.nome||r.nick}</h2><p class="sdim">${r.nick} · ${TURMA(r.turma).nome} · ${r.pontos||0} pontos</p>
-  <div class="estats"><span>SIMULADOS<b>${S.n}</b></span><span>QUESTÕES<b>${qt}</b></span><span>ACERTOS<b>${ac}</b></span><span>APROVEITAMENTO<b>${qt?Math.round(ac/qt*100):0}%</b></span><span>MELHOR SIMULADO<b>${S.best}%</b></span></div>`;
- if(!qt){adStatsOpen(h+'<p class="sdim">Este aluno ainda não fez simulados na Torre ENEM.</p>');return}
+  ${senhaBox(r)}<div class="estats"><span>SIMULADOS<b>${S.n}</b></span><span>QUESTÕES<b>${qt}</b></span><span>ACERTOS<b>${ac}</b></span><span>APROVEITAMENTO<b>${qt?Math.round(ac/qt*100):0}%</b></span><span>MELHOR SIMULADO<b>${S.best}%</b></span></div>`;
+ if(!qt){adStatsOpen(h+'<p class="sdim">Este aluno ainda não fez simulados na Torre ENEM.</p>');senhaWire(r);return}
  h+='<h3>POR MATÉRIA</h3>'+subjHTML(R);if(S.semMat)h+=`<p class="sdim">${S.semMat} simulado(s) antigo(s) sem matéria registrada.</p>`;
  for(const m in MATN){if(!R[m].q)continue;h+=`<h3>${MATN[m]} · POR TÓPICO</h3>`+topicsHTML(m,R[m].tp);if(m!=='fis'&&!Object.keys(R[m].tp).length)h+=''}
  if(['mat','qui','bio','lin','hum'].some(m=>R[m].q&&!Object.keys(R[m].tp).length))h+='<p class="sdim">Em Matemática, Química e Biologia os tópicos começam a ser contados a partir de hoje (21/10).</p>';
  if(S.hist.length){h+='<h3>ÚLTIMOS SIMULADOS</h3><table class="sst"><tr><th>DATA</th><th>MATÉRIA</th><th class="n">ACERTOS</th><th class="n">TEMPO</th></tr>'+S.hist.map(z=>`<tr><td>${z.d.split('-').reverse().join('/')}</td><td>${MATN[z.mat]||'—'}${z.src==='rap'?' (rápidas)':''}</td><td class="n">${z.ac}/${z.n}</td><td class="n">${fmtT(z.t)}</td></tr>`).join('')+'</table>'}
  const fx=x&&x.fora;h+=`<div class="codrow" style="margin-top:14px"><p>${fx?'⚠ Este aluno está <b>fora das estatísticas</b> da turma e do painel do diretor (os pontos continuam valendo).':'Se este aluno distorce as médias (ex.: chute em massa), dá para retirá-lo das estatísticas sem mexer nos pontos.'}</p><button class="sm" id="foraBt">${fx?'↩ VOLTAR A CONTAR NAS ESTATÍSTICAS':'🚫 RETIRAR DAS ESTATÍSTICAS'}</button></div>`;
- adStatsOpen(h);$('foraBt').onclick=async()=>{try{await API.foraEstat(r.nick,!fx);if(x)x.fora=!fx;else AD.enem=null;toast(!fx?'ALUNO RETIRADO DAS ESTATÍSTICAS':'ALUNO VOLTOU A CONTAR NAS ESTATÍSTICAS',3000);adAluno(r);if(AD.view==='turmas')renderAdmin()}catch(e){toast(errPT(e))}}}
+ adStatsOpen(h);senhaWire(r);$('foraBt').onclick=async()=>{try{await API.foraEstat(r.nick,!fx);if(x)x.fora=!fx;else AD.enem=null;toast(!fx?'ALUNO RETIRADO DAS ESTATÍSTICAS':'ALUNO VOLTOU A CONTAR NAS ESTATÍSTICAS',3000);adAluno(r);if(AD.view==='turmas')renderAdmin()}catch(e){toast(errPT(e))}}}
 async function adTurma(tid){adStatsOpen('<p class="sdim">Carregando...</p>');let E;try{E=await adEnem()}catch(e){adStatsOpen(`<p class="sdim">Não foi possível carregar: ${errPT(e)}</p>`);return}
  const tabs=[['all','TODAS'],...TURMAS.map(t=>[t.id,t.nome])];let h='<h2>ANÁLISE POR TURMA</h2><div class="stabs">'+tabs.map(([k,n])=>`<button class="sm${k===tid?' on':''}" data-t="${k}">${n}</button>`).join('')+'</div>';
  const rows=(AD.rows||[]).filter(r=>tid==='all'||r.turma===tid),T={};for(const m in MATN)T[m]={sim:0,q:0,ac:0,tp:{}};const worst=[];
