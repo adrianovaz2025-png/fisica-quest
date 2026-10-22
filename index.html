@@ -2759,7 +2759,8 @@ const Demo={
  async tribes(){return TURMAS.map(t=>{const us=Object.values(this.db.users).filter(u=>u.turma===t.id);return{id:t.id,pontos:us.reduce((a,u)=>a+u.pontos,0),membros:us.length}})},
  async members(turma){const list=[];Object.values(this.db.users).filter(u=>u.turma===turma).forEach(u=>list.push({nick:u.nick,personagem:u.personagem,pontos:u.pontos,fases:u.fases,visual:u.visual,equip:u.equip}));return list.sort((a,b)=>b.pontos-a.pontos)},
  async mestre(){const u=Object.values(this.db.users).find(u=>u.admin);return u?{nick:u.nick,visual:u.visual,equip:(u.equip&&u.equip.s)||{},guard:(u.equip&&u.equip.guard)||{},manut:!!(u.equip&&u.equip.manut)}:null},
- async enemTodos(){if(!this.me()||!this.me().admin)return[];return Object.values(this.db.users).filter(u=>u.turma!=='PROF').map(u=>({nick:u.nick,turma:u.turma,enem:(u.equip&&u.equip.enem)||{}}))},
+ async enemTodos(){if(!this.me()||!this.me().admin)return[];return Object.values(this.db.users).filter(u=>u.turma!=='PROF').map(u=>({nick:u.nick,turma:u.turma,enem:(u.equip&&u.equip.enem)||{},fora:!!u.fora}))},
+  async foraEstat(n,v){const u=Object.values(this.db.users).find(x=>x.nick.toLowerCase()===n.toLowerCase());if(u){u.fora=!!v;this.save()}},
 async alunos(){if(!this.me()||!this.me().admin)return[];return Object.values(this.db.users).filter(u=>u.turma!=='PROF').map(u=>({nome:u.nome||'',nick:u.nick,turma:u.turma,pontos:u.pontos,simulados:(u.equip&&u.equip.enem&&u.equip.enem.n)||0,criado_em:u.criado||null}))},
  setLevel(turma,L){const real=Object.values(this.db.users).filter(u=>u.turma===turma).reduce((a,u)=>a+u.pontos,0);this.db.extra[turma]=Math.max(0,CONFIG.NIVEIS[L]+20-real);this.save()}
 };
@@ -2782,6 +2783,7 @@ const Supa={
  async tribes(){const{data,error}=await this.sb.rpc('placar_tribos');if(error)throw error;return data},
  async mestre(){const{data,error}=await this.sb.rpc('mestre');if(error)throw error;return data},
  async codDiretor(c){const{error}=await this.sb.rpc('admin_codigo_diretor',{p_novo:c});if(error)throw error},
+async foraEstat(n,v){const{error}=await this.sb.rpc('admin_fora_estat',{p_nick:n,p_fora:v});if(error)throw error},
 async enemTodos(){const{data,error}=await this.sb.rpc('admin_enem');if(error)throw error;return data||[]},
 async alunos(){const{data,error}=await this.sb.rpc('admin_alunos');if(error)throw error;return data||[]},
  async members(t){const{data,error}=await this.sb.rpc('membros_tribo',{p_turma:t});if(error)throw error;return data}
@@ -3492,7 +3494,8 @@ async function adAluno(r){adStatsOpen('<p class="sdim">Carregando estatísticas.
  for(const m in MATN){if(!R[m].q)continue;h+=`<h3>${MATN[m]} · POR TÓPICO</h3>`+topicsHTML(m,R[m].tp);if(m!=='fis'&&!Object.keys(R[m].tp).length)h+=''}
  if(['mat','qui','bio','lin','hum'].some(m=>R[m].q&&!Object.keys(R[m].tp).length))h+='<p class="sdim">Em Matemática, Química e Biologia os tópicos começam a ser contados a partir de hoje (21/10).</p>';
  if(S.hist.length){h+='<h3>ÚLTIMOS SIMULADOS</h3><table class="sst"><tr><th>DATA</th><th>MATÉRIA</th><th class="n">ACERTOS</th><th class="n">TEMPO</th></tr>'+S.hist.map(z=>`<tr><td>${z.d.split('-').reverse().join('/')}</td><td>${MATN[z.mat]||'—'}${z.src==='rap'?' (rápidas)':''}</td><td class="n">${z.ac}/${z.n}</td><td class="n">${fmtT(z.t)}</td></tr>`).join('')+'</table>'}
- adStatsOpen(h)}
+ const fx=x&&x.fora;h+=`<div class="codrow" style="margin-top:14px"><p>${fx?'⚠ Este aluno está <b>fora das estatísticas</b> da turma e do painel do diretor (os pontos continuam valendo).':'Se este aluno distorce as médias (ex.: chute em massa), dá para retirá-lo das estatísticas sem mexer nos pontos.'}</p><button class="sm" id="foraBt">${fx?'↩ VOLTAR A CONTAR NAS ESTATÍSTICAS':'🚫 RETIRAR DAS ESTATÍSTICAS'}</button></div>`;
+ adStatsOpen(h);$('foraBt').onclick=async()=>{try{await API.foraEstat(r.nick,!fx);if(x)x.fora=!fx;else AD.enem=null;toast(!fx?'ALUNO RETIRADO DAS ESTATÍSTICAS':'ALUNO VOLTOU A CONTAR NAS ESTATÍSTICAS',3000);adAluno(r);if(AD.view==='turmas')renderAdmin()}catch(e){toast(errPT(e))}}}
 async function adTurma(tid){adStatsOpen('<p class="sdim">Carregando...</p>');let E;try{E=await adEnem()}catch(e){adStatsOpen(`<p class="sdim">Não foi possível carregar: ${errPT(e)}</p>`);return}
  const tabs=[['all','TODAS'],...TURMAS.map(t=>[t.id,t.nome])];let h='<h2>ANÁLISE POR TURMA</h2><div class="stabs">'+tabs.map(([k,n])=>`<button class="sm${k===tid?' on':''}" data-t="${k}">${n}</button>`).join('')+'</div>';
  const rows=(AD.rows||[]).filter(r=>tid==='all'||r.turma===tid),T={};for(const m in MATN)T[m]={sim:0,q:0,ac:0,tp:{}};const worst=[];
@@ -3505,7 +3508,7 @@ async function adTurma(tid){adStatsOpen('<p class="sdim">Carregando...</p>');let
 
 
 /* ============ VISÃO POR TURMA (aba ALUNOS) — painel para orientar cada turma ============ */
-function turmaResumo(tid,E){const rows=(AD.rows||[]).filter(r=>tid==='all'||r.turma===tid),T={};for(const m in MATN)T[m]={sim:0,q:0,ac:0,tp:{}};
+function turmaResumo(tid,E){const rows=(AD.rows||[]).filter(r=>(tid==='all'||r.turma===tid)&&!(E[String(r.nick).toLowerCase()]||{}).fora),T={};for(const m in MATN)T[m]={sim:0,q:0,ac:0,tp:{}};
  const al=[];let tq=0,tt=0;
  for(const r of rows){const x=E[String(r.nick).toLowerCase()],S=statsDe(x&&x.enem);let q=0,ac=0;
   for(const m in MATN){const a=S.R[m],b=T[m];b.sim+=a.sim;b.q+=a.q;b.ac+=a.ac;q+=a.q;ac+=a.ac;for(const k in a.tp){b.tp[k]=b.tp[k]||[0,0];b.tp[k][0]+=a.tp[k][0];b.tp[k][1]+=a.tp[k][1]}}
@@ -3542,6 +3545,7 @@ async function renderTurmas(B){let E;try{E=await adEnem()}catch(e){B.appendChild
  if(top.length)h+='<h3>DESTAQUES (MAIOR ACERTO, 10+ QUESTÕES)</h3>'+lst(top,a=>`<td class="n">${a.q} q</td><td class="n">${a.p}%</td><td class="b">${bar(a.p)}</td>`);
  if(bx.length)h+='<h3>PRECISAM DE ATENÇÃO (MENOR ACERTO)</h3>'+lst(bx,a=>`<td class="n">${a.q} q</td><td class="n">${a.p}%</td><td class="b">${bar(a.p)}</td>`);
  if(nunca.length)h+=`<h3>AINDA NÃO FIZERAM SIMULADO (${nunca.length})</h3><p class="sdim">${nunca.map(a=>a.r.nome||a.r.nick).join(', ')}</p>`;
+ {const fo=(AD.rows||[]).filter(r=>(E[String(r.nick).toLowerCase()]||{}).fora&&(tid==='all'||r.turma===tid));if(fo.length)h+=`<h3>FORA DAS ESTATÍSTICAS (${fo.length})</h3><p class="sdim">${fo.map(r=>r.nome||r.nick).join(', ')} — os pontos continuam valendo para a tribo, mas não entram nas médias da turma nem no painel do diretor. Para voltar a contar, abra o aluno na lista.</p>`}
  W.innerHTML=h;B.appendChild(W);
  W.querySelectorAll('[data-t]').forEach(e=>e.onclick=()=>{AD.tv=e.dataset.t;renderAdmin()});
  W.querySelectorAll('[data-n]').forEach(e=>e.onclick=()=>{const r=AD.rows.find(x=>x.nick===e.dataset.n);if(r)adAluno(r)})}

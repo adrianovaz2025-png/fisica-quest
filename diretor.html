@@ -94,7 +94,7 @@ async function load(code){const A=document.getElementById('app');A.innerHTML='<p
  try{if(new URLSearchParams(location.search).has('demo')){ALL=demoRows();aplicaFiltro();render();return}
   await new Promise((ok,err)=>{if(window.supabase)return ok();const sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js';sc.onload=ok;sc.onerror=()=>err(new Error('Sem conexão com o servidor.'));document.head.appendChild(sc)});
   const sb=window.supabase.createClient(SB_URL,SB_KEY);
-  if(!code){const{data}=await sb.auth.getSession();if(data.session){const r=await sb.rpc('admin_enem');if(!r.error){ALL=r.data||[];aplicaFiltro();render();return}}
+  if(!code){const{data}=await sb.auth.getSession();if(data.session){const r=await sb.rpc('admin_enem');if(!r.error){ALL=(r.data||[]).filter(x=>!x.fora);aplicaFiltro();render();return}}
    try{code=localStorage.getItem('dir_cod')}catch(e){}if(!code){loginForm();return}}
   const r=await sb.rpc('painel_diretor',{p_codigo:code});if(r.error){try{localStorage.removeItem('dir_cod')}catch(e){}loginForm(/codigo_invalido/.test(r.error.message)?'Código incorreto.':'Não foi possível carregar: '+r.error.message);return}
   try{localStorage.setItem('dir_cod',code)}catch(e){}ALL=r.data||[];aplicaFiltro();render()}catch(e){A.innerHTML=`<p class="err">${e.message||e}</p>`}}
