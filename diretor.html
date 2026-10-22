@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Painel do Diretor</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#1a1220;--panel:#2a1d14;--edge:#5a3a22;--gold:#e8c070;--gold2:#f8d870;--txt:#f4e4c0;--dim:#b8a888;--line:#3a2a1e;--bad:#e8584a;--mid:#e8b030;--ok:#5ac86a}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+.px{font-family:"Press Start 2P",monospace;letter-spacing:.5px}
+header{background:var(--panel);box-shadow:inset 0 -3px 0 var(--gold),inset 0 -6px 0 var(--edge);padding:18px 16px 20px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+h1{font-size:15px;margin:0 0 6px;color:var(--gold2)}h1 small{display:block;font:13px system-ui,sans-serif;color:var(--dim);margin-top:8px;letter-spacing:0}
+h2{font-size:11px;color:var(--gold2);margin:28px 0 12px}h3{font-size:9px;color:var(--gold2);margin:0 0 10px}
+.card{background:var(--panel);border:3px solid #120c16;box-shadow:inset 0 0 0 2px var(--edge);padding:14px;border-radius:2px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-top:14px}.tabs button,.btn{font:9px "Press Start 2P",monospace;background:#4a3020;color:var(--txt);border:3px solid #120c16;box-shadow:inset 0 0 0 2px var(--edge);padding:10px 12px;cursor:pointer}
+.tabs button.on,.btn.on{background:var(--gold);color:#2a1d14}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:18px}.kpi{text-align:center}.kpi b{display:block;font:20px "Press Start 2P",monospace;color:#fff;margin-top:8px}.kpi span{font-size:12px;color:var(--dim)}
+.grid2{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:14px}@media(max-width:860px){.grid2{grid-template-columns:1fr}}
+.groups{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;margin-top:8px}.legend i{display:inline-block;width:14px;height:14px;margin-right:6px;vertical-align:-2px;border:2px solid #120c16}
+.fw{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;font-size:13px}.fw h4{margin:0 0 4px;font:8px "Press Start 2P",monospace}.fw .f h4{color:var(--ok)}.fw .w h4{color:var(--bad)}.fw ul{margin:0;padding-left:16px}
+.meta{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--dim);margin-top:8px}.meta b{color:var(--txt)}
+.warn{font-size:12px;color:#ffb0a0;margin-top:6px}
+table{width:100%;border-collapse:collapse;font-size:13px}th{color:var(--gold2);font-size:11px;text-align:left;padding:6px;border-bottom:2px solid var(--edge);position:sticky;top:0;background:var(--panel)}td{padding:6px;border-bottom:1px solid var(--line)}td.c{text-align:center;font-variant-numeric:tabular-nums;color:#120c16;font-weight:700}td.na{text-align:center;color:var(--dim)}tr.sub td{color:var(--gold);font:8px "Press Start 2P",monospace;padding-top:14px;border-bottom:1px solid var(--edge)}
+.scroll{overflow:auto;max-height:620px}
+.login{max-width:440px;margin:40px auto}.login input{width:100%;font:16px system-ui;padding:12px;margin:12px 0;background:#120c16;color:var(--txt);border:3px solid var(--edge)}
+.note{font-size:12px;color:var(--dim);margin-top:10px}
+svg text{font-family:system-ui,sans-serif}
+.err{color:#ffb0a0}
+</style></head><body>
+<header><div class="wrap"><h1 class="px">IMPÉRIO · PAINEL DO DIRETOR<small id="sub">Desempenho das turmas na Torre ENEM do Colégio Império</small></h1>
+<div class="tabs" id="tabs"></div></div></header>
+<main class="wrap" id="app"><p class="note">Carregando...</p></main>
+<script>
+const SB_URL='https://deebihpvewibzciwwpyc.supabase.co',SB_KEY='sb_publishable_3ecbKUEKBCeC5_FtNTkXvw_0Zts6nxO';
+const TURMAS=[{id:'1A',nome:'1º ANO A',serie:1,cor:'#5a80e8'},{id:'1B',nome:'1º ANO B',serie:1,cor:'#e8604a'},{id:'2A',nome:'2º ANO A',serie:2,cor:'#5ab85a'},{id:'2B',nome:'2º ANO B',serie:2,cor:'#a870e0'},{id:'3A',nome:'3º ANO',serie:3,cor:'#f0c040'}];
+const SERIES=[{id:1,nome:'1º ANO',cor:'#5a9ae8',turmas:['1A','1B']},{id:2,nome:'2º ANO',cor:'#5ac86a',turmas:['2A','2B']},{id:3,nome:'3º ANO',cor:'#f0c040',turmas:['3A']}];
+const TEMAS={lin:{"LIT": "Literatura", "ART": "Artes", "EDF": "Educação Física e corpo", "TEC": "Tecnologia e comunicação", "POR": "Português e interpretação", "ING": "Inglês", "ESP": "Espanhol"},hum:{"FIL": "Filosofia", "SOC": "Sociologia", "HIS": "História", "GEO": "Geografia"},"fis": {"MEC": "Mecânica", "TER": "Termologia", "OPT": "Óptica", "OND": "Ondas", "ELE": "Eletricidade", "MOD": "Energia e Física Moderna"}, "mat": {"EST": "Estatística e probabilidade", "GEO": "Geometria", "FUN": "Funções e gráficos", "PRO": "Razão, proporção e porcentagem", "CON": "Contagem e combinatória", "ARI": "Aritmética e álgebra"}, "qui": {"ORG": "Química orgânica", "ELE": "Eletroquímica", "SOL": "Soluções e estequiometria", "EQU": "Equilíbrio, ácidos e bases", "TER": "Termoquímica e cinética", "AMB": "Química ambiental e materiais", "GER": "Química geral"}, "bio": {"ECO": "Ecologia e meio ambiente", "GEN": "Genética e evolução", "CEL": "Citologia e bioquímica", "FIS": "Fisiologia humana e saúde", "BOT": "Botânica e zoologia", "GER": "Biologia geral"}},MATN={fis:'FÍSICA',mat:'MATEMÁTICA',qui:'QUÍMICA',bio:'BIOLOGIA',lin:'LINGUAGENS',hum:'CIÊNCIAS HUMANAS'},LEGA={MAT:'mat',QUI:'qui',BIO:'bio',LIN:'lin',HUM:'hum'};
+function statsDe(st){st=st||{};const A=st.areas||{},mt=st.mt||{},R={};
+ for(const m in MATN)R[m]={sim:0,q:0,ac:0,tp:{}};
+ for(const k in A){const v=A[k];if(!v)continue;const m=LEGA[k]||'fis';R[m].q+=v[1];R[m].ac+=v[0];if(m==='fis'){R.fis.tp[k]=R.fis.tp[k]||[0,0];R.fis.tp[k][0]+=v[0];R.fis.tp[k][1]+=v[1]}}
+ for(const m in mt){if(!R[m])continue;R[m].sim+=mt[m].n;if(m!=='fis')for(const k in mt[m].tp){R[m].tp[k]=R[m].tp[k]||[0,0];R[m].tp[k][0]+=mt[m].tp[k][0];R[m].tp[k][1]+=mt[m].tp[k][1]}}
+ const nNovo=Object.values(mt).reduce((a,x)=>a+x.n,0),hist=st.hist||[];let semMat=Math.max(0,(st.n||0)-nNovo);
+ hist.slice(nNovo).forEach(h=>{if(semMat>0&&R[h.mat]){R[h.mat].sim++;semMat--}});
+ return{R,n:st.n||0,best:st.best||0,hist,semMat}}
+const AX=[['fis','FÍSICA'],['qui','QUÍMICA'],['bio','BIOLOGIA'],['mat','MATEMÁTICA'],['lin','LINGUAGENS'],['hum','HUMANAS']],MINQ=10;
+const pc=v=>v<40?'#e8584a':v<60?'#e8b030':'#5ac86a',heat=v=>v==null?'transparent':v<30?'#c84a3c':v<45?'#e8784a':v<60?'#e8b030':v<75?'#9ac850':'#5ac86a';
+let ROWS=null,VIEW=(()=>{try{return localStorage.getItem('dir_view')||'serie'}catch(e){return'serie'}})();
+function groups(){return VIEW==='serie'?SERIES.map(s=>({id:'s'+s.id,nome:s.nome,cor:s.cor,has:r=>s.turmas.includes(r.turma)})):TURMAS.map(t=>({id:t.id,nome:t.nome,cor:t.cor,has:r=>r.turma===t.id}))}
+function agg(g){const rs=ROWS.filter(g.has),T={};for(const m in MATN)T[m]={q:0,ac:0,tp:{}};let ativos=0,sim=0,hq=0,ht=0;
+ for(const r of rs){const S=statsDe(r.enem||{});if(S.n>0)ativos++;sim+=S.n;for(const h of S.hist){hq+=h.n||0;ht+=h.t||0}
+  for(const m in MATN){const a=S.R[m],b=T[m];b.q+=a.q;b.ac+=a.ac;for(const k in a.tp){b.tp[k]=b.tp[k]||[0,0];b.tp[k][0]+=a.tp[k][0];b.tp[k][1]+=a.tp[k][1]}}}
+ const q=Object.values(T).reduce((a,v)=>a+v.q,0),ac=Object.values(T).reduce((a,v)=>a+v.ac,0);
+ return{...g,n:rs.length,ativos,sim,q,ac,p:q?Math.round(ac/q*100):null,spq:hq?ht/hq:null,T,val:Object.fromEntries(AX.map(([m])=>[m,T[m].q?Math.round(T[m].ac/T[m].q*100):null]))}}
+function radar(G,size,labels=true){const c=size/2,R=size/2-(labels?62:16),n=AX.length,pt=(i,v)=>{const a=-Math.PI/2+i*2*Math.PI/n;return[c+Math.cos(a)*R*v/100,c+Math.sin(a)*R*v/100]};
+ let h=`<svg viewBox="0 0 ${size} ${size}" width="100%" style="max-width:${size}px;display:block;margin:0 auto" role="img" aria-label="Gráfico de radar do acerto por matéria">`;
+ for(const v of[25,50,75,100]){h+=`<polygon points="${AX.map((_,i)=>pt(i,v).join(',')).join(' ')}" fill="${v===100?'#1a1220':'none'}" stroke="#4a3a2e" stroke-width="${v===100?2:1}"/>`;if(labels)h+=`<text x="${c+3}" y="${pt(0,v)[1]+11}" font-size="10" fill="#8a7a62">${v}%</text>`}
+ AX.forEach(([m,l],i)=>{const[x,y]=pt(i,100);h+=`<line x1="${c}" y1="${c}" x2="${x}" y2="${y}" stroke="#4a3a2e"/>`;if(labels){const[lx,ly]=pt(i,122);h+=`<text x="${lx}" y="${ly+4}" font-size="12" font-weight="700" text-anchor="middle" fill="#f4e4c0">${l}</text>`}});
+ for(const g of G){const ok=AX.every(([m])=>g.val[m]!=null);const P=AX.map(([m],i)=>pt(i,g.val[m]??0));h+=`<polygon points="${P.map(p=>p.join(',')).join(' ')}" fill="${g.cor}" fill-opacity="${G.length>1?.16:.32}" stroke="${g.cor}" stroke-width="3" ${ok?'':'stroke-dasharray="6 4"'}/>`;
+  AX.forEach(([m],i)=>{const v=g.val[m];if(v==null)return;const[x,y]=P[i],low=g.T[m].q<MINQ;h+=`<circle cx="${x}" cy="${y}" r="${G.length>1?4:5}" fill="${low?'#1a1220':g.cor}" stroke="${g.cor}" stroke-width="2"/>`;if(G.length===1&&labels)h+=`<text x="${x}" y="${y-9}" font-size="12" font-weight="700" text-anchor="middle" fill="#fff">${v}%</text>`})}
+ return h+'</svg>'}
+function fortes(g){const L=AX.filter(([m])=>g.T[m].q>=MINQ).map(([m,l])=>({l,v:g.val[m],q:g.T[m].q})).sort((a,b)=>b.v-a.v);return{f:L.slice(0,2),w:L.length>2?L.slice(-2).reverse():[],faltam:AX.filter(([m])=>g.T[m].q<MINQ).map(a=>a[1])}}
+function render(){const A=document.getElementById('app'),G=groups().map(agg),tot=agg({id:'all',nome:'TODOS',cor:'#e8c070',has:()=>true});
+ document.getElementById('tabs').innerHTML=[['serie','POR SÉRIE (1º, 2º E 3º ANO)'],['turma','POR TURMA']].map(([k,l])=>`<button class="${VIEW===k?'on':''}" data-v="${k}">${l}</button>`).join('');
+ document.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{VIEW=b.dataset.v;try{localStorage.setItem('dir_view',VIEW)}catch(e){}render()});
+ let h=`<div class="kpis"><div class="card kpi"><span>ALUNOS CADASTRADOS</span><b>${tot.n}</b></div><div class="card kpi"><span>ALUNOS ATIVOS</span><b>${tot.ativos}</b></div><div class="card kpi"><span>SIMULADOS FEITOS</span><b>${tot.sim}</b></div><div class="card kpi"><span>QUESTÕES RESPONDIDAS</span><b>${tot.q}</b></div><div class="card kpi"><span>ACERTO MÉDIO</span><b style="color:${tot.p!=null?pc(tot.p):'#fff'}">${tot.p!=null?tot.p+'%':'—'}</b></div></div>`;
+ h+=`<h2 class="px">${VIEW==='serie'?'COMPARATIVO DAS SÉRIES':'COMPARATIVO DAS TURMAS'}</h2><div class="grid2"><div class="card">${radar(G,520)}<div class="legend">${G.map(g=>`<span><i style="background:${g.cor}"></i>${g.nome}</span>`).join('')}</div><p class="note">Cada ponta é uma matéria: quanto mais longe do centro, maior a % de acerto nos simulados. Linha tracejada ou ponto vazado = poucas questões naquela matéria (menos de ${MINQ}), resultado ainda pouco confiável.</p></div>`;
+ h+=`<div class="card"><h3 class="px">ACERTO POR MATÉRIA</h3><table><tr><th>MATÉRIA</th>${G.map(g=>`<th style="text-align:center;color:${g.cor}">${g.nome}</th>`).join('')}</tr>${AX.map(([m,l])=>`<tr><td>${l}</td>${G.map(g=>{const v=g.val[m],qq=g.T[m].q;return v==null?'<td class="na">—</td>':`<td class="c" style="background:${heat(v)}" title="${g.T[m].ac} de ${qq} questões">${v}%<br><small style="font-weight:400">${qq} q</small></td>`}).join('')}</tr>`).join('')}<tr><td><b>GERAL</b></td>${G.map(g=>g.p==null?'<td class="na">—</td>':`<td class="c" style="background:${heat(g.p)}">${g.p}%</td>`).join('')}</tr></table>
+  <h3 class="px" style="margin-top:18px">PARTICIPAÇÃO</h3><table><tr><th></th>${G.map(g=>`<th style="text-align:center;color:${g.cor}">${g.nome}</th>`).join('')}</tr>
+  <tr><td>Alunos cadastrados</td>${G.map(g=>`<td class="na" style="color:#f4e4c0">${g.n}</td>`).join('')}</tr><tr><td>Ativos (1+ simulado)</td>${G.map(g=>`<td class="na" style="color:#f4e4c0">${g.ativos}${g.n?` (${Math.round(g.ativos/g.n*100)}%)`:''}</td>`).join('')}</tr>
+  <tr><td>Simulados feitos</td>${G.map(g=>`<td class="na" style="color:#f4e4c0">${g.sim}</td>`).join('')}</tr><tr><td>Tempo médio por questão</td>${G.map(g=>`<td class="na" style="color:${g.spq!=null&&g.spq<25?'#ffb0a0':'#f4e4c0'}">${g.spq!=null?Math.round(g.spq)+' s':'—'}</td>`).join('')}</tr></table>
+  <p class="note">Tempo por questão abaixo de ~25 s sugere chute (no ENEM real são cerca de 3 minutos por questão).</p></div></div>`;
+ h+=`<h2 class="px">PONTOS FORTES E FRACOS DE CADA ${VIEW==='serie'?'SÉRIE':'TURMA'}</h2><div class="groups">`;
+ for(const g of G){const F=fortes(g);h+=`<div class="card"><h3 class="px" style="color:${g.cor}">${g.nome}</h3>${g.q?radar([g],300):'<p class="note">Nenhum simulado feito ainda.</p>'}
+  <div class="fw"><div class="f"><h4>FORTES</h4><ul>${F.f.map(x=>`<li>${x.l} — ${x.v}%</li>`).join('')||'<li>—</li>'}</ul></div><div class="w"><h4>A MELHORAR</h4><ul>${F.w.map(x=>`<li>${x.l} — ${x.v}%</li>`).join('')||'<li>—</li>'}</ul></div></div>
+  <div class="meta"><span>Alunos <b>${g.n}</b></span><span>Ativos <b>${g.ativos}</b></span><span>Questões <b>${g.q}</b></span><span>Acerto <b>${g.p!=null?g.p+'%':'—'}</b></span></div>
+  ${F.faltam.length&&g.q?`<div class="warn">Poucos dados em: ${F.faltam.join(', ')}.</div>`:''}</div>`}
+ h+='</div>';
+ /* mapa de calor dos tópicos */
+ h+=`<h2 class="px">TÓPICOS: ONDE CADA ${VIEW==='serie'?'SÉRIE':'TURMA'} ACERTA E ERRA</h2><div class="card scroll"><table><tr><th>TÓPICO</th>${G.map(g=>`<th style="text-align:center;color:${g.cor}">${g.nome}</th>`).join('')}</tr>`;
+ for(const[m,l]of AX){const ks=Object.keys(TEMAS[m]||{}).filter(k=>G.some(g=>(g.T[m].tp[k]||[0,0])[1]>=5));if(!ks.length)continue;h+=`<tr class="sub"><td colspan="${G.length+1}">${l}</td></tr>`;
+  for(const k of ks)h+=`<tr><td>${TEMAS[m][k]}</td>${G.map(g=>{const v=g.T[m].tp[k];if(!v||v[1]<5)return'<td class="na">—</td>';const p=Math.round(v[0]/v[1]*100);return`<td class="c" style="background:${heat(p)}" title="${v[0]} de ${v[1]} questões">${p}%</td>`}).join('')}</tr>`}
+ h+=`</table></div><p class="note">Só aparecem tópicos com pelo menos 5 questões respondidas. Em Física os tópicos valem desde o início; nas outras matérias começaram a ser registrados em 21/10/2026. A classificação de tópicos de Matemática, Química, Biologia, Linguagens e Humanas é automática (por palavras-chave do enunciado) e pode ter pequenas imprecisões. Nenhum dado individual de aluno é mostrado neste painel.</p>`;
+ A.innerHTML=h;document.getElementById('sub').textContent=`Desempenho das turmas na Torre ENEM · atualizado em ${new Date().toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'})}`}
+function loginForm(msg){document.getElementById('tabs').innerHTML='';document.getElementById('app').innerHTML=`<div class="card login"><h3 class="px">ACESSO DO DIRETOR</h3><p class="note" style="font-size:14px">Digite o código de acesso fornecido pelo professor.</p><input id="cod" type="password" autocomplete="off" placeholder="Código de acesso"><button class="btn on" id="ent">ENTRAR</button>${msg?`<p class="err">${msg}</p>`:''}</div>`;
+ const go=()=>{const c=document.getElementById('cod').value.trim();if(c)load(c)};document.getElementById('ent').onclick=go;document.getElementById('cod').onkeydown=e=>{if(e.key==='Enter')go()}}
+function demoRows(){const R=[];let s=7;const rnd=()=>(s=(s*16807)%2147483647)/2147483647;const base={'1A':[48,40,52,38,58,50],'1B':[42,45,47,33,61,55],'2A':[55,44,50,46,54,49],'2B':[39,50,58,41,63,57],'3A':[62,57,60,52,66,61]};
+ for(const t of TURMAS)for(let i=0;i<14;i++){const b=base[t.id],ar={},mt={};const tp={fis:['MEC','TER','OPT','OND','ELE','MOD']};AX.forEach(([m],k)=>{const q=Math.round(rnd()*30)+(i%5?6:0),p=Math.max(5,Math.min(95,b[k]+(rnd()-.5)*30));if(m==='fis'){for(const c of tp.fis){const qq=Math.round(q/3);ar[c]=[Math.round(qq*(p+(rnd()-.5)*30)/100),qq]}}else{ar[{qui:'QUI',bio:'BIO',mat:'MAT',lin:'LIN',hum:'HUM'}[m]]=[Math.round(q*p/100),q];const ks=Object.keys(TEMAS[m]);const T={};ks.forEach(c=>{const qq=Math.round(q/ks.length*1.5);T[c]=[Math.round(qq*Math.max(0,Math.min(100,p+(rnd()-.5)*40))/100),qq]});mt[m]={n:2,q,ac:Math.round(q*p/100),tp:T}}});
+  const n=i%5?Math.round(rnd()*12)+1:0;R.push({turma:t.id,enem:n?{n,best:70,areas:ar,mt,hist:[{d:'2026-10-21',n:10,ac:5,t:Math.round(150+rnd()*600),mat:'fis'}]}:{}})}return R}
+async function load(code){const A=document.getElementById('app');A.innerHTML='<p class="note">Carregando dados...</p>';
+ try{if(new URLSearchParams(location.search).has('demo')){ROWS=demoRows();render();return}
+  await new Promise((ok,err)=>{if(window.supabase)return ok();const sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js';sc.onload=ok;sc.onerror=()=>err(new Error('Sem conexão com o servidor.'));document.head.appendChild(sc)});
+  const sb=window.supabase.createClient(SB_URL,SB_KEY);
+  if(!code){const{data}=await sb.auth.getSession();if(data.session){const r=await sb.rpc('admin_enem');if(!r.error){ROWS=r.data||[];render();return}}
+   try{code=localStorage.getItem('dir_cod')}catch(e){}if(!code){loginForm();return}}
+  const r=await sb.rpc('painel_diretor',{p_codigo:code});if(r.error){try{localStorage.removeItem('dir_cod')}catch(e){}loginForm(/codigo_invalido/.test(r.error.message)?'Código incorreto.':'Não foi possível carregar: '+r.error.message);return}
+  try{localStorage.setItem('dir_cod',code)}catch(e){}ROWS=r.data||[];render()}catch(e){A.innerHTML=`<p class="err">${e.message||e}</p>`}}
+load();
+</script></body></html>
