@@ -3611,7 +3611,7 @@ function openAuth(m){$('aLog').style.display=m==='login'?'block':'none';$('aSign
 $('ax').onclick=()=>$('auth').classList.remove('on');$('toSign').onclick=()=>openAuth('signup');$('toLog').onclick=()=>openAuth('login');
 $('lGo').onclick=async()=>{const n=$('lNick').value.trim(),p=$('lPass').value;if(!n||!p){$('aMsg').textContent='Preencha nick e senha.';return}
  $('lGo').disabled=true;$('aMsg').textContent='Entrando...';try{me=await API.login(n,p);$('auth').classList.remove('on');enterGame()}catch(e){$('aMsg').textContent=errPT(e)}$('lGo').disabled=false};
-$('sGo').onclick=async()=>{const n=$('sNick').value.trim(),p=$('sPass').value,cd=$('sCod').value.trim(),t=cd==='000'?'PROF':$('sTurma').value,nome=$('sNome').value.trim().replace(/\s+/g,' ');
+$('sGo').onclick=async()=>{const n=$('sNick').value.trim(),p=$('sPass').value,cd=$('sCod').value.trim(),t=$('sTurma').value,nome=$('sNome').value.trim().replace(/\s+/g,' ');
  if(nome.length<3){$('aMsg').textContent='Digite seu nome completo.';return}
  if(!/^[A-Za-z0-9_]{3,16}$/.test(n)){$('aMsg').textContent='Nick: 3 a 16 caracteres, só letras sem acento, números ou _.';return}
  if(p.length<6){$('aMsg').textContent='A senha precisa ter pelo menos 6 caracteres.';return}
