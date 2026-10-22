@@ -3336,7 +3336,12 @@ function diasEnem(){const d=new Date(CONFIG.ENEM_DATA+'T13:00:00-03:00')-Date.no
 function enemSync(){const on=screen==='game'&&tab==='enem'&&!!me,h=$('enem');if(on!==h.classList.contains('on')){h.classList.toggle('on',on);if(on)renderEnem()}if(on){placePanel(h);if(ES.scr==='quiz')updTimer()}}
 const fmtT=s=>{s=Math.max(0,Math.floor(s));return`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`};
 function eBtn(txt,cls,fn){const b=el('button',cls,txt);b.onclick=fn;return b}
-function renderEnem(){const B=$('eBody');B.innerHTML='';B.className='ebody s-'+ES.scr;({home:eHome,mat:eMat,qtd:eQtd,quiz:eQuiz,res:eRes,perf:ePerf})[ES.scr](B)}
+function renderEnem(){const B=$('eBody'),key=ES.scr+':'+ES.cur+':'+(ES.rev?1:0),same=ES._sk===key;ES._sk=key;
+ /* guarda a rolagem de tudo (página, imagem da questão, colunas) para não voltar ao topo ao marcar uma alternativa */
+ const keep=same?[B.scrollTop,...[...B.querySelectorAll('*')].map(e=>e.scrollTop)]:null,hk=same?[B.parentNode&&B.parentNode.scrollTop,document.scrollingElement&&document.scrollingElement.scrollTop]:null;
+ B.innerHTML='';B.className='ebody s-'+ES.scr;({home:eHome,mat:eMat,qtd:eQtd,quiz:eQuiz,res:eRes,perf:ePerf})[ES.scr](B);
+ if(keep){const put=()=>{const L=[...B.querySelectorAll('*')];if(keep[0])B.scrollTop=keep[0];L.forEach((e,i)=>{const v=keep[i+1];if(v&&e.scrollTop!==v)e.scrollTop=v});if(hk[0]&&B.parentNode)B.parentNode.scrollTop=hk[0];if(hk[1]&&document.scrollingElement)document.scrollingElement.scrollTop=hk[1]};
+  put();requestAnimationFrame(put);B.querySelectorAll('img').forEach(im=>{if(!im.complete)im.addEventListener('load',put,{once:true})})}}
 function eHome(B){const st=enemState(),d=diasEnem();const L=el('div','ecol'),cv=mk(320,320);cv.id='eCv';cv.className='ecv';L.appendChild(cv);B.appendChild(L);
  const R2=el('div','ecol2');R2.appendChild(el('h3','etit','TORRE ENEM'));
  const cd=el('div','ecount');cd.innerHTML=d>0?`⏳ FALTAM <b>${d}</b> DIAS PARA O ENEM`:d===0?'⏳ <b>É HOJE!</b> BOA PROVA!':'O ENEM DESTE ANO JÁ PASSOU. CONTINUE TREINANDO!';R2.appendChild(cd);
