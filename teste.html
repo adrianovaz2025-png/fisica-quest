@@ -3422,8 +3422,8 @@ function eQuiz(B){const q=ES.qs[ES.cur],Q2=q.e?null:ES.bank[q.i],n=ES.qs.length,
  else{const r=el('div','erow');if(!q.conf){const c=eBtn('CONFIRMAR','big2',()=>{if(q.sel===null){toast('ESCOLHA UMA ALTERNATIVA');return}q.conf=true;renderEnem()});if(q.sel===null)c.classList.add('dis');r.appendChild(c)}else r.appendChild(ES.cur<n-1?eBtn('PRÓXIMA >','big2',()=>{ES.cur++;renderEnem()}):eBtn('VER RESULTADO','big2',finishSim));ft.appendChild(r)}
  B.appendChild(ft);updTimer();const fb=qa0.querySelector('.efb');if(fb)setTimeout(()=>fb.scrollIntoView({block:'nearest'}),30)}
 async function finishSim(parc){parc=parc===true;const qs=parc?ES.qs.filter(x=>ES.mode==='treino'?x.conf:x.sel!==null):ES.qs,tot=ES.qs.length,n=qs.length,ac=qs.filter(isOk).length,t=(Date.now()-ES.t0)/1000,pct=Math.round(ac/n*100),st=enemState();
- const ar={};for(const q of qs){const a=qArea(q);ar[a]=ar[a]||[0,0];ar[a][1]++;if(isOk(q))ar[a][0]++}
- {if(!st.mt){st.mt={};st.mt0=st.n}const G={};for(const q of qs){const mm=ES.mat==='geral'&&q.e?(q.X.mt||AREA2MAT[q.X.area]||'fis'):ES.mat;(G[mm]=G[mm]||[]).push(q)}
+ const ar={},soEnem=ES.src==='enem';if(soEnem)for(const q of qs){const a=qArea(q);ar[a]=ar[a]||[0,0];ar[a][1]++;if(isOk(q))ar[a][0]++}
+ if(soEnem){if(!st.mt){st.mt={};st.mt0=st.n}const G={};for(const q of qs){const mm=ES.mat==='geral'&&q.e?(q.X.mt||AREA2MAT[q.X.area]||'fis'):ES.mat;(G[mm]=G[mm]||[]).push(q)}
   for(const mm in G){const M=st.mt[mm]=st.mt[mm]||{n:0,q:0,ac:0,tp:{}};M.n++;M.q+=G[mm].length;M.ac+=G[mm].filter(isOk).length;for(const q of G[mm]){const k=q.e?(q.X.tema||q.X.area):ES.bank[q.i][0];M.tp[k]=M.tp[k]||[0,0];M.tp[k][1]++;if(isOk(q))M.tp[k][0]++}}}
  st.n++;if(!parc)st.best=Math.max(st.best,pct);st.hist=[{d:new Date().toISOString().slice(0,10),ac,n,t:Math.round(t),mat:ES.mat,src:ES.src,mode:ES.mode,parc:parc?tot:0},...st.hist].slice(0,15);for(const a in ar){st.areas[a]=st.areas[a]||[0,0];st.areas[a][0]+=ar[a][0];st.areas[a][1]+=ar[a][1]}saveEq();
  ES.res={ac,n,t,pct,ganho:null,parc:parc?tot:0};ES.qs=qs;ES.scr='res';ES.rev=false;renderEnem();
@@ -3515,6 +3515,8 @@ function statsDe(st){st=enemTotal(st||{});const A=st.areas||{},mt=st.mt||{},R={}
  for(const m in mt){if(!R[m])continue;R[m].sim+=mt[m].n;if(m!=='fis')for(const k in mt[m].tp){R[m].tp[k]=R[m].tp[k]||[0,0];R[m].tp[k][0]+=mt[m].tp[k][0];R[m].tp[k][1]+=mt[m].tp[k][1]}}
  const nNovo=Object.values(mt).reduce((a,x)=>a+x.n,0),hist=st.hist||[];let semMat=Math.max(0,(st.n||0)-nNovo);
  hist.slice(nNovo).forEach(h=>{if(semMat>0&&R[h.mat]){R[h.mat].sim++;semMat--}});
+ {let rq=0,ra=0,rn=0;for(const h of (st.hist||[]))if(h&&h.src==='rap'&&(!h.mat||h.mat==='fis')){rq+=h.n||0;ra+=h.ac||0;rn++}
+  const F=R.fis;if(rq&&F.q){const fq=Math.max(0,1-rq/F.q),fa=F.ac?Math.max(0,1-ra/F.ac):0;for(const k in F.tp){F.tp[k]=[Math.round(F.tp[k][0]*fa),Math.round(F.tp[k][1]*fq)]}F.q=Math.max(0,F.q-rq);F.ac=Math.max(0,Math.min(F.q,F.ac-ra))}}
  return{R,n:st.n||0,best:st.best||0,hist,semMat}}
 const pctC=p=>p<40?'#e8584a':p<60?'#e8b030':'#5ac86a';
 function bar(p){return`<span class="sbar"><i style="width:${p}%;background:${pctC(p)}"></i></span>`}

@@ -47,6 +47,8 @@ function statsDe(st){st=enemTotal(st||{});const A=st.areas||{},mt=st.mt||{},R={}
  for(const m in mt){if(!R[m])continue;R[m].sim+=mt[m].n;if(m!=='fis')for(const k in mt[m].tp){R[m].tp[k]=R[m].tp[k]||[0,0];R[m].tp[k][0]+=mt[m].tp[k][0];R[m].tp[k][1]+=mt[m].tp[k][1]}}
  const nNovo=Object.values(mt).reduce((a,x)=>a+x.n,0),hist=st.hist||[];let semMat=Math.max(0,(st.n||0)-nNovo);
  hist.slice(nNovo).forEach(h=>{if(semMat>0&&R[h.mat]){R[h.mat].sim++;semMat--}});
+ {let rq=0,ra=0,rn=0;for(const h of (st.hist||[]))if(h&&h.src==='rap'&&(!h.mat||h.mat==='fis')){rq+=h.n||0;ra+=h.ac||0;rn++}
+  const F=R.fis;if(rq&&F.q){const fq=Math.max(0,1-rq/F.q),fa=F.ac?Math.max(0,1-ra/F.ac):0;for(const k in F.tp){F.tp[k]=[Math.round(F.tp[k][0]*fa),Math.round(F.tp[k][1]*fq)]}F.q=Math.max(0,F.q-rq);F.ac=Math.max(0,Math.min(F.q,F.ac-ra))}}
  return{R,n:st.n||0,best:st.best||0,hist,semMat}}
 const AX=[['fis','FÍSICA'],['qui','QUÍMICA'],['bio','BIOLOGIA'],['mat','MATEMÁTICA'],['lin','LINGUAGENS'],['hum','HUMANAS']],MINQ=10;
 const pc=v=>v<40?'#e8584a':v<60?'#e8b030':'#5ac86a',heat=v=>v==null?'transparent':v<30?'#c84a3c':v<45?'#e8784a':v<60?'#e8b030':v<75?'#9ac850':'#5ac86a';
