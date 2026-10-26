@@ -3388,7 +3388,7 @@ function eHome(B){const st=enemState(),d=diasEnem();const L=el('div','ecol'),cv=
  R2.appendChild(eBtn('▶ SIMULADO','big2 ebig',()=>{ES.scr='mat';renderEnem()}));R2.appendChild(eBtn('MEU DESEMPENHO','sm ebig2',()=>{ES.scr='perf';renderEnem()}));B.appendChild(R2)}
 function eHead(B,t,back){const h=el('div','ehead');h.appendChild(eBtn('< VOLTAR','sm',()=>{ES.scr=back;renderEnem()}));h.appendChild(el('span','etit2',t));B.appendChild(h)}
 function eMat(B){eHead(B,'ESCOLHA A MATÉRIA','home');const g=el('div','elist');
- for(const[id,n,qb]of MATERIAS){const b=eBtn(qb?`⚡ ${n}`:`🔒 ${n} — em breve`,'eopt'+(qb?'':' off'),()=>{if(!qb)return;ES.mat=id;ES.scr='qtd';if(id==='geral')ES.n=24;else if(ES.n>45||ES.n%12===0)ES.n=10;ES.ano='all';QX=QXS[id]||null;ES.src='enem';loadQX(()=>{if(ES.scr==='qtd')renderEnem()},id);renderEnem()});if(qb){const s=el('small',null,id==='fis'?'ENEM 2017–2025':id==='geral'?'Todas as matérias do ENEM · de 12 a 180 questões':id!=='fis'&&QXF[id]?(id==='lin'||id==='hum'?'ENEM 2020–2023 e 2025':'ENEM 2020–2025'):`${qb.length} questões no banco`);b.appendChild(s)}g.appendChild(b)}B.appendChild(g)}
+ for(const[id,n,qb]of MATERIAS){const b=eBtn(qb?`⚡ ${n}`:`🔒 ${n} — em breve`,'eopt'+(qb?'':' off'),()=>{if(!qb)return;ES.mat=id;ES.scr='qtd';if(id==='geral')ES.n=24;else if(ES.n>45||ES.n%12===0)ES.n=10;ES.ano='all';ES.banca=ES.banca||'enem';QX=QXS[id]||null;ES.src='enem';loadQX(()=>{if(ES.scr==='qtd')renderEnem()},id);renderEnem()});if(qb){const s=el('small',null,id==='fis'?'ENEM 2017–2025 · EsPCEx 2025–2026':id==='geral'?'Todas as matérias · ENEM e EsPCEx · de 12 a 180 questões':id==='bio'?'ENEM 2020–2025':id!=='fis'&&QXF[id]?(id==='lin'||id==='hum'?'ENEM 2020–2023 e 2025 · EsPCEx 2025–2026':'ENEM 2020–2025 · EsPCEx 2025–2026'):`${qb.length} questões no banco`);b.appendChild(s)}g.appendChild(b)}B.appendChild(g)}
 function eQtd(B){eHead(B,'QUANTIDADE DE QUESTÕES','mat');
  ES.src='enem';if(false){B.appendChild(el('div','elab','FONTE'));const fs=el('div','elist two');
   for(const[k,l,d]of[['enem','ENEM REAL',QX?`${QX.length} questões de 2017 a 2025`:'carregando...'],['rap','QUESTÕES RÁPIDAS',`${QB_FIS.length} questões curtas do Arquimago`]]){const b=eBtn('','eopt'+(ES.src===k?' on':''),()=>{ES.src=k;if(k==='enem')loadQX(()=>renderEnem());renderEnem()});b.innerHTML=`<b>${l}</b><small>${d}</small>`;fs.appendChild(b)}B.appendChild(fs);
@@ -3396,13 +3396,14 @@ function eQtd(B){eHead(B,'QUANTIDADE DE QUESTÕES','mat');
  else if(QXF[ES.mat])ES.src='enem';else ES.src='rap';
  if(ES.mat==='geral')B.appendChild(el('p','esub','As questões vêm das 4 áreas do ENEM em partes iguais: Linguagens, Ciências Humanas, Ciências da Natureza (Física, Química e Biologia) e Matemática.'));
  if(ES.mat==='lin'||ES.mat==='geral'){B.appendChild(el('div','elab','LÍNGUA ESTRANGEIRA (QUESTÕES 1 A 5)'));const lc=el('div','echips');for(const[k,l]of[['i','INGLÊS'],['e','ESPANHOL']])lc.appendChild(eBtn(l,'echip'+((ES.lg||'i')===k?' on':''),()=>{ES.lg=k;renderEnem()}));B.appendChild(lc)}
+ if(ES.src==='enem'&&QX&&QX.some(q=>q.banca==='espcex')){B.appendChild(el('div','elab','PROVA'));const bc=el('div','echips');for(const[k,l]of[['enem','ENEM'],['espcex','ESPCEX'],['all','TODAS']])bc.appendChild(eBtn(l,'echip'+((ES.banca||'enem')===k?' on':''),()=>{ES.banca=k;ES.ano='all';renderEnem()}));B.appendChild(bc)}
  if(ES.src==='enem'&&QX){B.appendChild(el('div','elab','ANO DA PROVA'+(ES.mat!=='fis'?` · ${QX.length} QUESTÕES`:'')));const an=el('div','echips'),A=qAnos();
    for(const a of['all',...Object.keys(A).map(Number).sort()]){an.appendChild(eBtn(a==='all'?'TODOS':String(a),'echip'+(ES.ano===a?' on':''),()=>{ES.ano=a;renderEnem()}))}B.appendChild(an)}
  const qb=qPool(),mx=qb.length;B.appendChild(el('div','elab','QUANTIDADE'));const g=el('div','elist two');
  for(const[n,l]of(ES.mat==='geral'?[[12,'RÁPIDO'],[24,'TREINO'],[48,'DESAFIO'],[90,'UM DIA DE ENEM'],[180,'ENEM COMPLETO']]:[[5,'AQUECIMENTO'],[10,'TREINO'],[20,'DESAFIO'],[45,'PROVA COMPLETA']])){const nn=Math.min(n,mx||n);const b=eBtn('','eopt'+(ES.n===n?' on':'')+(mx&&n>mx&&n!==5?' off':''),()=>{ES.n=n;renderEnem()});b.innerHTML=`<b>${nn}</b> ${l}<small>~${nn*3>=60?Math.floor(nn*3/60)+' h '+(nn*3%60?(nn*3%60)+' min':''):nn*3+' min'}</small>`;g.appendChild(b)}B.appendChild(g);
  B.appendChild(el('div','elab','MODO'));const m=el('div','elist two');
  for(const[k,l,d]of[['treino','TREINO','resposta a cada questão'],['prova','PROVA','cronômetro e gabarito só no final']]){const b=eBtn('','eopt'+(ES.mode===k?' on':''),()=>{ES.mode=k;renderEnem()});b.innerHTML=`<b>${l}</b><small>${d}</small>`;m.appendChild(b)}B.appendChild(m);
- const ready=ES.src!=='enem'||QX;const go=eBtn(ready?`COMEÇAR · ${Math.min(ES.n,mx)} QUESTÕES${ES.src==='enem'?' DO ENEM'+(ES.ano==='all'?'':' '+ES.ano):''}`:'CARREGANDO BANCO ENEM...','big2 ego'+(ready&&mx?'':' dis'),()=>{if(ready&&mx)startSim(qb)});B.appendChild(go)}
+ const ready=ES.src!=='enem'||QX;const go=eBtn(ready?`COMEÇAR · ${Math.min(ES.n,mx)} QUESTÕES${ES.src==='enem'?' D'+({espcex:'A ESPCEX',all:'O ENEM E ESPCEX'}[ES.banca]||'O ENEM')+(ES.ano==='all'?'':' '+ES.ano):''}`:'CARREGANDO BANCO ENEM...','big2 ego'+(ready&&mx?'':' dis'),()=>{if(ready&&mx)startSim(qb)});B.appendChild(go)}
 function geralIdx(qb,n){const per={lin:n/4,hum:n/4,mat:n/4,fis:n/12,qui:n/12,bio:n/12},out=[],sd=Date.now()&0xffff;
  for(const mm of GERAL_M){const ids=qb.map((q,i)=>q.mt===mm?i:-1).filter(i=>i>=0);out.push(...shuf(ids,sd+mm.charCodeAt(0)*31).slice(0,Math.round(per[mm])))}
  if(out.length<n){const rest=shuf(qb.map((_,i)=>i).filter(i=>!out.includes(i)),sd+7);out.push(...rest.slice(0,n-out.length))}return out.slice(0,n)}
@@ -3443,7 +3444,7 @@ function eRes(B){const r=ES.res;eHead(B,'RESULTADO DO SIMULADO','home');const sc
  sc.innerHTML=`<div class="enota">${r.ac}<small>/${r.n}</small></div><div class="einfo"><b>${r.pct}% DE ACERTOS${r.parc?` · PARCIAL (${r.n} DE ${r.parc})`:''}</b><span>TEMPO TOTAL ${fmtT(r.t)} · MÉDIA ${fmtT(r.t/r.n)} POR QUESTÃO</span><span class="eganho">${r.ganho==null?'Registrando pontos...':r.ganho>0?`+${r.ganho} PONTOS PARA A TRIBO ${TURMA(me.turma).tribo}!`:r.ac===0?'Acerte questões para ganhar pontos para a sua tribo!':(isAdm()?'Conta de professor: não soma pontos.':r.lim?'Limite do dia atingido (20 erros ou 400 pontos). Amanhã tem mais!':'Aguarde alguns segundos entre um simulado e outro para pontuar.')}</span>${r.lim&&r.ganho>0?'<span class="emsg">Você bateu o limite do dia: os próximos simulados de hoje não dão pontos.</span>':''}${r.msg?`<span class="emsg">ARQUIMAGO: ${r.msg}</span>`:''}</div>`;B.appendChild(sc);
  const r2=el('div','erow');r2.appendChild(eBtn(ES.rev?'ESCONDER REVISÃO':'REVISAR QUESTÕES','sm',()=>{ES.rev=!ES.rev;renderEnem()}));r2.appendChild(eBtn('NOVO SIMULADO','big2',()=>{ES.scr='qtd';renderEnem()}));B.appendChild(r2);
  if(ES.rev){const L=el('div','erev');ES.qs.forEach((q,k)=>{const ok=isOk(q),d=el('div','eri '+(ok?'ok':'bad'));
-  if(q.e){const X=q.X;d.appendChild(el('b',null,`${ok?'✔':'✘'} QUESTÃO ${k+1} · ENEM ${X.ano} Q${X.num} · ${AREAS[X.area]}`));const t=X.modo==='img'?null:X.parts.find(p=>p.t&&!p.src&&p.t.length>30);if(t){const pp=el('p');pp.innerHTML=fracH(t.t.length>240?t.t.slice(0,240)+'…':t.t);d.appendChild(pp)}
+  if(q.e){const X=q.X;d.appendChild(el('b',null,`${ok?'✔':'✘'} QUESTÃO ${k+1} · ${PRV(X)} Q${X.num} · ${AREAS[X.area]}`));const t=X.modo==='img'?null:X.parts.find(p=>p.t&&!p.src&&p.t.length>30);if(t){const pp=el('p');pp.innerHTML=fracH(t.t.length>240?t.t.slice(0,240)+'…':t.t);d.appendChild(pp)}
    d.appendChild(el('p','eans',`Sua resposta: ${q.sel===null?'—':'ABCDE'[q.sel]}`));if(!ok)d.appendChild(el('p','eans ok',`Correta: ${X.gab}`));d.appendChild(qOrigBtn(X,'📄 VER QUESTÃO COMPLETA'));d.appendChild(resBlock(q))}
   else{const Q2=ES.bank[q.i];d.appendChild(el('b',null,`${ok?'✔':'✘'} QUESTÃO ${k+1} · ${AREAS[Q2[0]]}`));d.appendChild(el('p',null,Q2[1]));
   d.appendChild(el('p','eans',`Sua resposta: ${q.sel===null?'—':'ABCDE'[q.sel]+') '+Q2[2][q.ord[q.sel]]}`));if(!ok)d.appendChild(el('p','eans ok',`Correta: ${'ABCDE'[q.ord.indexOf(0)]}) ${Q2[2][0]}`));d.appendChild(el('p','eres',Q2[3]))}L.appendChild(d)});B.appendChild(L)}}
@@ -3454,8 +3455,10 @@ const AREA2MAT={MAT:'mat',QUI:'qui',BIO:'bio',LIN:'lin',HUM:'hum'},GERAL_M=['lin
 function loadQX(cb,m){m=m||ES.mat;if(!QXF[m]){cb&&cb();return}
  if(m==='geral'){if(QXS.geral){if(ES.mat==='geral')QX=QXS.geral;cb&&cb();return}let k=0;const done=()=>{if(++k<GERAL_M.length)return;QXS.geral=[];for(const mm of GERAL_M)for(const q of QXS[mm]||[]){q.mt=mm;QXS.geral.push(q)}if(ES.mat==='geral')QX=QXS.geral;cb&&cb()};for(const mm of GERAL_M)loadQX(done,mm);return}if(QXS[m]){if(m===ES.mat)QX=QXS[m];cb&&cb();return}if(!QXL[m])QXL[m]=fetch(QDIR+QXF[m]).then(r=>r.json()).then(a=>{QXS[m]=a.filter(q=>q.gab&&!q.anulada);for(const q of QXS[m])q.mt=m;return QXS[m]}).catch(e=>{QXL[m]=null;throw e});QXL[m].then(()=>{if(m===ES.mat)QX=QXS[m];cb&&cb()}).catch(()=>toast('NÃO FOI POSSÍVEL CARREGAR O BANCO ENEM'))}
 const fracH=t=>String(t||'').replace(/\[\[(.*?)\|(.*?)\]\]/g,'<span class="fr"><span>$1</span><span>$2</span></span>');
-function qAnos(){const s={};for(const q of QX||[])s[q.ano]=(s[q.ano]||0)+1;return s}
-function qPool(){if(ES.src!=='enem')return MATERIAS.find(m=>m[0]===ES.mat)[2];const lg=ES.lg||'i';return (QX||[]).filter(q=>(ES.ano==='all'||q.ano===ES.ano)&&(!q.lg||q.lg===lg))}
+const PRV=X=>X&&X.banca==='espcex'?`ESPCEX ${X.ano} · ${X.dia}º DIA`:`ENEM ${X.ano}`;
+const bancaOk=q=>!ES.banca||ES.banca==='all'||(q.banca||'enem')===ES.banca;
+function qAnos(){const s={};for(const q of QX||[])if(bancaOk(q))s[q.ano]=(s[q.ano]||0)+1;return s}
+function qPool(){if(ES.src!=='enem')return MATERIAS.find(m=>m[0]===ES.mat)[2];const lg=ES.lg||'i';return (QX||[]).filter(q=>bancaOk(q)&&(ES.ano==='all'||q.ano===ES.ano)&&(!q.lg||q.lg===lg))}
 /* acessores unificados (banco rápido x ENEM real) */
 const qOk=q=>q.e?'ABCDE'.indexOf(q.X.gab):q.ord.indexOf(0);
 const isOk=q=>q.sel!==null&&q.sel===qOk(q);
@@ -3468,13 +3471,13 @@ const qResOf=q=>q.e?((RES[q.X.mt]||{})[q.X.id]||null):null;
 function resBlock(q){const R=qResOf(q),w=el('div','eresw');
  if(!R){w.appendChild(el('p','eres0',qRes(q)));return w}
  const b=eBtn(q.resOpen?'▲ ESCONDER RESOLUÇÃO':'📖 VER RESOLUÇÃO','sm eresb'+(q.resOpen?' on':''),()=>{q.resOpen=!q.resOpen;renderEnem()});w.appendChild(b);
- if(q.resOpen){const bx=el('div','eresx');bx.appendChild(el('b',null,`RESOLUÇÃO · ENEM ${q.X.ano} Q${q.X.num} · RESPOSTA ${q.X.gab}`));
+ if(q.resOpen){const bx=el('div','eresx');bx.appendChild(el('b',null,`RESOLUÇÃO · ${PRV(q.X)} Q${q.X.num} · RESPOSTA ${q.X.gab}`));
   for(const p of String(R.t||'').split('\n')){if(!p.trim())continue;const e=el('p');e.innerHTML=fracH(p);bx.appendChild(e)}
   if(R.esq){const e=el('div','eresq');e.innerHTML=R.esq;bx.appendChild(e)}
   if(R.aula){const a=eBtn('▶ VER A AULA DESTE ASSUNTO','sm',()=>window.open(R.aula,'_blank'));bx.appendChild(a)}
   w.appendChild(bx)}
  return w}
-function qRes(q){if(q.e)return`Gabarito ${q.X.gsrc==='oficial'?'oficial':'extraoficial'} do ENEM ${q.X.ano}: ${q.X.gab}. Resolução comentada em breve.`;return ES.bank[q.i][3]}
+function qRes(q){if(q.e)return`Gabarito ${q.X.gsrc==='oficial'?'oficial':'extraoficial'} do ${PRV(q.X)}: ${q.X.gab}. Resolução comentada em breve.`;return ES.bank[q.i][3]}
 
 /* ---------- visualizador com zoom ---------- */
 const ZV={s:1,x:0,y:0,pts:new Map(),d0:0,s0:1,lastTap:0,drag:null};
@@ -3495,9 +3498,9 @@ function zoomApply(){const i=$('zvImg');if(i)i.style.transform=`translate(${ZV.x
 
 /* ---------- renderização de uma questão ENEM ---------- */
 function qImg(f,cap,cls){const w=el('button','efig '+(cls||''));const im=new Image();im.src=QDIR+'img/'+f.img;im.alt='figura';im.loading='lazy';im.style.aspectRatio=f.w+'/'+f.h;w.appendChild(im);w.appendChild(el('i','ezm','🔍'));w.onclick=e=>{e.stopPropagation();zoomOpen(QDIR+'img/'+f.img,cap)};return w}
-function qOrigBtn(X,txt){return eBtn(txt||'📄 VER ORIGINAL','sm eorig',()=>zoomOpen(QDIR+'orig/'+X.orig,`ENEM ${X.ano} · QUESTÃO ${X.num}`))}
-function renderEnemQ(qa,q,showAns){if(!q.X.alts||q.X.alts.length<2)q.X.alts='ABCDE'.split('').map(l=>({l,imgs:[]}));const X=q.X,cap=`ENEM ${X.ano} · Q${X.num}`,wide=$('enem').getBoundingClientRect().width>=560;
- const tg=el('div','etagrow');tg.appendChild(el('div','etag',`ENEM ${X.ano} · Q${X.num} · ${AREAS[X.area]}`));tg.appendChild(qOrigBtn(X));qa.appendChild(tg);
+function qOrigBtn(X,txt){return eBtn(txt||'📄 VER ORIGINAL','sm eorig',()=>zoomOpen(QDIR+'orig/'+X.orig,`${PRV(X)} · QUESTÃO ${X.num}`))}
+function renderEnemQ(qa,q,showAns){if(!q.X.alts||q.X.alts.length<2)q.X.alts='ABCDE'.split('').map(l=>({l,imgs:[]}));const X=q.X,cap=`${PRV(X)} · Q${X.num}`,wide=$('enem').getBoundingClientRect().width>=560;
+ const tg=el('div','etagrow');tg.appendChild(el('div','etag',`${PRV(X)} · Q${X.num} · ${AREAS[X.area]}`));tg.appendChild(qOrigBtn(X));qa.appendChild(tg);
  const figs=X.modo==='img'?[]:X.parts.filter(p=>p.img);
  const box=el('div','eqx'+(wide&&(figs.length||X.modo==='img')?' split':''));qa.appendChild(box);
  const L=el('div','eqL'),Rt=el('div','eqR');
