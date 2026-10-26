@@ -2980,7 +2980,7 @@ function uiGame(){
  // abas
  panel(0,0,VW,25,'#2a1d14','#5a3a22','#1a1020');c.fillStyle='#e8c070';c.fillRect(0,25,VW,1);
  fsBtn(2,2);
- [['jornada','JORNADA','flag',28,84],['tribos','TRIBOS','castle',116,78],['enem','ENEM','tower',198,62],['heroi','HERÓI','helm',264,74],...(isAdm()?[['admin','ALUNOS','key',342,72]]:[])].forEach(([id,l,ic,x,w])=>btnI(ic,l,x,2,w,21,()=>setTab(id),7,tab===id?'#1a1020':GOLD,tab===id?'#e8b840':null));
+ (VW<470?[['jornada','JORNADA','flag',28,72],['tribos','TRIBOS','castle',102,64],['enem','VESTIBULARES','tower',168,108],['heroi','HERÓI','helm',278,60],...(isAdm()?[['admin','ALUNOS','key',340,64]]:[])]:[['jornada','JORNADA','flag',28,84],['tribos','TRIBOS','castle',116,78],['enem','VESTIBULARES','tower',198,114],['heroi','HERÓI','helm',316,74],...(isAdm()?[['admin','ALUNOS','key',394,72]]:[])]).forEach(([id,l,ic,x,w])=>btnI(ic,l,x,2,w,21,()=>setTab(id),7,tab===id?'#1a1020':GOLD,tab===id?'#e8b840':null));
  const tm=TURMA(me.turma);T(me.pontos+' PTS',VW-6,9,7,GOLD,'right');if(VW>=(isAdm()?600:520)){c.fillStyle=OUT;c.fillRect(VW-170,8,10,10);c.fillStyle=tm.cor.f;c.fillRect(VW-169,9,8,8);T(me.nick.toUpperCase().slice(0,9),VW-156,10,6,'#fff','left')}
  if(tab==='jornada')uiJornada();else if(tab==='tribos')uiTribos();else uiHeroi();
  if(tab==='jornada'&&isAdm()){const w=150,x0=VW-w-4,y0=29;panel(x0,y0,w,20,'#2a1e48','#b890ff','#3a2a5a');T(`TRILHA: ${serie()}º ANO`,x0+w/2-8,y0+7,6,'#e8d8ff','center');T('⟳',x0+w-12,y0+6,8,GOLD,'center');btns.push({x:x0,y:y0,w,h:20,fn:()=>setTrilha(serie()%3+1)})}
