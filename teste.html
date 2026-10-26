@@ -331,7 +331,7 @@ const CONFIG={
   SUPABASE_URL:'https://deebihpvewibzciwwpyc.supabase.co',            // ex.: 'https://abcdefgh.supabase.co'
   SUPABASE_KEY:'sb_publishable_3ecbKUEKBCeC5_FtNTkXvw_0Zts6nxO',            // chave anon public (pode ficar no código)
   EMAIL_DOMAIN:'fisicaquest.app',
-  ENEM_DATA:'2026-11-08',          // 1º dia do ENEM (contagem regressiva da Torre ENEM)   // e-mail interno: nick@dominio (nenhum e-mail é enviado)
+  ENEM_DATA:'2026-11-08',          // 1º dia do ENEM (contagem regressiva da Cidadela das Provas)   // e-mail interno: nick@dominio (nenhum e-mail é enviado)
   NIVEIS:[0,500,1500,3000,5000,8000,12000,17000,23000,30000], // pontos da TRIBO: acampamento, aldeia, vila, cidade, fortaleza, reino
   TURMAS_ABERTAS:['1A','1B','2A','2B','3A'],      // turmas que podem se cadastrar
   JORNADA:false,              // false = jornada só para explorar (sem questões nem pontos)
@@ -455,7 +455,7 @@ const SLOTS=['cabeca','peito','botas','capa','arma','escudo','maos','colar','ane
 const SLOTN={cabeca:'CABEÇA',peito:'PEITO',botas:'BOTAS',capa:'CAPA',arma:'ARMA',escudo:'ESCUDO',maos:'PULSO',colar:'COLAR',anel:'ANEL'};
 const RAR=[{n:'COMUM',c:'#a8a4b4'},{n:'RARO',c:'#4aa0f0'},{n:'ÉPICO',c:'#c06af0'},{n:'LENDÁRIO',c:'#f8c030'},{n:'MÍTICO',c:'#ff70d0'}];
 const TIERN={aco:'AÇO',eletro:'ELÉTRUM',leao:'LEÃO ESCARLATE',leaod:'LEÃO DOURADO',cometa:'COMETA',couro:'COURO',bronze:'BRONZE',prata:'PRATA',ouro:'OURO',diamante:'DIAMANTE BOREAL',lupus:'LOBO CELESTE',aquila:'FALCÃO CELESTE',ursa:'URSO MAIOR',serpens:'SERPENTE CELESTE',draco:'DRAGÃO CELESTE',fenix:'FÊNIX SUPERNOVA',estelar:'ESTELAR'};
-/* armaduras da Torre ENEM: liberadas por pontos */
+/* armaduras da Cidadela das Provas: liberadas por pontos */
 const ARM_PTS={aco:0,bronze:10,prata:30,eletro:60,ouro:100,leao:130,leaod:140,tribo:160,cometa:200,fenix:250};
 /* id, nome curto, nome completo, slot, raridade, tópico em que se ganha (x = exclusivo), conjunto, lenda, saber, desafio [pergunta, certa, errada, errada] */
 const IT_RAW=[
@@ -536,7 +536,7 @@ const BOOKN=ITL.filter(i=>isNum(i.f)).length;
 const REWT={};ITL.forEach(i=>{if(isNum(i.f))(REWT[i.f]=REWT[i.f]||[]).push(i.id)});
 const VREW=[0,1,2,3].map(v=>REWT[(v+1)*6]);
 const volOfItem=k=>{const f=IT[k]&&IT[k].f;return !isNum(f)?3:Math.ceil(f/6)-1};
-function comoObter(it){if(it.f==='t')return`TORRE ENEM: alcance ${it.pts} pontos`+(it.tb?` (exclusiva da tribo ${TURMA(it.tb).tribo})`:'')+'.';if(it.f==='x')return'EXCLUSIVO: conclua os 24 tópicos e doure todas as páginas do Livro.';const b=Math.ceil(it.f/6),tp=(it.f-1)%6+1;return tp===6?`Baú do ${b}º bimestre`:`Tópico ${tp} do ${b}º bimestre`}
+function comoObter(it){if(it.f==='t')return`CIDADELA DAS PROVAS: alcance ${it.pts} pontos`+(it.tb?` (exclusiva da tribo ${TURMA(it.tb).tribo})`:'')+'.';if(it.f==='x')return'EXCLUSIVO: conclua os 24 tópicos e doure todas as páginas do Livro.';const b=Math.ceil(it.f/6),tp=(it.f-1)%6+1;return tp===6?`Baú do ${b}º bimestre`:`Tópico ${tp} do ${b}º bimestre`}
 const LEGACY={espada:['arma','espada'],escudo:['escudo','escudo'],botas:['botas','botas'],armadura:['peito','armadura'],elmo:['cabeca','elmo'],capa:['capa','capa']};
 function normEq(e){if(!e)return{};if(e.s)return e.s;const o={};for(const k in e){const v=e[k];if(typeof v==='string'){if(SLOTS.includes(k))o[k]=v}else if(LEGACY[k]&&v)o[LEGACY[k][0]]=LEGACY[k][1]}return o}
 function bestFor(ids){const s={};for(const id of ids){const it=IT[id],c=s[it.slot];if(!c||it.r>IT[c].r||(it.r===IT[c].r&&it.f>IT[c].f))s[it.slot]=id}return s}
@@ -1579,7 +1579,7 @@ function buildTribeWorldOld(levels){
  MT.forEach(m=>buildMountTown(Wd,m));HM.forEach(m=>buildHamlet(Wd,m));buildPOIs(Wd,POI);
  for(const p of[...roads,ring])bridges(Wd,resample(p,.15),false);
  Wd.ISL=ISL;Wd.BRA=BRA;Wd.BRB=BRB;Wd.PROF=[BRA[0]+.5,BRA[1]+.5];
- // Torre ENEM no centro e castelo do Arquimago
+ // Cidadela das Provas no centro e castelo do Arquimago
  addEnemTower(Wd,C);addProfCastle(Wd,ISL,BRA,BRB);
  // natureza
  const r=rng(sd+50),P=Wd.pal;
@@ -1789,7 +1789,7 @@ window.K3=K3;
 })();
 
 /* ===================== ARQUIPÉLAGO DO IMPÉRIO =====================
-   ilha central (Torre ENEM) + 5 ilhas de tribo + ilha do Mago + ilha da Cidadela + ilha do Coliseu
+   ilha central (Cidadela das Provas) + 5 ilhas de tribo + ilha do Mago + ilha da Cidadela + ilha do Coliseu
    morros de pedra saindo do mar (estilo Rio de Janeiro) e barcos que desviam das ilhas */
 const CIVK2=['lobos','falcoes','ursos','serpentes','dragoes'],CIVK3=['gotico','renasc','bizant','futuro','modern'];
 const CITY_HS=[0,0,6.5,6.5,6.5,6.5,5.8,7,8.2,9.4];
@@ -1848,7 +1848,7 @@ function cableCar(Wd,A,B){const pa=Wd.P(A.x,A.y),pb=Wd.P(B.x,B.y),za=A.top,zb=B.
   for(const q of[a,b]){x.fillStyle='#8a8478';x.fillRect(Math.round(q[0]-cx-3),Math.round(q[1]-cy-2),7,5);x.fillStyle='#c83a2a';x.fillRect(Math.round(q[0]-cx-3),Math.round(q[1]-cy-4),7,2)}}})}
 /* ===================== CONTINENTES (estilo mapa de Super Mario World) =====================
    dois grandes continentes em planalto com penhascos (oeste: Lobos e Falcões, com lago; leste: Ursos e Serpentes, com floresta e o Coliseu),
-   ilha rochosa ao sul (Dragões), baía central com a Torre ENEM cercada de rochas, planalto alto com cachoeira (Cidadela do Mestre),
+   ilha rochosa ao sul (Dragões), baía central com a Cidadela das Provas cercada de rochas, planalto alto com cachoeira (Cidadela do Mestre),
    ilha do Mago, ilhotas e morros no mar com bondinho */
 function waterfallSpr(Wd,X,Y0,Y1,top,RX0){
  /* rio no alto do planalto */{const q=[Wd.Pf(RX0,Y0,top),Wd.Pf(X,Y0,top),Wd.Pf(X,Y1,top),Wd.Pf(RX0,Y1,top)],xs=q.map(a=>a[0]),ys=q.map(a=>a[1]);
@@ -1861,7 +1861,7 @@ const N=18,cols=[];for(let k=0;k<=N;k++){const Y=lerp(Y0,Y1,k/N);cols.push([Wd.P
    const f=Math.sin(t/180+k)*.5+.5;x.fillStyle='#ffffff';x.fillRect(u-1,v1-1,3,1);if(f>.4)x.fillRect(u-2+((k*5+(t/90|0))%4),v1-3,2,2)}}})}
 /* ===================== CONTINENTES (estilo mapa de Super Mario World) =====================
    dois grandes continentes em planalto com penhascos (oeste: Lobos e Falcões, com lago; leste: Ursos e Serpentes, com floresta e o Coliseu),
-   ilha rochosa ao sul (Dragões), baía central com a Torre ENEM cercada de rochas, planalto alto com cachoeira (Cidadela do Mestre),
+   ilha rochosa ao sul (Dragões), baía central com a Cidadela das Provas cercada de rochas, planalto alto com cachoeira (Cidadela do Mestre),
    ilha do Mago, ilhotas e morros no mar com bondinho */
 function waterfallSpr(Wd,X,Y0,Y1,top,RX0){
  /* rio no alto do planalto */{const q=[Wd.Pf(RX0,Y0,top),Wd.Pf(X,Y0,top),Wd.Pf(X,Y1,top),Wd.Pf(RX0,Y1,top)],xs=q.map(a=>a[0]),ys=q.map(a=>a[1]);
@@ -1906,7 +1906,7 @@ function buildTribeWorld(levels){
    if(X>35.6&&X<41.5&&Math.abs(Y-30.2)<.62&&h>40)h=51}
   for(const[ix,iy,ir,it]of ISLETS){const d0=Math.hypot(X-ix,Y-iy);if(d0>ir+1.6)continue;const v=ir-d0+(fbm(X*.6,Y*.6,sd+70)-.5)*.8;if(v>-1)h=Math.max(h,cliff(v,-14,it+12))}
   {const d0=Math.hypot(X-MG.x,Y-MG.y),v=d0>13?-9:9.2-d0+fb1(X,Y,80)*.5;if(v>-1.5)h=Math.max(h,cliff(v,-14,22))}
-  /* ilha da Torre ENEM com o lago em volta */
+  /* ilha da Cidadela das Provas com o lago em volta */
   {const dC=Math.hypot(X-C[0],Y-C[1]);if(dC<13){const v=9.4-dC+fb1(X,Y,90)*.4;if(v>-1.5)h=Math.max(h,cliff(v,-14,20));const lw=sstep(4.9,3.8,dC+(fbm(X*.4,Y*.4,sd+3)-.5)*1.1);if(lw>0)h=lerp(h,-6,lw);const iw=sstep(2.2,1.6,dC);if(iw>0)h=lerp(h,20,iw)}}
   /* chão plano nas cidades e fosso nas muralhadas */
   TP.forEach((T,i)=>{const cd=Math.max(Math.abs(X-T[0]),Math.abs(Y-T[1]));if(cd<11.6&&h>2)h=lerp(h,TOP,sstep(11.6,10.4,cd));const L=levels[i];if(L>=6){const HS=CITY_HS[L];if(cd>HS+.55&&cd<HS+1.95)h=-3}});
@@ -2621,7 +2621,7 @@ function nightTint(Wd,ISL){const[cx,cy]=Wd.P(ISL[0],ISL[1]),x=Wd.dx,g=x.createRa
  x.save();x.globalCompositeOperation='source-atop';x.fillStyle=g;x.fillRect(cx-260,cy-290,520,520);x.restore();
  const far=(p)=>Math.hypot(p[0]-cx,p[1]-cy+30)>200;Wd.shim=Wd.shim.filter(far);Wd.foam=Wd.foam.filter(p=>Math.hypot(p[0]-cx,p[1]-cy+30)>150)}
 
-/* ============================ TORRE ENEM ============================ */
+/* ============================ CIDADELA DAS PROVAS ============================ */
 function enemTowerS(){if(CAST.e)return CAST.e;const s=SB(2.6,2.6,210,14),cx=1.3,cy=1.3,st='#d8d0e4';
  const secs=[[1.05,0,34,'#e8902a'],[.9,34,30,'#e8c830'],[.76,64,28,'#3aa85a'],[.62,92,26,'#3a7ae8']];
  secs.forEach(([r,z0,h,band],k)=>{cyl(s,cx,cy,r,z0,h,st,'ashlar',k*7+3);cyl(s,cx,cy,r+.05,z0+h-7,5,band,'',k+9);
@@ -3035,7 +3035,7 @@ function uiTribos0(){const W=tribeWorld;if(!W)return;const cx=W.cam.x,cy=W.cam.y
   const w=104;panel(x-w/2,y-12,w,24,'#2a1d14','#e8c070','#5a3a22');c.fillStyle=t.cor.f;c.fillRect(x-w/2+3,y-9,6,18);
   T(t.tribo,x+4,y-8,7,'#fff','center');T(`${NIVEL_NOME[lv[i]]} ${'★'.repeat(lv[i]+1)}`,x+4,y+3,5,GOLD,'center');btns.push({x:x-w/2,y:y-12,w,h:24,fn:()=>openTribe(i)})});
  if(W.CID){const[px,py]=W.P(W.CID[0]+5.2,W.CID[1]+5.2),x=(px-cx)*Z,y=(py-cy+18)*Z;if(x>-80&&x<VW+80&&y>-20&&y<VH){const w=112;panel(x-w/2,y-10,w,20,'#2a2040','#e8c860','#3a2c5a');T('CIDADELA DO MESTRE',x,y-6,5,'#fff0c0','center');T('ALÉM DO REINO',x,y+3,4,'#9ae8ff','center');btns.push({x:x-w/2,y:y-10,w,h:20,fn:()=>toast('A CIDADELA MOSTRA ATÉ ONDE UM REINO PODE CHEGAR!',3000)})}}
- if(W.ENEMT){const[px,py,sp]=W.ENEMT,x=(px-cx)*Z,y=(py-cy+sp.d*16+14)*Z;if(x>-80&&x<VW+80&&y>-20&&y<VH){const w=88;panel(x-w/2,y-10,w,20,'#1e1a40','#9ae8ff','#3a3a7a');T('TORRE ENEM',x,y-6,6,'#c8f4ff','center');T('SIMULADOS',x,y+3,4,GOLD,'center');btns.push({x:x-w/2,y:y-10,w,h:20,fn:()=>setTab('enem')})}}
+ if(W.ENEMT){const[px,py,sp]=W.ENEMT,x=(px-cx)*Z,y=(py-cy+sp.d*16+14)*Z;if(x>-80&&x<VW+80&&y>-20&&y<VH){const w=150;panel(x-w/2,y-10,w,20,'#1e1a40','#9ae8ff','#3a3a7a');T('CIDADELA DAS PROVAS',x,y-6,5,'#c8f4ff','center');T('SIMULADOS',x,y+3,4,GOLD,'center');btns.push({x:x-w/2,y:y-10,w,h:20,fn:()=>setTab('enem')})}}
  if(W.PROF){const[px,py]=W.P(...W.PROF),x=(px-cx)*Z,y=(py-cy)*Z+12;if(x>-60&&x<VW+60&&y>-20&&y<VH){const w=70;panel(x-w/2,y-9,w,13,'#2a1e48','#b890ff','#3a2a5a');T('ARQUIMAGO',x,y-5.5,5,'#e8d8ff','center');btns.push({x:x-w/2,y:y-9,w,h:13,fn:profTalk})}}
  panel(4,29,206,16,'#2a1d14','#5a3a22','#1a1020');T('ARRASTE E USE DOIS DEDOS P/ ZOOM',107,34,5,'#f4e4c0','center');
  mapBtns(W,()=>focusTribe(TURMAS.findIndex(t=>t.id===me.turma)));
@@ -3107,7 +3107,7 @@ function click(mx,my){for(let i=btns.length-1;i>=0;i--){const b=btns[i];if(mx>=b
 
 /* ---------- quiz ---------- */
 function openQuiz(v,i){const ph=vols()[v].ph[i];
- if(!jornOn()){$('qv').textContent=`${v+1}º BIMESTRE - TÓPICO ${i+1}`;$('qt').textContent=ph[0];$('qq').textContent='🔒 Os desafios deste tópico serão disponibilizados em breve! Por enquanto, explore o mapa à vontade e treine na Torre ENEM (aba ENEM) para ganhar pontos para a sua tribo.';$('qf').textContent='';const box=$('qo');box.innerHTML='';const b=document.createElement('button');b.className='opt';b.textContent='OK, VOU EXPLORAR!';b.onclick=closeQuiz;box.appendChild(b);$('quiz').classList.add('on');return}
+ if(!jornOn()){$('qv').textContent=`${v+1}º BIMESTRE - TÓPICO ${i+1}`;$('qt').textContent=ph[0];$('qq').textContent='🔒 Os desafios deste tópico serão disponibilizados em breve! Por enquanto, explore o mapa à vontade e treine na Cidadela das Provas (aba ENEM) para ganhar pontos para a sua tribo.';$('qf').textContent='';const box=$('qo');box.innerHTML='';const b=document.createElement('button');b.className='opt';b.textContent='OK, VOU EXPLORAR!';b.onclick=closeQuiz;box.appendChild(b);$('quiz').classList.add('on');return}
  $('qv').textContent=`${v+1}º BIMESTRE - TÓPICO ${i+1}${i===5?' - DESAFIO FINAL':''}`;$('qt').textContent=ph[0];$('qq').textContent=(ph[3]?'📘 '+ph[3]+'\n\n':'')+ph[1];$('qf').textContent='';
  const box=$('qo');box.innerHTML='';
  ph[2].map((t,j)=>({t,ok:j===0})).sort(()=>Math.random()-.5).forEach(o=>{const b=document.createElement('button');b.className='opt';b.textContent=o.t;
@@ -3163,7 +3163,7 @@ function renderInv(){const e=eqState(),ow=ownedIds(),cur=eqNow();
  if(HV.filt.startsWith('slot:')){const c=el('button','chip on',SLOTN[HV.filt.slice(5)]+' ✕');c.onclick=()=>{HV.filt='all';renderInv()};fl.appendChild(c)}
  const list=ow.filter(id=>{const sl=IT[id].slot;if(HV.filt==='all')return true;if(HV.filt.startsWith('slot:'))return sl===HV.filt.slice(5);return FGROUP[HV.filt].includes(sl)}).sort((a,b)=>IT[b].r-IT[a].r||SLOTS.indexOf(IT[a].slot)-SLOTS.indexOf(IT[b].slot));
  const gr=$('hGrid');gr.innerHTML='';
- if(!list.length)gr.appendChild(el('div','gempty',ow.length?'NENHUM ITEM DESTE TIPO AINDA.':CONFIG.JORNADA===false?`SUA BOLSA ESTÁ VAZIA. JUNTE ${ARM_PTS.tribo} PONTOS NA TORRE ENEM PARA GANHAR A ARMADURA DA SUA TRIBO!`:'SUA BOLSA ESTÁ VAZIA. CONCLUA TÓPICOS NA JORNADA PARA GANHAR ITENS!'));
+ if(!list.length)gr.appendChild(el('div','gempty',ow.length?'NENHUM ITEM DESTE TIPO AINDA.':CONFIG.JORNADA===false?`SUA BOLSA ESTÁ VAZIA. JUNTE ${ARM_PTS.tribo} PONTOS NA CIDADELA DAS PROVAS PARA GANHAR A ARMADURA DA SUA TRIBO!`:'SUA BOLSA ESTÁ VAZIA. CONCLUA TÓPICOS NA JORNADA PARA GANHAR ITENS!'));
  for(const id of list){const it=IT[id],c=el('button','cell r'+it.r+(HV.sel===id?' sel':''));c.style.borderColor=RAR[it.r].c;c.appendChild(iconCv(id,false,42));
   if(!e.n.includes(id))c.appendChild(el('i','new','NOVO'));if(cur[it.slot]===id)c.appendChild(el('i','eqd','✔'));
   c.onclick=()=>{HV.sel=HV.sel===id?null:id;renderInv()};gr.appendChild(c)}
@@ -3194,7 +3194,7 @@ function renderBook(){const e=eqState(),ow=ownedIds(),gold=e.g.filter(id=>IT[id]
   b.appendChild(iconCv(it.id,!own,40));b.appendChild(el('span',null,own?it.n:'???'));if(g)b.appendChild(el('i','gst','★'));b.onclick=()=>{HV.page=it.id;renderBook()};gr.appendChild(b)}
  renderPage()}
 function renderPage(){const pg=$('bPage'),id=HV.page;pg.innerHTML='';pg.className='page';
- if(!id){pg.appendChild(el('h4',null,'LIVRO DE ITENS'));pg.appendChild(el('p',null,'Cada item que você conquista ganha uma página neste livro, com sua lenda e um segredo da Física.'));pg.appendChild(el('p',null,'Acerte o DESAFIO da página para deixá-la DOURADA ★. Quem concluir os 24 tópicos e dourar todas as páginas desbloqueia a lendária Armadura Estelar do Horizonte.'));pg.appendChild(el('p',null,`Na TORRE ENEM, cada acerto vale pontos: com ${ARM_PTS.tribo} pontos você libera a Armadura da Constelação da sua tribo, e com ${ARM_PTS.fenix}, a Armadura da Fênix Supernova.`));pg.appendChild(el('p','dim','Escolha um item ao lado.'));return}
+ if(!id){pg.appendChild(el('h4',null,'LIVRO DE ITENS'));pg.appendChild(el('p',null,'Cada item que você conquista ganha uma página neste livro, com sua lenda e um segredo da Física.'));pg.appendChild(el('p',null,'Acerte o DESAFIO da página para deixá-la DOURADA ★. Quem concluir os 24 tópicos e dourar todas as páginas desbloqueia a lendária Armadura Estelar do Horizonte.'));pg.appendChild(el('p',null,`Na CIDADELA DAS PROVAS, cada acerto vale pontos: com ${ARM_PTS.tribo} pontos você libera a Armadura da Constelação da sua tribo, e com ${ARM_PTS.fenix}, a Armadura da Fênix Supernova.`));pg.appendChild(el('p','dim','Escolha um item ao lado.'));return}
  if(id.startsWith('ban')){const i=+id.slice(3),t=TURMAS[i],B=BAN[i],lv=tribeData?levelsOf(tribeData)[i]:0;const cv=mk(96,170);cv.dataset.ban=i;cv.className='bancv bbig';pg.appendChild(cv);
   pg.appendChild(el('h4',null,`ESTANDARTE DOS ${t.tribo}`));pg.appendChild(el('p','dim',`${t.nome} · NÍVEL ${lv+1}: ${NIVEL_NOME[lv]}`+(t.id===me.turma?' · SUA TRIBO':'')));pg.appendChild(el('p','lema',`"${B.lema}"`));
   pg.appendChild(el('p',null,'O estandarte evolui com a tribo: começa como um trapo rasgado, ganha bordas no nível Vila e barra dourada com borlas na Fortaleza. No Reino, uma estrela brilha no topo do mastro.'));return}
@@ -3236,7 +3236,7 @@ function playConquest(t,ids,done){if(cqOn)return;cqOn=true;rewOn=true;const ov=e
   if(T>=2.15){const q=Math.min(1,(T-2.15)/.2),z=1+(1-q)*1.8,nm=(TIERN[t]||'')+'!';x.save();x.translate(450,78);x.transform(1,0,-.25,1,0,0);x.scale(z,z);x.font='900 italic 46px sans-serif';x.textAlign='center';x.lineJoin='round';x.lineWidth=12;x.strokeStyle='#000';x.strokeText(nm,0,0);x.fillStyle=NC;x.fillText(nm,0,0);x.restore();
    if(q>=1){x.font='bold 15px monospace';x.textAlign='center';x.fillStyle='#e8e4f0';x.fillText('ARMADURA CONQUISTADA · TOQUE PARA CONTINUAR',450,124)}}
   if(T>6)end();else requestAnimationFrame(step)};step()}
-function checkTorre(){if(!me||rewOn||cqOn||isAdm()||screen!=='game'||$('enem').classList.contains('on'))return;const e=eqState(),ow=ownedIds(),nv=ITL.filter(i=>i.f==='t'&&ow.includes(i.id)&&!e.n.includes(i.id));if(!nv.length)return;const top=nv.reduce((a,b)=>b.pts>a.pts?b:a),t=top.t,ids=nv.filter(i=>i.t===t).map(i=>i.id);e.n=[...e.n,...nv.map(i=>i.id)];saveEq();playConquest(t,ids,()=>showRew('ARMADURA DA TORRE ENEM!','CONJUNTO '+TIERN[t],ids,'item'))}
+function checkTorre(){if(!me||rewOn||cqOn||isAdm()||screen!=='game'||$('enem').classList.contains('on'))return;const e=eqState(),ow=ownedIds(),nv=ITL.filter(i=>i.f==='t'&&ow.includes(i.id)&&!e.n.includes(i.id));if(!nv.length)return;const top=nv.reduce((a,b)=>b.pts>a.pts?b:a),t=top.t,ids=nv.filter(i=>i.t===t).map(i=>i.id);e.n=[...e.n,...nv.map(i=>i.id)];saveEq();playConquest(t,ids,()=>showRew('ARMADURA DA CIDADELA DAS PROVAS!','CONJUNTO '+TIERN[t],ids,'item'))}
 setInterval(()=>{try{checkTorre()}catch(e){}},2500);
 function showReward(v){rewV=v;showRew('BIMESTRE COMPLETO!',vols()[v].name,VREW[v],'bim')}
 function closeRew(eq){rewOn=false;$('rew').classList.remove('on');if(eq)for(const id of rewItems)equip(id);if(heroVisible())renderHero();
@@ -3303,8 +3303,8 @@ const QB_FIS=[
 const MATERIAS=[['geral','SIMULADO GERAL (TODAS)',[]],['espcex','ESPCEX · PROVA COMPLETA',[]],['ifsul','IF SUL DE MINAS · PROVA COMPLETA',[]],['fis','FÍSICA',QB_FIS],['mat','MATEMÁTICA',[]],['qui','QUÍMICA',[]],['bio','BIOLOGIA',[]],['lin','LINGUAGENS',[]],['hum','CIÊNCIAS HUMANAS',[]]];
 
 /* ============================ DIÁLOGOS DO ARQUIMAGO ============================ */
-const PROF_OI=['Olá, jovem aprendiz! Eu sou o ARQUIMAGO, guardião do Castelo da Física. Hmm... cuidado com a minha barba!','Na JORNADA você pode explorar o mapa dos 4 bimestres. Os desafios de lá chegam em breve!','Em TRIBOS, cada ponto seu faz a sua tribo crescer: de acampamento a reino. Meu castelo fica do outro lado da ponte de pedra!','Na Torre ENEM, no centro da ilha, você resolve questões reais do ENEM. Cada acerto vale 2 pontos para a sua tribo!','Agora vá! E que a FORÇA esteja com você... dividida pela massa!'];
-const PROF_ENEM=['Bem-vindo à Torre ENEM! Aqui você treina para o grande dia.','Escolha a matéria e quantas questões quer encarar. No modo TREINO eu mostro a resposta na hora; no modo PROVA, só no final, como no dia de verdade.','Cada acerto vale 2 pontos para a sua tribo. Quanto mais você treina, mais a sua tribo cresce. Boa sorte!'];
+const PROF_OI=['Olá, jovem aprendiz! Eu sou o ARQUIMAGO, guardião do Castelo da Física. Hmm... cuidado com a minha barba!','Na JORNADA você pode explorar o mapa dos 4 bimestres. Os desafios de lá chegam em breve!','Em TRIBOS, cada ponto seu faz a sua tribo crescer: de acampamento a reino. Meu castelo fica do outro lado da ponte de pedra!','Na Cidadela das Provas, no centro da ilha, você resolve questões reais do ENEM. Cada acerto vale 2 pontos para a sua tribo!','Agora vá! E que a FORÇA esteja com você... dividida pela massa!'];
+const PROF_ENEM=['Bem-vindo à Cidadela das Provas! Aqui você treina para o grande dia.','Escolha a matéria e quantas questões quer encarar. No modo TREINO eu mostro a resposta na hora; no modo PROVA, só no final, como no dia de verdade.','Cada acerto vale 2 pontos para a sua tribo. Quanto mais você treina, mais a sua tribo cresce. Boa sorte!'];
 const PROF_DICAS=['Inércia é a preguiça dos corpos: parados querem ficar parados!','Antes de calcular, anote as unidades. Metade dos erros mora nelas!','No ENEM, leia o comando da questão duas vezes. A pegadinha adora pressa.','Energia não se cria nem se perde... ao contrário dos meus óculos.','Um bom estudante revisa os erros. Um ótimo estudante revisa os acertos também!','Sabia que a luz do Sol leva uns 8 minutos para chegar aqui?','Pressão é força dividida pela área. Por isso ninguém gosta de pisar em peça de montar!','Desenhe a situação! Um esquema simples resolve meio problema.','Hmm... esse chapéu? Presente do próprio Newton. Ou foi uma maçã? Não lembro.'];
 let pfQ=[],pfI=0,pfN=0,pfCb=null;
 function profSay(lines,cb){PFS=null;$('pfNm').textContent='ARQUIMAGO';pfQ=lines.slice();pfI=0;pfN=0;pfCb=cb||null;$('prof').classList.add('on');placePanel($('prof'),'prof');$('pfT').textContent=''}
@@ -3332,7 +3332,7 @@ function talkTo(h){
  const w=h.who;if(!w)return;
  if(w.me){charSay(w.nick,h.L,h.eq,['Esse é você! '+pick(['Tá estiloso, hein?','Pronto pra próxima missão?','Que armadura, hein!']),'Continue juntando pontos para os '+w.tribo+'!']);return}
  if(w.bot){charSay(w.nick+' (BOT)',h.L,h.eq,['Bip bop! Eu sou um BOT, um aluno de mentirinha que segura o lugar na aldeia dos '+w.tribo+'.','Quando mais alunos de verdade se cadastrarem, eu dou o lugar pra eles!']);return}
- charSay(w.nick,h.L,h.eq,[pick(['Opa! Eu sou '+w.nick+', dos '+w.tribo+'!','E aí! '+w.nick+' aqui, orgulho dos '+w.tribo+'!','Salve! Sou '+w.nick+'. Bem-vindo à nossa aldeia!']),pick(['Tô em '+(w.rank+1)+'º lugar na minha tribo. Vem me alcançar!','Bora pra Torre ENEM? Cada acerto faz a aldeia crescer!','Ontem errei uma de cinemática... hoje não erro mais!','Já viu a fortaleza dos Dragões? Um dia a nossa fica assim!'])])}
+ charSay(w.nick,h.L,h.eq,[pick(['Opa! Eu sou '+w.nick+', dos '+w.tribo+'!','E aí! '+w.nick+' aqui, orgulho dos '+w.tribo+'!','Salve! Sou '+w.nick+'. Bem-vindo à nossa aldeia!']),pick(['Tô em '+(w.rank+1)+'º lugar na minha tribo. Vem me alcançar!','Bora pra Cidadela das Provas? Cada acerto faz a aldeia crescer!','Ontem errei uma de cinemática... hoje não erro mais!','Já viu a fortaleza dos Dragões? Um dia a nossa fica assim!'])])}
 
 /* ===== professor edita os guardiões (nome, armadura, arma, visual e fala); fica salvo no perfil do professor ===== */
 const GE_SETS=[['bronze','Bronze'],['prata','Prata'],['eletro','Elétrum'],['ouro','Ouro'],['leao','Leão Escarlate'],['leaod','Leão Dourado'],['lupus','Lobo (1A)'],['aquila','Águia (1B)'],['ursa','Urso (2A)'],['serpens','Serpente (2B)'],['draco','Dragão (3A)'],['cometa','Cometa'],['fenix','Fênix'],['estelar','Estelar']];
@@ -3380,7 +3380,7 @@ function renderEnem(){const B=$('eBody'),key=ES.scr+':'+ES.cur+':'+(ES.rev?1:0),
  if(keep){const put=()=>{const L=[...B.querySelectorAll('*')];if(keep[0])B.scrollTop=keep[0];L.forEach((e,i)=>{const v=keep[i+1];if(v&&e.scrollTop!==v)e.scrollTop=v});if(hk[0]&&B.parentNode)B.parentNode.scrollTop=hk[0];if(hk[1]&&document.scrollingElement)document.scrollingElement.scrollTop=hk[1]};
   put();requestAnimationFrame(put);B.querySelectorAll('img').forEach(im=>{if(!im.complete)im.addEventListener('load',put,{once:true})})}}
 function eHome(B){const st=enemState(),d=diasEnem();const L=el('div','ecol'),cv=mk(320,320);cv.id='eCv';cv.className='ecv';L.appendChild(cv);B.appendChild(L);
- const R2=el('div','ecol2');R2.appendChild(el('h3','etit','TORRE ENEM'));
+ const R2=el('div','ecol2');R2.appendChild(el('h3','etit','CIDADELA DAS PROVAS'));
  const cd=el('div','ecount');cd.innerHTML=d>0?`⏳ FALTAM <b>${d}</b> DIAS PARA O ENEM`:d===0?'⏳ <b>É HOJE!</b> BOA PROVA!':'O ENEM DESTE ANO JÁ PASSOU. CONTINUE TREINANDO!';R2.appendChild(cd);
  R2.appendChild(el('div','esub','1º dia: 8/nov · 2º dia (Ciências da Natureza e Matemática): 15/nov'));
  const sx=el('div','estats');sx.innerHTML=`<span>SIMULADOS<b>${st.n}</b></span><span>MELHOR NOTA<b>${st.n?st.best+'%':'—'}</b></span><span>PONTOS P/ TRIBO<b>+2</b><i>por acerto</i></span>`;R2.appendChild(sx);
@@ -3615,13 +3615,13 @@ function radarBloco(R,cor){return`<div class="rbox">${radarSVG(R,cor)}${fortesHT
 /* estatísticas do próprio aluno (aberto pela lista da tribo) */
 function minhasStats(){const S=statsDe(enemState()),R=S.R,qt=Object.values(R).reduce((a,v)=>a+v.q,0),ac=Object.values(R).reduce((a,v)=>a+v.ac,0),cor=(TURMA(me.turma)||{cor:{f:'#e8c070'}}).cor.f;
  let h=`<h2>MEU DESEMPENHO</h2><p class="sdim">${me.nick} · ${me.pontos||0} pontos</p><div class="estats"><span>SIMULADOS<b>${S.n}</b></span><span>QUESTÕES<b>${qt}</b></span><span>ACERTO<b>${qt?Math.round(ac/qt*100):0}%</b></span><span>MELHOR<b>${S.best}%</b></span></div>`;
- if(!qt){adStatsOpen(h+'<p class="sdim">Faça simulados na Torre ENEM para ver seu gráfico aqui.</p>');return}
+ if(!qt){adStatsOpen(h+'<p class="sdim">Faça simulados na Cidadela das Provas para ver seu gráfico aqui.</p>');return}
  h+=radarBloco(R,cor)+'<h3>POR MATÉRIA</h3>'+subjHTML(R);for(const m in MATN)if(R[m].q)h+=`<h3>${MATN[m]} · POR TÓPICO</h3>`+topicsHTML(m,R[m].tp);adStatsOpen(h)}
 async function adAluno(r){adStatsOpen('<p class="sdim">Carregando estatísticas...</p>');let E;try{E=await adEnem()}catch(e){adStatsOpen(`<h2>${r.nome||r.nick}</h2><p class="sdim">Não foi possível carregar: ${errPT(e)}</p>`);return}
  const x=E[String(r.nick).toLowerCase()],S=statsDe(x&&x.enem),R=S.R,qt=Object.values(R).reduce((a,v)=>a+v.q,0),ac=Object.values(R).reduce((a,v)=>a+v.ac,0);
  let h=`<h2>${r.nome||r.nick}</h2><p class="sdim">${r.nick} · ${TURMA(r.turma).nome} · ${r.pontos||0} pontos</p>
   ${senhaBox(r)}<div class="estats"><span>SIMULADOS<b>${S.n}</b></span><span>QUESTÕES<b>${qt}</b></span><span>ACERTOS<b>${ac}</b></span><span>APROVEITAMENTO<b>${qt?Math.round(ac/qt*100):0}%</b></span><span>MELHOR SIMULADO<b>${S.best}%</b></span></div>`;
- if(!qt){adStatsOpen(h+'<p class="sdim">Este aluno ainda não fez simulados na Torre ENEM.</p>');senhaWire(r);return}
+ if(!qt){adStatsOpen(h+'<p class="sdim">Este aluno ainda não fez simulados na Cidadela das Provas.</p>');senhaWire(r);return}
  h+=radarBloco(R,(TURMA(r.turma)||{cor:{f:'#e8c070'}}).cor.f)+'<h3>POR MATÉRIA</h3>'+subjHTML(R);if(S.semMat)h+=`<p class="sdim">${S.semMat} simulado(s) antigo(s) sem matéria registrada.</p>`;
  for(const m in MATN){if(!R[m].q)continue;h+=`<h3>${MATN[m]} · POR TÓPICO</h3>`+topicsHTML(m,R[m].tp);if(m!=='fis'&&!Object.keys(R[m].tp).length)h+=''}
  if(['mat','qui','bio','lin','hum'].some(m=>R[m].q&&!Object.keys(R[m].tp).length))h+='<p class="sdim">Em Matemática, Química e Biologia os tópicos começam a ser contados a partir de hoje (21/10).</p>';
@@ -3655,7 +3655,7 @@ function sugestoes(X){const S=[],nunca=X.al.filter(a=>!a.n).length,N=X.rows.leng
  if(X.spq!=null&&X.spq<25)S.push(`<b>Chute:</b> a turma gasta em média só ${Math.round(X.spq)} s por questão (no ENEM real são ~3 min). Oriente a ler o enunciado com calma; o limite de 20 erros por dia já freia o chute.`);
  const ch=X.al.filter(a=>a.q>=20&&a.p<25);if(ch.length)S.push(`<b>Possível chute em massa:</b> ${ch.map(a=>a.r.nome||a.r.nick).slice(0,6).join(', ')}${ch.length>6?'…':''} têm menos de 25% de acerto com muitas questões (25% é o que se acerta chutando 1 em 5 até menos).`);
  X.crit.slice(0,3).forEach((c,i)=>{if(c.p<50)S.push(`<b>Revisar ${c.n}</b> (${MATN[c.m]}): ${c.p}% de acerto em ${c.q} questões${i===0?' — é o ponto mais fraco da turma':''}.`)});
- const fis=X.T.fis;if(fis.q>=20&&fis.q/X.q<.25&&X.q>60)S.push('<b>Física pouco treinada:</b> a turma está fazendo mais simulados das outras matérias; vale indicar a Torre ENEM de Física como tarefa.');
+ const fis=X.T.fis;if(fis.q>=20&&fis.q/X.q<.25&&X.q>60)S.push('<b>Física pouco treinada:</b> a turma está fazendo mais simulados das outras matérias; vale indicar a Cidadela das Provas de Física como tarefa.');
  if(X.p>=60&&X.ativos.length/N>=.6)S.push('<b>Turma em bom ritmo:</b> aproveitamento acima de 60% e boa participação. Dá para subir o nível com simulados de 20 questões no modo PROVA.');
  if(!S.length)S.push('Sem alertas por enquanto. Continue acompanhando: os tópicos ficam mais confiáveis conforme a turma faz mais simulados.');return S}
 async function renderTurmas(B){let E;try{E=await adEnem()}catch(e){B.appendChild(el('p','esub','Não foi possível carregar: '+errPT(e)));return}
@@ -3720,7 +3720,7 @@ async function openTribe(i){tribeOpen=i;const t=TURMAS[i],d=(tribeData||[]).find
  $('tSub').textContent=t.nome;$('tT').textContent='TRIBO: '+t.tribo;$('tBan').dataset.ban=i;$('tLema').textContent='"'+BAN[i].lema+'"';
  $('tInfo').innerHTML=`<span>NÍVEL ${L+1}: ${NIVEL_NOME[L]}</span><span>${p} PTS</span><span>#${rank||'-'} DE ${TURMAS.length}</span>`;
  $('tBar').parentNode.style.display=CONFIG.VILAS_FIXAS?'none':'';$('tBar').style.width=nx?Math.round((p-CONFIG.NIVEIS[L])/(nx-CONFIG.NIVEIS[L])*100)+'%':'100%';
- $('tNext').textContent=CONFIG.VILAS_FIXAS?'A evolução das vilas chega em breve! Junte pontos na Torre ENEM.':nx?`Faltam ${nx-p} pontos para virar ${NIVEL_NOME[L+1]}.`:'Nível máximo: CIDADELA LENDÁRIA!';
+ $('tNext').textContent=CONFIG.VILAS_FIXAS?'A evolução das vilas chega em breve! Junte pontos na Cidadela das Provas.':nx?`Faltam ${nx-p} pontos para virar ${NIVEL_NOME[L+1]}.`:'Nível máximo: CIDADELA LENDÁRIA!';
  $('tDemo').style.display='none';
  $('tList').innerHTML='<div class="small">carregando...</div>';$('trib').classList.add('on');
  try{const list=await API.members(t.id);if(tribeOpen!==i)return;$('tList').innerHTML='';
