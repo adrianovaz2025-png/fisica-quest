@@ -2648,7 +2648,7 @@ function drawEnemFx(x,ox,oy,t,sp){const[ax,ay]=sp.orb;const X=ox+ax,Y=oy+ay+Math
  x.globalAlpha=.3+.15*Math.sin(t/300);disc(x,X,Y,9,'#9ae8ff');x.globalAlpha=1;disc(x,X,Y,5,'#d8f8ff');disc(x,X,Y,3,'#ffffff');R(x,X-2,Y-3,2,1,'#ffffff');
  for(let k=0;k<5;k++){const a=t/1400+k*1.2566,u=Math.cos(a)*16,v=Math.sin(a)*5;if(v>=0)glyph2d(x,L[k],Math.round(X+u-1),Math.round(Y+v-2),'#f8d860',1)}}
 function addEnemTower(Wd,C){const sp=enemTowerS(),X0=C[0]-1.3,Y0=C[1]-1.3,e=addSpr(Wd,sp,X0,Y0);const[px,py]=Wd.P(X0,Y0);
- Wd.spr.push({x:px-sp.ax,y:py-sp.ay-160,w:sp.cv.width,h:sp.cv.height+160,dep:e.dep+.06,draw:(x,cx,cy,t)=>drawEnemFx(x,px-cx,py-cy,t,sp)});Wd.ENEMT=[px,py,sp];return e}
+ Wd.spr.push({x:px-sp.ax,y:py-sp.ay-160,w:sp.cv.width,h:sp.cv.height+160,dep:e.dep+.06,draw:(x,cx,cy,t)=>drawEnemFx(x,px-cx,py-cy,t,sp)});Wd.ENEMT=[px,py,sp];Wd.ENEMC=C;return e}
 
 /* ============================ MAPA-MÚNDI DOS BIMESTRES ============================ */
 const BIM=[
@@ -2885,7 +2885,8 @@ async function refreshTribes(){if(me)loadTops();try{tribeData=(await API.tribes(
  const lv=levelsOf(tribeData);if(!tribeWorld||tribeWorld.levels.join()!==lv.join())tribeDirty=true;return lv}
 function ensureTribeWorld(cb){const lv=levelsOf(tribeData);if(tribeWorld&&!tribeDirty&&tribeWorld.levels.join()===lv.join()){cb&&cb();return}
  const cam=tribeWorld&&tribeWorld.cam;busyBuild(()=>{tribeWorld=buildTribeWorld(lv);tribeDirty=false;if(cam)tribeWorld.cam=cam;else focusTribe(me?TURMAS.findIndex(t=>t.id===me.turma):0);cb&&cb()})}
-function focusTribe(i){if(!tribeWorld||i<0)return;const[px,py]=tribeWorld.P(...tribeWorld.TP[i]);centerOn(tribeWorld,px,py-20)}
+let FINDT=-1e9;function findMe(W){if(W&&W.MEP){centerOn(W,W.MEP[0],W.MEP[1]-16);FINDT=T0}else focusTribe(TURMAS.findIndex(t=>t.id===me.turma))}
+function focusTribe(i){if(tribeWorld&&i<0&&isExt()&&tribeWorld.ENEMC){const[px,py]=tribeWorld.P(tribeWorld.ENEMC[0]+7,tribeWorld.ENEMC[1]+4);centerOn(tribeWorld,px,py-20);return}if(!tribeWorld||i<0)return;const[px,py]=tribeWorld.P(...tribeWorld.TP[i]);centerOn(tribeWorld,px,py-20)}
 
 /* ============================ ATUALIZAÇÃO ============================ */
 function update(dt){
@@ -2972,15 +2973,15 @@ function drawGame(){
   const extra=volOpen(curVol)?[{dep:hero.X+hero.Y+.05,hi:{L:CH(),eq:eqNow(),fr:hero.walking?walkF():idleF(0),P:W.Pb(hero.X,hero.Y)}}]:[];
   renderWorld(W,extra);if(!volOpen(curVol)){g.fillStyle='rgba(10,5,20,.55)';g.fillRect(0,0,VW,VH)}}
  else if(tab==='tribos'){if(!tribeWorld){R(g,0,0,VW,VH,'#0b0710');return}
-  const W=tribeWorld,i=TURMAS.findIndex(t=>t.id===me.turma),T=i>=0?W.TP[i]:[W.PROF[0]-1.3,W.PROF[1]+1.2],hx2=T[0]+2.5,hy=T[1]-.4;
+  const W=tribeWorld,i=TURMAS.findIndex(t=>t.id===me.turma),T=i>=0?W.TP[i]:(isExt()&&W.ENEMC?[W.ENEMC[0]+5.3,W.ENEMC[1]+2.6]:[W.PROF[0]-1.3,W.PROF[1]+1.2]),hx2=T[0]+2.5,hy=T[1]-.4;W.MEP=null;
   const ex=[];let meOn=false;
-  TURMAS.forEach((t,ti)=>{const TT=W.TP[ti];(tribeTop[t.id]||[]).forEach((m,k,AL)=>{const RR=(W.STR&&W.STR[ti])||5.75,dir=k%2?1:-1,s0=k/AL.length*8*RR+dir*T0*.00055,q0=ringPos({ring:RR,s:s0}),q1=ringPos({ring:RR,s:s0+dir*.05}),X=TT[0]+q0[0],Y=TT[1]+q0[1],isMe=me&&m.nick===me.nick;if(isMe)meOn=true;
+  TURMAS.forEach((t,ti)=>{const TT=W.TP[ti];(tribeTop[t.id]||[]).forEach((m,k,AL)=>{const RR=(W.STR&&W.STR[ti])||5.75,dir=k%2?1:-1,s0=k/AL.length*8*RR+dir*T0*.00055,q0=ringPos({ring:RR,s:s0}),q1=ringPos({ring:RR,s:s0+dir*.05}),X=TT[0]+q0[0],Y=TT[1]+q0[1],isMe=me&&m.nick===me.nick;if(isMe){meOn=true;W.MEP=W.P(X,Y)}
    ex.push({dep:X+Y,hi:{L:isMe?CH():m.visual&&m.visual.hair?m.visual:LOOKS[(m.personagem||0)%4],eq:isMe?eqNow():(m.equip&&m.equip.s?m.equip.s:eqFromFases(m.fases||0)),fr:[1,0,2,0][Math.floor(T0/130+k*1.3+ti)%4],back:(q1[0]+q1[1])<(q0[0]+q0[1]),P:W.P(X,Y),who:{nick:m.nick,tribo:t.tribo,rank:k,me:!!isMe,bot:!!m.npc},tag:{nick:m.nick,bot:!!m.npc,rank:k,up:k===3||k===4},arrow:isMe}})})});
   /* o Mestre fica numa clareira perto da ponte da Torre do Arquimago (discreto) */
   loadMestre();const adm=isAdm();if(W.BRA&&(adm||MESTRE)){const MWp=null,MX=W.MS?W.MS[0]:W.BRA[0]+MSPOT[0],MY=W.MS?W.MS[1]:W.BRA[1]+MSPOT[1],mp=W.P(MX,MY),L2=adm?CH():(MESTRE.visual&&MESTRE.visual.hair?MESTRE.visual:LOOKS[0]),E2=adm?eqNow():(MESTRE.equip||{});
    ex.push({dep:MX+MY+.2,hi:{mestre:1,L:L2,eq:E2,fr:MWp?walkF():idleF(0),back:MWp&&MWp.back,P:mp,nick:adm?me.nick:MESTRE.nick,arrow:0}})}
   (W.MONKS||[]).forEach((mk,k)=>{const a=.785+Math.sin(mk.a0+T0*mk.sp*3)*1.75,X=mk.C[0]+Math.cos(a)*mk.R,Y=mk.C[1]+Math.sin(a)*mk.R,a2=.785+Math.sin(mk.a0+(T0+60)*mk.sp*3)*1.75,bk=(Math.cos(a2)+Math.sin(a2))*mk.R<(Math.cos(a)+Math.sin(a))*mk.R;ex.push({dep:X+Y,hi:{monk:1,L:{name:'',skin:mk.sk,hair:{s:'raspado',c1:mk.sk,c2:'#888'},top:{s:'gola',c1:'#8a1a1a',c2:'#e8a020'},pants:'#7a1414',eyes:{s:0,c:'#3a2414'}},eq:{},fr:[1,0,2,0][Math.floor(T0/170+k)%4],back:bk,P:W.P(X,Y)}})});(W.GUARD||[]).forEach((g0,k)=>{const gd=gApply(g0);ex.push({dep:gd.X+gd.Y,hi:{L:gd.L,eq:gd.eq,fr:idleF(k),P:W.P(gd.X,gd.Y),guard:gd.name,fala:gd.fala,g0}})});
-  if(!meOn&&!adm)ex.push({dep:hx2+hy,hi:{L:CH(),eq:eqNow(),fr:idleF(0),P:W.P(hx2,hy),arrow:1}});
+  if(!meOn&&!adm){W.MEP=W.P(hx2,hy)}if(!meOn&&!adm)ex.push({dep:hx2+hy,hi:{L:CH(),eq:eqNow(),fr:idleF(0),P:W.P(hx2,hy),arrow:1}});
   if(W.PROF)ex.push({dep:W.PROF[0]+W.PROF[1],hi:{prof:1,P:W.P(W.PROF[0],W.PROF[1])}});
   renderWorld(W,ex)}
  else{const ox=Math.round((VW-480)/2);g.drawImage(hall(),0,0);torch(40+ox,110,T0);torch(206+ox,110,T0)}
@@ -3047,7 +3048,7 @@ function uiTribos0(){const W=tribeWorld;if(!W)return;const cx=W.cam.x,cy=W.cam.y
  if(W.ENEMT){const[px,py,sp]=W.ENEMT,x=(px-cx)*Z,y=(py-cy+sp.d*16+14)*Z;if(x>-80&&x<VW+80&&y>-20&&y<VH){const w=150;panel(x-w/2,y-10,w,20,'#1e1a40','#9ae8ff','#3a3a7a');T('CIDADELA DAS PROVAS',x,y-6,5,'#c8f4ff','center');T('SIMULADOS',x,y+3,4,GOLD,'center');btns.push({x:x-w/2,y:y-10,w,h:20,fn:()=>setTab('enem')})}}
  if(W.PROF){const[px,py]=W.P(...W.PROF),x=(px-cx)*Z,y=(py-cy)*Z+12;if(x>-60&&x<VW+60&&y>-20&&y<VH){const w=70;panel(x-w/2,y-9,w,13,'#2a1e48','#b890ff','#3a2a5a');T('ARQUIMAGO',x,y-5.5,5,'#e8d8ff','center');btns.push({x:x-w/2,y:y-9,w,h:13,fn:profTalk})}}
  panel(4,29,206,16,'#2a1d14','#5a3a22','#1a1020');T('ARRASTE E USE DOIS DEDOS P/ ZOOM',107,34,5,'#f4e4c0','center');
- mapBtns(W,()=>focusTribe(TURMAS.findIndex(t=>t.id===me.turma)));
+ mapBtns(W,()=>findMe(W));
  const bw=(VW-8)/5;TURMAS.forEach((t,i)=>{const x=4+i*bw;btn(`${t.tribo}`,x+4,VH-25,bw-7,21,()=>{focusTribe(i);openTribe(i)},6,t.id===me.turma?'#fff':GOLD);c.fillStyle=OUT;c.fillRect(x+6,VH-22,6,15);c.fillStyle=t.cor.f;c.fillRect(x+7,VH-21,4,13)});
 }
 function uiHeroi(){}
@@ -3900,7 +3901,7 @@ function drawHiWorld(){const W=screen==='game'?curW():null;if(!W||!W._hi)return;
  for(const h of W._hi){const vx=(h.px-cx)*Z,vy=(h.py-cy)*Z;if(h.prof)drawProf(c,vx,vy,Z);else{drawChar(c,h.L,h.eq,h.fr,vx,vy,Z,!!h.back);if(h.guard&&Z>=.85){const nm=h.guard,w=nm.length*4+12;panel(vx-w/2,vy-40*Z,w,10,'#181420','#8a7aa8','#241e30');T(nm,vx,vy-40*Z+2.5,4,'#d8d0f0','center')}if(h.mestre){const nm='MESTRE',w=34;panel(vx-w/2,vy-40*Z,w,10,'#2a2014','#c8a050','#3a2c18');T(nm,vx,vy-40*Z+2.5,5,'#f0d890','center')}}
   for(const o of h.occ)c.drawImage(o.img,Math.round(o.x-cx)*Z,Math.round(o.y-cy)*Z,o.w*Z,o.h*Z);
   if(h.tag)tagHi(vx,vy-(h.tag.up?33:33)*Z-(h.tag.up?0:0),h.tag,Z);
-  if(h.arrow){const bb=Math.sin(T0/200)*2;c.fillStyle=GOLD;for(let k=0;k<4;k++)c.fillRect(vx-3*Z+k*Z,vy+(-36+bb+k)*Z,(7-2*k)*Z,Z)}}}
+  if(h.arrow){const bb=Math.sin(T0/200)*2;c.fillStyle=GOLD;for(let k=0;k<4;k++)c.fillRect(vx-3*Z+k*Z,vy+(-36+bb+k)*Z,(7-2*k)*Z,Z);if(T0-FINDT<4500){const u=Math.max(2,Z*1.6),b2=Math.abs(Math.sin(T0/160))*6*u,ty=vy-41*Z-b2,AR=[[-3,-9],[3,-9],[3,-3],[7,-3],[0,5],[-7,-3],[-3,-3]];c.beginPath();AR.forEach(([a,b],k)=>{const X=vx+a*u,Y=ty+b*u;k?c.lineTo(X,Y):c.moveTo(X,Y)});c.closePath();c.fillStyle='#e8402a';c.fill();c.lineWidth=Math.max(2,u*.9);c.strokeStyle='#1a1020';c.stroke();c.fillStyle='#ffd860';c.fillRect(vx-1.6*u,ty-8*u,1.2*u,4.6*u);T('VOCÊ',vx,ty-9*u-9,7,'#fff','center')}}}}
 let FQERR=0;function frame(now){try{frameBody(now)}catch(e){if(FQERR++<20)console.error('[FQ] erro no quadro:',e&&e.stack||e)}requestAnimationFrame(frame)}
 function perfTick(dt){if(screen!=='game')return;PERF.n++;PERF.t+=dt;if(PERF.n>=90){const avg=PERF.t/PERF.n;PERF.n=0;PERF.t=0;if(avg>26&&RESQ>.55){RESQ=Math.max(.55,RESQ-.15);resize()}}}
 function frameBody(now){perfTick(now-last);const dt=Math.min(50,now-last);last=now;T0+=dt;update(dt);
