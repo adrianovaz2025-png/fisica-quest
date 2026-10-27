@@ -137,7 +137,7 @@ select.inp{appearance:none;-webkit-appearance:none}
 .ecol{flex:0 0 auto}.ecv{width:min(42vh,300px);height:min(42vh,300px);border:3px solid #5a3a22;image-rendering:pixelated;display:block}
 .ecol2{flex:1;display:flex;flex-direction:column;gap:9px;min-width:0}
 .etit{margin:0;font-size:16px;color:#f8d870;text-shadow:2px 2px 0 #1a1020}.etit2{flex:1;font-size:9px;color:#f8d870;line-height:1.5}
-.ecount{font-size:9px;line-height:1.8;color:#e8e0ff;background:#1a1430;border:3px solid #4a3a7a;padding:8px}.ecount b{color:#f8d860;font-size:13px}
+.ecount{font-size:9px;line-height:1.8;color:#e8e0ff;background:#1a1430;border:3px solid #4a3a7a;padding:8px}.ecount b{color:#f8d860;font-size:13px}.ecth{color:#b8a8e8;font-size:8px;margin-bottom:2px}.ecl{display:flex;align-items:baseline;gap:10px;padding:1px 0;line-height:1.5;border-top:1px solid #2e2450}.ecl:first-of-type{border-top:0}.ecn{min-width:150px}.ecd{min-width:130px}.ecl small{color:#9a8ac8;font-size:7px;margin-left:auto;text-align:right}
 .esub{font-size:7px;line-height:1.8;color:#b8a890}
 .estats{display:flex;gap:6px;flex-wrap:wrap}.estats span{flex:1;min-width:84px;background:#1a1220;border:3px solid #5a3a22;padding:6px;font-size:6px;line-height:1.6;color:#d8c8a8;display:flex;flex-direction:column;align-items:center}.estats b{font-size:12px;color:#fff}.estats i{font-style:normal;font-size:5px}
 .ebig{font-size:12px;padding:14px}.ebig2{padding:10px;font-size:8px}
@@ -3369,6 +3369,11 @@ function placePanel(el,kind){const r=scr.getBoundingClientRect(),st=el.style;
 /* ============================ ABA ENEM ============================ */
 let LIMD=null,LIMT=-1e9;const ES={src:'enem',ano:'all',scr:'home',mat:'fis',n:10,mode:'treino',qs:[],cur:0,t0:0,t1:0,confirmEnd:false,rev:false,res:null};
 function enemState(){const e=eqState();if(!e.enem)e.enem={n:0,best:0,hist:[],areas:{}};if(e.enem.arq){e.enem=enemTotal(e.enem);saveEq()}return e.enem}
+/* contagem regressiva de cada prova (datas oficiais; atualizar a cada edital) */
+const PROVAS_DATAS=[['📘','ENEM','2026-11-08','8 e 15/nov'],
+ ['🏫','IF SUL DE MINAS','2026-12-06','6/dez, 8h45'],
+ ['🎖️','ESPCEX',null,'2026 foi 12–13/set · aguardando edital']];
+const diasAte=s=>Math.ceil((new Date(s+'T13:00:00-03:00')-Date.now())/86400000);
 function diasEnem(){const d=new Date(CONFIG.ENEM_DATA+'T13:00:00-03:00')-Date.now();return Math.ceil(d/86400000)}
 function enemSync(){const on=screen==='game'&&tab==='enem'&&!!me,h=$('enem');if(on!==h.classList.contains('on')){h.classList.toggle('on',on);if(on)renderEnem()}if(on){placePanel(h);if(ES.scr==='quiz')updTimer()}}
 const fmtT=s=>{s=Math.max(0,Math.floor(s));return`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`};
@@ -3381,8 +3386,7 @@ function renderEnem(){const B=$('eBody'),key=ES.scr+':'+ES.cur+':'+(ES.rev?1:0),
   put();requestAnimationFrame(put);B.querySelectorAll('img').forEach(im=>{if(!im.complete)im.addEventListener('load',put,{once:true})})}}
 function eHome(B){const st=enemState(),d=diasEnem();const L=el('div','ecol'),cv=mk(320,320);cv.id='eCv';cv.className='ecv';L.appendChild(cv);B.appendChild(L);
  const R2=el('div','ecol2');R2.appendChild(el('h3','etit','CIDADELA DAS PROVAS'));
- const cd=el('div','ecount');cd.innerHTML=d>0?`⏳ FALTAM <b>${d}</b> DIAS PARA O ENEM`:d===0?'⏳ <b>É HOJE!</b> BOA PROVA!':'O ENEM DESTE ANO JÁ PASSOU. CONTINUE TREINANDO!';R2.appendChild(cd);
- R2.appendChild(el('div','esub','1º dia: 8/nov · 2º dia (Ciências da Natureza e Matemática): 15/nov'));
+ const cd=el('div','ecount');cd.innerHTML='<div class="ecth">⏳ CONTAGEM REGRESSIVA</div>'+PROVAS_DATAS.map(([ic,n,dt,inf])=>{const k=dt?diasAte(dt):null;return `<div class="ecl"><span class="ecn">${ic} ${n}</span><span class="ecd">${k===null?'PRÓXIMA: <b>SET/2027</b>':k>1?`FALTAM <b>${k}</b> DIAS`:k===1?'<b>É AMANHÃ!</b>':k===0?'<b>É HOJE!</b> BOA PROVA!':'JÁ PASSOU'}</span><small>${inf}</small></div>`}).join('');R2.appendChild(cd);
  const sx=el('div','estats');sx.innerHTML=`<span>SIMULADOS<b>${st.n}</b></span><span>MELHOR NOTA<b>${st.n?st.best+'%':'—'}</b></span><span>PONTOS P/ TRIBO<b>+2</b><i>por acerto</i></span>`;R2.appendChild(sx);
  if(!isAdm()){const lm=el('div','emsg',LIMD?(LIMD.erros>=20?`⚠ HOJE VOCÊ JÁ ERROU ${LIMD.erros} QUESTÕES (LIMITE 20). OS SIMULADOS SÓ VOLTAM A DAR PONTOS AMANHÃ. TREINE COM CALMA!`:LIMD.pontos>=400?'⚠ VOCÊ JÁ FEZ 400 PONTOS HOJE (MÁXIMO DO DIA). VOLTE AMANHÃ!':`HOJE: ${LIMD.pontos}/400 PONTOS · ${LIMD.erros}/20 ERROS`):'LIMITES DO DIA: 400 PONTOS E 20 ERROS');lm.style.margin='6px 0';R2.appendChild(lm);{const F=['Cada acerto de hoje é um tijolo a mais no castelo da sua tribo!','Constância vence talento: um simulado por dia faz diferença no ENEM.','Errar faz parte. Leia com calma, pense e tente de novo!','Seu eu do futuro agradece cada questão que você resolve hoje.','Pequenos passos todo dia levam ao topo da torre.','Quem treina hoje comemora no dia da prova!','A sua tribo conta com você: bora pra mais um simulado?'],fr=el('div','emsg','💡 '+F[Math.floor(Date.now()/864e5)%F.length]+(LIMD&&LIMD.pontos<400&&LIMD.erros<20?` Ainda dá pra ganhar ${400-LIMD.pontos} pontos hoje!`:''));fr.style.color='#f0d890';fr.style.margin='4px 0 8px';R2.appendChild(fr)}if(!LIMD||T0-LIMT>15000){LIMT=T0;API.limites&&API.limites().then(d=>{if(d&&(!LIMD||d.erros!==LIMD.erros||d.pontos!==LIMD.pontos)){LIMD=d;if(ES.scr==='home')renderEnem()}else LIMD=d}).catch(()=>{})}}
  R2.appendChild(eBtn('▶ SIMULADO','big2 ebig',()=>{ES.scr='prova';renderEnem()}));R2.appendChild(eBtn('MEU DESEMPENHO','sm ebig2',()=>{ES.scr='perf';renderEnem()}));B.appendChild(R2)}
