@@ -359,7 +359,10 @@ const TURMAS=[
  {id:'2B',nome:'2º ANO B',tribo:'SERPENTES',serie:2,cor:COR.roxo},
  {id:'3A',nome:'3º ANO',tribo:'DRAGÕES',serie:3,cor:COR.amarelo}];
 const PROF_T={id:'PROF',nome:'PROFESSOR',tribo:'MESTRES',serie:0,cor:{r:['#d8d0e8','#a898c8','#5a4a7a'],f:'#b8a8e8'}};
-const TURMA=id=>TURMAS.find(t=>t.id===id)||(id==='PROF'?PROF_T:TURMAS[0]);
+/* aluno externo: não pertence a nenhuma tribo, fica na Cidadela das Provas */
+const EXT_T={id:'EXT',nome:'VESTIBULANDO',tribo:'CIDADELA DAS PROVAS',serie:3,cor:{r:['#a8b8f0','#6a7ad0','#3a4688'],f:'#7a8ae0'}};
+const isExt=()=>!!(me&&me.turma==='EXT');
+const TURMA=id=>TURMAS.find(t=>t.id===id)||(id==='PROF'?PROF_T:id==='EXT'?EXT_T:TURMAS[0]);
 const isAdm=()=>!!(me&&(me.admin||me.turma==='PROF'));
 const NIVEL_NOME=['ACAMPAMENTO','ALDEIA','VILA','CIDADE','FORTALEZA','CASTELO','REINO','IMPÉRIO','GRANDE IMPÉRIO','CIDADELA LENDÁRIA'];
 const nivelDe=p=>{let n=0;CONFIG.NIVEIS.forEach((t,i)=>{if(p>=t)n=i});return n};
@@ -3467,7 +3470,7 @@ async function finishSim(parc){parc=parc===true;const qs=parc?ES.qs.filter(x=>ES
  const msg=pct>=90?'Espetacular! Até a minha barba ficou arrepiada!':pct>=70?'Muito bem! Mais um pouco de treino e você brilha como o Sol.':pct>=50?'Bom caminho! Revise as questões que errou: é aí que mora o aprendizado.':'Toda grande jornada começa com um passo... e com uma revisão! Vamos de novo?';
  if(ES.res)ES.res.msg=msg;if(ES.scr==='res')renderEnem()}
 function eRes(B){const r=ES.res;eHead(B,'RESULTADO DO SIMULADO','home');const sc=el('div','escore');
- sc.innerHTML=`<div class="enota">${r.ac}<small>/${r.n}</small></div><div class="einfo"><b>${r.pct}% DE ACERTOS${r.parc?` · PARCIAL (${r.n} DE ${r.parc})`:''}</b><span>TEMPO TOTAL ${fmtT(r.t)} · MÉDIA ${fmtT(r.t/r.n)} POR QUESTÃO</span><span class="eganho">${r.ganho==null?'Registrando pontos...':r.ganho>0?`+${r.ganho} PONTOS PARA A TRIBO ${TURMA(me.turma).tribo}!`:r.ac===0?'Acerte questões para ganhar pontos para a sua tribo!':(isAdm()?'Conta de professor: não soma pontos.':r.lim?'Limite do dia atingido (20 erros ou 400 pontos). Amanhã tem mais!':'Aguarde alguns segundos entre um simulado e outro para pontuar.')}</span>${r.lim&&r.ganho>0?'<span class="emsg">Você bateu o limite do dia: os próximos simulados de hoje não dão pontos.</span>':''}${r.msg?`<span class="emsg">ARQUIMAGO: ${r.msg}</span>`:''}</div>`;B.appendChild(sc);
+ sc.innerHTML=`<div class="enota">${r.ac}<small>/${r.n}</small></div><div class="einfo"><b>${r.pct}% DE ACERTOS${r.parc?` · PARCIAL (${r.n} DE ${r.parc})`:''}</b><span>TEMPO TOTAL ${fmtT(r.t)} · MÉDIA ${fmtT(r.t/r.n)} POR QUESTÃO</span><span class="eganho">${r.ganho==null?'Registrando pontos...':r.ganho>0?(isExt()?`+${r.ganho} PONTOS!`:`+${r.ganho} PONTOS PARA A TRIBO ${TURMA(me.turma).tribo}!`):r.ac===0?'Acerte questões para ganhar pontos para a sua tribo!':(isAdm()?'Conta de professor: não soma pontos.':r.lim?'Limite do dia atingido (20 erros ou 400 pontos). Amanhã tem mais!':'Aguarde alguns segundos entre um simulado e outro para pontuar.')}</span>${r.lim&&r.ganho>0?'<span class="emsg">Você bateu o limite do dia: os próximos simulados de hoje não dão pontos.</span>':''}${r.msg?`<span class="emsg">ARQUIMAGO: ${r.msg}</span>`:''}</div>`;B.appendChild(sc);
  const r2=el('div','erow');r2.appendChild(eBtn(ES.rev?'ESCONDER REVISÃO':'REVISAR QUESTÕES','sm',()=>{ES.rev=!ES.rev;renderEnem()}));r2.appendChild(eBtn('NOVO SIMULADO','big2',()=>{ES.scr='qtd';renderEnem()}));B.appendChild(r2);
  if(ES.rev){const L=el('div','erev');ES.qs.forEach((q,k)=>{const ok=isOk(q),d=el('div','eri '+(ok?'ok':'bad'));
   if(q.e){const X=q.X;d.appendChild(el('b',null,`${ok?'✔':'✘'} QUESTÃO ${k+1} · ${PRV(X)} Q${X.num} · ${AREAS[X.area]}`));const t=X.modo==='img'?null:X.parts.find(p=>p.t&&!p.src&&p.t.length>30);if(t){const pp=el('p');pp.innerHTML=fracH(t.t.length>240?t.t.slice(0,240)+'…':t.t);d.appendChild(pp)}
@@ -3818,7 +3821,7 @@ function showNews(force){if(!me)return;const k='fq_news_'+String(me.nick).toLowe
  C.insertAdjacentHTML('beforeend','<div class="nwcd"><div class="nwcdt">⏳ CONTAGEM REGRESSIVA</div><div class="nwcdr">'+PROVAS_DATAS.map(([ic,n,dt])=>{const d=dt?diasAte(dt):null;return `<div><small>${ic} ${n}</small><b>${d===null?'SET/27':d<0?'—':d===0?'HOJE':d}</b><i>${d===null?'próxima prova':d>0?(d===1?'DIA':'DIAS'):''}</i></div>`}).join('')+'</div></div>');
  C.insertAdjacentHTML('beforeend','<button class="big" id="nwGo">🏰 IR PARA A CIDADELA</button><button class="lnk" id="nwOk">Depois eu vejo</button>');
  const close=()=>{$('news').classList.remove('on');try{localStorage.setItem(k,NEWS.v)}catch(e){}};$('nwX').onclick=close;$('nwOk').onclick=close;$('nwGo').onclick=()=>{close();ES.scr='home';setTab('enem')};$('news').classList.add('on');nwPoster(cv)}
-function enterGame(){setTimeout(()=>showNews(),1800);setTimeout(pedirEmail,4000);setTimeout(pingTick,3000);screen='game';tab='jornada';jView='mundo';curVol=clamp(Math.floor(me.fases/6),0,3);hero.node={};
+function enterGame(){setTimeout(()=>showNews(),1800);setTimeout(pedirEmail,4000);setTimeout(pingTick,3000);screen='game';tab=isExt()?'enem':'jornada';jView='mundo';curVol=clamp(Math.floor(me.fases/6),0,3);hero.node={};
  ensureMundo(()=>{placeMH(curBim());const e=eqState();if(!e.tut){e.tut=1;saveEq();setTimeout(()=>profSay(PROF_OI),400)}});refreshTribes()}
 async function logout(){tribeSeen=false;busy(true,'SAINDO...');try{await API.logout()}catch(e){}me=null;screen='title';busy(false)}
 
