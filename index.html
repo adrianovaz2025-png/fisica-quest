@@ -859,7 +859,7 @@ function eqPeito(G,id){const{x,Y}=G,t=armT(id);if(!t)return;const P=armP(t),lv=P
 function eqCabeca(G,id){const{x,Y,back}=G,t=armT(id);if(!t)return;const P=armP(t),lv=P.lv;
  if(t==='cometa'){SOFTN=1;RIMN=null;celSoft(x,mk2(m=>mPoly(m,[[20.4,Y(15.8)],[26,Y(12.4)],[32,Y(11.6)],[38,Y(12.4)],[43.6,Y(15.8)],[43.8,Y(17.8)],[38,Y(15)],[32,Y(14.2)],[26,Y(15)],[20.2,Y(17.8)]])),P.a,{});
   celSoft(x,mk2(m=>{for(const s2 of[-1,1])for(let k=0;k<3;k++){const u=32+s2*(12.6+k*2),v=Y(13.4-k*1.6);mEll(m,u,v,2.6-k*.4,1.8-k*.3)}}),'#ffffff',{});
-  celSoft(x,mk2(m=>mPoly(m,[[32,Y(4.6)],[33.6,Y(8.6)],[37.8,Y(9)],[34.6,Y(11.6)],[35.6,Y(15.6)],[32,Y(13.4)],[28.4,Y(15.6)],[29.4,Y(11.6)],[26.2,Y(9)],[30.4,Y(8.6)]])),'#ffe060',{});return}if(lv>=3&&lv<4&&!G.solo)return;if(lv>=3&&lv<4)return helmGround(G,t,P,lv);RIMN=t&&ARMT[t]?ARMT[t].ne||null:null;DKN=t&&ARMT[t]?(ARMT[t].dk!=null?ARMT[t].dk:DKL(ARMT[t].lv)):null;SOFTN=t&&ARMT[t]&&ARMT[t].soft?1:0;
+  celSoft(x,mk2(m=>mPoly(m,[[32,Y(4.6)],[33.6,Y(8.6)],[37.8,Y(9)],[34.6,Y(11.6)],[35.6,Y(15.6)],[32,Y(13.4)],[28.4,Y(15.6)],[29.4,Y(11.6)],[26.2,Y(9)],[30.4,Y(8.6)]])),'#ffe060',{});return}if(lv>=3&&lv<4)return helmGround(G,t,P,lv);RIMN=t&&ARMT[t]?ARMT[t].ne||null:null;DKN=t&&ARMT[t]?(ARMT[t].dk!=null?ARMT[t].dk:DKL(ARMT[t].lv)):null;SOFTN=t&&ARMT[t]&&ARMT[t].soft?1:0;
  const dome=()=>{const hm=mk2(m=>{mEll(m,32,Y(16.6),12.8,10.4);mRect(m,19.2,Y(16.6),25.6,8.6)});if(!back)mSub(hm,mk2(m=>{mRect(m,24.6,Y(19.6),14.8,11);mEll(m,32,Y(19.8),7.4,3)}));return hm};
  if(lv>=4){/* tiara: rosto e cabelo à mostra + uma marca da constelação */
   if(t==='serpens'){cel(x,mk2(m=>SYM(m,[[22,Y(8.6)],[13.6,Y(11.6)],[11.6,Y(20)],[13.6,Y(28)],[17.6,Y(31)],[21.2,Y(27.6)],[20.4,Y(16)]])),P.b,{chrome:1,rim:P.ne});cel(x,mk2(m=>SYM(m,[[19.8,Y(11.6)],[15.4,Y(14)],[13.8,Y(20.4)],[15.4,Y(26.6)],[18.4,Y(28.4)],[19.2,Y(20)]])),P.a)}
@@ -881,11 +881,10 @@ function eqCabeca(G,id){const{x,Y,back}=G,t=armT(id);if(!t)return;const P=armP(t
  if(t==='ouro'){cel(x,mk2(m=>SYM(m,[[32,Y(13.4)],[20.6,Y(.8)],[23.4,Y(.2)],[32,Y(9.6)]])),'#fff0a0',{chrome:1});
   if(!back){cel(x,mk2(m=>mPoly(m,[[32,Y(11.2)],[34.6,Y(14.2)],[32,Y(17.2)],[29.4,Y(14.2)]])),P.a,{chrome:1});cel(x,mk2(m=>mPoly(m,[[32,Y(12.4)],[33.5,Y(14.2)],[32,Y(16)],[30.5,Y(14.2)]])),P.g3,{glow:1})}}}
 
-/* elmo dos níveis altos: viseira aberta + marca do nível (fica pousado no chão ao lado do herói) */
-function helmGround(G,t,P,lv){const{x,Y}=G;RIMN=P.ne||null;DKN=P.dk!=null?P.dk:DKL(lv);
+/* elmo dos níveis altos: usado na cabeça, rosto à mostra + marca do nível */
+function helmGround(G,t,P,lv){const{x,Y,back}=G;RIMN=P.ne||null;DKN=P.dk!=null?P.dk:DKL(lv);
  if(t==='serpens')cel(x,mk2(m=>SYM(m,[[21,Y(9)],[13,Y(12)],[11.4,Y(20)],[14,Y(27)],[20,Y(26)],[20.4,Y(16)]])),P.a,{chrome:1});
- const hm=mk2(m=>{mEll(m,32,Y(16.6),12.8,10.4);mRect(m,19.2,Y(16.6),25.6,8.6)});cel(x,hm,P.b,{chrome:1});
- cel(x,mk2(m=>{mRect(m,25.4,Y(19.6),13.2,8.4);mEll(m,32,Y(19.8),6.6,2.6)}),'#08060c',{flat:1,dk:0,rim:0});
+ const hm=mk2(m=>{mEll(m,32,Y(16.6),12.8,10.4);mRect(m,19.2,Y(16.6),25.6,8.6)});if(!back)mSub(hm,mk2(m=>{mRect(m,24.6,Y(19.6),14.8,11);mEll(m,32,Y(19.8),7.4,3)}));cel(x,hm,P.b,{chrome:1});
  const sig={ouro:()=>{cel(x,mk2(m=>SEL(m,20.2,Y(21.6),3.4,3.6)),P.b,{chrome:1});cel(x,mk2(m=>SYM(m,[[32,Y(13.4)],[20.6,Y(.8)],[23.4,Y(.2)],[32,Y(9.6)]])),'#fff0a0',{chrome:1,dk:.1})},
   draco:()=>cel(x,mk2(m=>SYM(m,[[25.6,Y(10.6)],[21,Y(3)],[15.6,Y(-5)],[23.6,Y(.6)],[28.4,Y(9)]])),'#e8dcbc',{chrome:1,dk:.1}),
   fenix:()=>{const fc=[[29.4,Y(9.6)],[31,Y(-1)],[32,Y(-7)],[33,Y(-1)],[34.6,Y(9.6)]],fl=[[27,Y(10)],[22.6,Y(1)],[20.6,Y(-4)],[26.4,Y(1.4)],[30,Y(9.4)]];cel(x,mk2(m=>{SYM(m,fl);mPoly(m,fc)}),'#ff6a1a',{chrome:1,dk:.1});cel(x,mk2(m=>{SYM(m,shrinkTo(fl,27,Y(9),.5));mPoly(m,shrinkTo(fc,32,Y(9),.5))}),'#ffe070',{dk:0})},
@@ -1107,7 +1106,7 @@ function drawChar(x,ch,eq,fr,px,py,s=1,back=false){eq=normEq(eq);
  if(!back&&SHINY(pt)){const ph=(t+Math.abs(px*7|0))%3400;if(ph<520){glx.globalCompositeOperation='source-over';glx.clearRect(0,0,MS,MS);glx.drawImage(img,0,0);glx.globalCompositeOperation='source-atop';glx.fillStyle=pt==='estelar'?'rgba(210,190,255,.5)':'rgba(255,255,235,.6)';const u=-30+ph/520*190,y0=(29+b)*Q,y1=(48+b)*Q;glx.beginPath();glx.moveTo(u,y0);glx.lineTo(u+9,y0);glx.lineTo(u-15,y1);glx.lineTo(u-24,y1);glx.closePath();glx.fill();glx.globalCompositeOperation='source-over';img=GLC}}
  const sc=x.getTransform?Math.abs(x.getTransform().a)||1:1,tp=Math.round(32*s*sc);if(tp<MS*.98&&img!==GLC){img=scaledSpr(img,tp);x.imageSmoothingEnabled=false}else if(tp<MS*.98){x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high'}
  x.drawImage(img,Math.round(px-16*s),Math.round(py-31*s),32*s,32*s);x.imageSmoothingEnabled=false;
- drawGroundHelm(x,eq,px,py,s);fxFront(F)}
+ fxFront(F)}
 
 /* ---------------- ícones dos itens ---------------- */
 const ICN={},SIL={};
