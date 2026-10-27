@@ -40,6 +40,11 @@ label{display:block;font-size:8px;color:#e8c070;line-height:1.6}
 .inp{display:block;width:100%;margin:6px 0 14px;padding:10px;font:inherit;font-size:11px;background:#120c18;color:#fff;border:3px solid #5a3a22;outline:none;border-radius:0;-webkit-user-select:text;user-select:text}
 .inp:focus{border-color:#e8c070}
 select.inp{appearance:none;-webkit-appearance:none}
+.nwb{width:min(720px,96vw);padding:34px 14px 12px}.nwcv{display:block;width:100%;aspect-ratio:680/330;border:3px solid #1a1020;box-shadow:0 0 0 3px #e8c070,0 0 0 6px #5a3a22;margin:4px 0 12px;image-rendering:pixelated}
+.nwarm{text-align:center;font-size:8px;line-height:1.8;color:#e8d8b8;margin:0 0 12px}.nwarm b{color:#f8d870}
+.nwg{display:grid;grid-template-columns:1fr 1fr;gap:8px}.nwc{background:#1e140e;border:3px solid #1a1020;box-shadow:inset 4px 0 0 var(--c);padding:9px 10px 9px 14px}.nwch{display:flex;align-items:center;gap:8px}.nwch span{font-size:18px}.nwch b{font-size:8px;color:var(--c);line-height:1.5}.nwc p{margin:6px 0 0;font-size:7px;line-height:1.8;color:#e8d8b8}
+.nwcd{margin-top:10px;background:#1a1430;border:3px solid #4a3a7a;padding:8px}.nwcdt{font-size:7px;color:#b8a8e8;text-align:center;margin-bottom:6px}.nwcdr{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;text-align:center}.nwcdr div{background:#120e24;padding:6px 2px;display:flex;flex-direction:column;gap:5px}.nwcdr small{font-size:6px;color:#c8b8f0;line-height:1.5}.nwcdr b{font-size:16px;color:#f8d860}.nwcdr i{font-style:normal;font-size:6px;color:#9a8ac8}
+@media(max-width:560px){.nwg{grid-template-columns:1fr}}
 .lnk{display:block;margin:14px auto 0;background:none;border:0;color:#a8d0f8;font:inherit;font-size:8px;cursor:pointer;text-decoration:underline;line-height:1.6}
 .note{margin-top:14px;font-size:7px;line-height:1.8;color:#b8a890;text-align:center}
 .bar{height:12px;background:#120c18;border:2px solid #5a3a22;margin:10px 0 6px}
@@ -263,6 +268,7 @@ select.inp{appearance:none;-webkit-appearance:none}
   <div class="note" id="aNote"></div>
 </div></div>
 
+<div class="ov" id="news" style="z-index:8"><div class="box nwb"><button class="x" id="nwX">X</button><div id="nwC"></div></div></div>
 <div class="ov" id="emq"><div class="box">
   <button class="x" id="emx">X</button>
   <h2>PROTEJA SUA CONTA</h2><h3>E-MAIL DE RECUPERAÇÃO</h3>
@@ -3764,7 +3770,55 @@ $('sGo').onclick=async()=>{const n=$('sNick').value.trim(),p=$('sPass').value,cd
   else{pending={nick:n,senha:p,turma:t,codigo:cd,nome,email:em};$('auth').classList.remove('on');openCustom('signup')}}catch(e){$('aMsg').textContent=errPT(e)}$('sGo').disabled=false};
 for(const id of['lPass','lNick'])$(id).addEventListener('keydown',e=>{if(e.key==='Enter')$('lGo').click()});
 
-function enterGame(){setTimeout(pedirEmail,4000);setTimeout(pingTick,3000);screen='game';tab='jornada';jView='mundo';curVol=clamp(Math.floor(me.fases/6),0,3);hero.node={};
+/* ============================ NOVIDADES (cartaz, 1x por versão) ============================ */
+const NEWS={v:'2026-10-27',sub:'ATUALIZAÇÃO DE OUTUBRO',arm:1,cards:[
+ ['🏰','CIDADELA DAS PROVAS','A Torre ENEM cresceu! A aba agora é VESTIBULARES: escolha a prova e treine.','#e8b840'],
+ ['🎖️','ESPCEX','Provas 2025 e 2026 completas. Faça o 1º dia, o 2º dia ou só uma matéria.','#7ac850'],
+ ['🏫','IF SUL DE MINAS','Provas 2025 e 2026 do técnico integrado: Português e Matemática.','#5aa8e8'],
+ ['📖','RESOLUÇÕES','Errou? Toque em VER RESOLUÇÃO e entenda a questão. Física, Química e Biologia do ENEM.','#c878e8']]};
+const NARM=[['medico','FÍSICO DA PESTE',0,[120,220,110]],['geada','GEADA ETERNA',2,[150,225,255]]];
+let NWA=0;
+function nwPoster(cv){const x=cv.getContext('2d'),W=680,H=330,R=2;cv.width=W*R;cv.height=H*R;
+ const rnd=(a=>()=>(a=(a*16807)%2147483647)/2147483647)(7);
+ const st=[...Array(70)].map(()=>[rnd()*W,rnd()*150,rnd()*6]),fog=[...Array(26)].map(()=>[rnd(),rnd(),rnd()]),snow=[...Array(40)].map(()=>[rnd(),rnd(),rnd()]);
+ const arm=NEWS.arm&&NARM.every(a=>ARMT[a[0]]);const FN="'Press Start 2P',monospace";
+ const txt=(t,X,Y,sz,c,o='#1a1020',al='center')=>{x.font=`${sz}px ${FN}`;x.textAlign=al;x.fillStyle=o;for(const[dx,dy]of[[-2,0],[2,0],[0,-2],[0,2],[2,2],[0,4],[2,4]])x.fillText(t,X+dx,Y+dy);x.fillStyle=c;x.fillText(t,X,Y)};
+ const frame=()=>{if(!$('news').classList.contains('on')){NWA=0;return}const t=performance.now();x.setTransform(R,0,0,R,0,0);x.imageSmoothingEnabled=false;
+  let g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'#07051a');g.addColorStop(.6,'#1c1440');g.addColorStop(1,'#2a1c3a');x.fillStyle=g;x.fillRect(0,0,W,H);
+  for(const[a,b,c]of st){x.globalAlpha=.35+.65*Math.abs(Math.sin(t/700+c));x.fillStyle='#fff';x.fillRect(a|0,b|0,c>4?2:1,c>4?2:1)}x.globalAlpha=1;
+  x.fillStyle='#f4ecc8';x.beginPath();x.arc(W-70,52,20,0,7);x.fill();x.fillStyle='#07051a';x.beginPath();x.arc(W-62,46,18,0,7);x.fill();
+  // cidadela ao fundo
+  const cx=W/2,by=268;x.fillStyle='#120c26';
+  x.fillRect(cx-150,by-40,300,40);for(let k=-150;k<150;k+=16)x.fillRect(cx+k,by-48,9,8);
+  for(const[ox,w,h]of[[-120,34,80],[86,34,80],[-60,30,100],[30,30,100]]){x.fillRect(cx+ox,by-h,w,h);for(let k=0;k<w;k+=10)x.fillRect(cx+ox+k,by-h-7,6,7)}
+  x.fillRect(cx-22,by-150,44,150);x.beginPath();x.moveTo(cx-30,by-150);x.lineTo(cx,by-196);x.lineTo(cx+30,by-150);x.fill();
+  const pu=.55+.45*Math.sin(t/500);g=x.createLinearGradient(0,0,0,by-196);g.addColorStop(0,'rgba(160,200,255,0)');g.addColorStop(1,`rgba(160,200,255,${.25*pu+.1})`);x.fillStyle=g;x.fillRect(cx-6,0,12,by-196);
+  x.fillStyle=`rgba(200,230,255,${.6+.4*pu})`;x.beginPath();x.arc(cx,by-200,5,0,7);x.fill();
+  x.fillStyle='#f8d860';for(const[wx,wy]of[[-8,-120],[4,-120],[-8,-90],[4,-90],[-48,-70],[40,-70],[-108,-55],[98,-55]]){x.globalAlpha=.5+.5*Math.sin(t/300+wx);x.fillRect(cx+wx,by+wy,4,6)}x.globalAlpha=1;
+  x.fillStyle='#0c0818';x.fillRect(0,by,W,H-by);
+  // título
+  txt('NOVIDADES',cx,56,30,'#f8d860');txt('NO IMPÉRIO',cx,84,12,'#f4e4c0');
+  x.fillStyle='#c8902a';x.fillRect(cx-112,98,224,20);x.fillStyle='#8a5a14';x.fillRect(cx-112,114,224,4);x.fillStyle='#1a1020';x.font=`8px ${FN}`;x.textAlign='center';x.fillText(NEWS.sub,cx,112);
+  if(arm)NARM.forEach(([id,nm,lk,c],k)=>{const px=k?W-118:118,py=by+8,[r,gg,b]=c,pl=.6+.4*Math.sin(t/400+k*2);
+   let rg=x.createRadialGradient(px,py-70,6,px,py-70,120);rg.addColorStop(0,`rgba(${r},${gg},${b},${.35*pl})`);rg.addColorStop(1,`rgba(${r},${gg},${b},0)`);x.fillStyle=rg;x.fillRect(px-130,py-200,260,220);
+   if(!k)for(const[a,bb,cc]of fog){const yy=(bb*200-t*(.012+cc*.012))%200;const Y=py-((yy+200)%200);x.globalAlpha=.6*(1-((yy+200)%200)/200);x.fillStyle='#8ae060';x.fillRect(px-70+a*140,Y,cc>.6?3:2,cc>.6?3:2)}
+   else for(const[a,bb,cc]of snow){const Y=((bb*230+t*(.015+cc*.02))%230)+py-220;x.globalAlpha=.8;x.fillStyle='#e8f8ff';x.fillRect(px-80+a*160+Math.sin(t/600+cc*9)*6,Y,cc>.6?3:2,cc>.6?3:2)}
+   x.globalAlpha=1;
+   x.fillStyle='#3a3048';x.fillRect(px-58,py-6,116,14);x.fillStyle='#5a4e6a';x.fillRect(px-58,py-6,116,4);x.fillStyle='#262034';x.fillRect(px-48,py+8,96,10);
+   drawChar(x,LOOKS[lk],{cabeca:'elmo_'+id,peito:'arm_'+id,botas:'botas_'+id},Math.floor(t/450+k*.7)%2?3:0,px,py-6,4.6);
+   const pw=nm.length*8+22;x.fillStyle='#1a1020';x.fillRect(px-pw/2-2,by+28,pw+4,24);x.fillStyle=k?'#2a6a9a':'#3a6a2a';x.fillRect(px-pw/2,by+30,pw,20);x.fillStyle=k?'#c8f4ff':'#c8f8a8';x.font=`8px ${FN}`;x.textAlign='center';x.fillText(nm,px,by+44);
+  });
+  if(arm){x.save();x.translate(cx,by+40);txt('★ NOVAS ARMADURAS ★',0,0,10,'#f8d860');x.restore()}
+  NWA=requestAnimationFrame(frame)};
+ cancelAnimationFrame(NWA);(document.fonts?document.fonts.load(`10px ${FN}`):Promise.resolve()).then(frame,frame)}
+function showNews(force){if(!me)return;const k='fq_news_'+String(me.nick).toLowerCase();let seen='';try{seen=localStorage.getItem(k)||''}catch(e){}if(!force&&(seen===NEWS.v||document.querySelector('.ov.on')))return;
+ const C=$('nwC');C.innerHTML='';const cv=document.createElement('canvas');cv.className='nwcv';C.appendChild(cv);
+ if(NEWS.arm)C.insertAdjacentHTML('beforeend','<p class="nwarm">Duas armaduras inéditas chegam ao Império. <b>Fique de olho!</b></p>');
+ C.insertAdjacentHTML('beforeend','<div class="nwg">'+NEWS.cards.map(([ic,h,d,c])=>`<div class="nwc" style="--c:${c}"><div class="nwch"><span>${ic}</span><b>${h}</b></div><p>${d}</p></div>`).join('')+'</div>');
+ C.insertAdjacentHTML('beforeend','<div class="nwcd"><div class="nwcdt">⏳ CONTAGEM REGRESSIVA</div><div class="nwcdr">'+PROVAS_DATAS.map(([ic,n,dt])=>{const d=dt?diasAte(dt):null;return `<div><small>${ic} ${n}</small><b>${d===null?'SET/27':d<0?'—':d===0?'HOJE':d}</b><i>${d===null?'próxima prova':d>0?(d===1?'DIA':'DIAS'):''}</i></div>`}).join('')+'</div></div>');
+ C.insertAdjacentHTML('beforeend','<button class="big" id="nwGo">🏰 IR PARA A CIDADELA</button><button class="lnk" id="nwOk">Depois eu vejo</button>');
+ const close=()=>{$('news').classList.remove('on');try{localStorage.setItem(k,NEWS.v)}catch(e){}};$('nwX').onclick=close;$('nwOk').onclick=close;$('nwGo').onclick=()=>{close();ES.scr='home';setTab('enem')};$('news').classList.add('on');nwPoster(cv)}
+function enterGame(){setTimeout(()=>showNews(),1800);setTimeout(pedirEmail,4000);setTimeout(pingTick,3000);screen='game';tab='jornada';jView='mundo';curVol=clamp(Math.floor(me.fases/6),0,3);hero.node={};
  ensureMundo(()=>{placeMH(curBim());const e=eqState();if(!e.tut){e.tut=1;saveEq();setTimeout(()=>profSay(PROF_OI),400)}});refreshTribes()}
 async function logout(){tribeSeen=false;busy(true,'SAINDO...');try{await API.logout()}catch(e){}me=null;screen='title';busy(false)}
 
@@ -3864,6 +3918,103 @@ async function boot(){busy(true,'CARREGANDO...');requestAnimationFrame(frame);
  await refreshTribes();
  setTimeout(()=>{tribeWorld=buildTribeWorld(levelsOf(tribeData));tribeDirty=false;busy(false);if(RECUP&&ONLINE){screen='title';openAuth('new')}else if(me)enterGame();else screen='title'},30)}
 boot();
+</script>
+<script>
+/* armaduras novas (ainda não obtidas: só IT, fora do ITL) — Físico da Peste + Geada Eterna */
+Object.assign(ARMT,{
+ medico:{lv:4,dk:.12,b:'#1c1a20',a:'#7a6e60',gem:'#8ae060',g2:'#d8c8a0',g3:'#8ae060',ne:[120,220,110]},
+ geada:{lv:4,dk:.06,b:'#dceefa',a:'#3e9ad6',gem:'#a8f4ff',g2:'#ffffff',g3:'#60d4ff',ne:[150,225,255]}});
+TIERN.medico='FÍSICO DA PESTE';TIERN.geada='GEADA ETERNA';
+for(const a of[
+ ['elmo_medico','MÁSCARA','Máscara do Físico da Peste','cabeca',4,'t','medico','',''],
+ ['arm_medico','SOBRETUDO','Sobretudo do Físico da Peste','peito',4,'t','medico','',''],
+ ['botas_medico','BOTAS','Botas do Físico da Peste','botas',4,'t','medico','',''],
+ ['elmo_geada','TIARA','Tiara da Geada Eterna','cabeca',4,'t','geada','',''],
+ ['arm_geada','ARMADURA','Armadura da Geada Eterna','peito',4,'t','geada','',''],
+ ['botas_geada','GREVAS','Grevas da Geada Eterna','botas',4,'t','geada','','']]){const o={id:a[0],n:a[1],full:a[2],slot:a[3],r:a[4],f:a[5],t:a[6]};IT[o.id]=o}
+
+const _peito=eqPeito,_cab=eqCabeca,_bot=eqBotas,_dor=eqDorso;
+const prep=t=>{const A=ARMT[t];RIMN=A.ne||null;DKN=A.dk;SOFTN=0};
+const BONE='#cbbd9a',LEATHER='#2e221a';
+
+/* ---------- FÍSICO DA PESTE ---------- */
+function medDorso(G){const{x,Y}=G;paint(x,mk2(m=>mPoly(m,[[21,Y(31)],[43,Y(31)],[49,56],[46.4,58.6],[44,56.6],[41,59],[38,56.8],[35,59.2],[32,57],[29,59.2],[26,56.8],[23,59],[20,56.6],[17.6,58.6],[15,56]])),armP('medico').b,'cloth',41)}
+function medPeito(G){const{x,Y}=G,P=armP('medico');prep('medico');
+ /* sobretudo longo, aberto na frente */
+ paint(x,mk2(m=>{mPoly(m,[[22,Y(31.4)],[42,Y(31.4)],[43.4,Y(45)],[46.4,56],[44.4,54.4],[42.6,57],[40.4,54.6],[38.2,57.2],[35.4,55],[33,Y(46)],[31,Y(46)],[28.6,55],[25.8,57.2],[23.6,54.6],[21.4,57],[19.6,54.4],[17.6,56],[20.6,Y(45)]]);
+  mEll(m,20.4,Y(35.6),4,3.4);mRect(m,16.8,Y(35),6.6,11.4);mEll(m,43.6,Y(35.6),4,3.4);mRect(m,40.6,Y(35),6.6,11.4)}),P.b,'cloth',42);
+ /* lapelas e barra mais clara */
+ paint(x,mk2(m=>{mPoly(m,[[26,Y(31.4)],[31.2,Y(31.4)],[31.2,Y(44)],[28.4,Y(38)]]);mPoly(m,[[38,Y(31.4)],[32.8,Y(31.4)],[32.8,Y(44)],[35.6,Y(38)]])}),mixH(P.b,1.35),'cloth',43);
+ paint(x,mk2(m=>{mRect(m,16.8,Y(44),6.6,2.2);mRect(m,40.6,Y(44),6.6,2.2)}),mixH(P.b,1.35),'cloth',44);
+ /* capinha nos ombros */
+ paint(x,mk2(m=>mPoly(m,[[23,Y(30.4)],[41,Y(30.4)],[46.6,Y(35)],[45.6,Y(38.6)],[32,Y(37)],[18.4,Y(38.6)],[17.4,Y(35)]])),mixH(P.b,.82),'cloth',45);
+ /* cinto de couro, fivela e bolsinhas */
+ paint(x,mk2(m=>mRect(m,20.6,Y(42.4),22.8,2.4)),LEATHER,'cloth',46);
+ cel(x,mk2(m=>mRect(m,30.4,Y(42),3.2,3.2)),P.a,{chrome:1});
+ paint(x,mk2(m=>{mRect(m,22.4,Y(44.4),3.6,3.6);mRect(m,38,Y(44.4),3.6,3.6)}),'#6a4a2e','cloth',47);
+ /* frasco de remédio verde na cintura */
+ cel(x,mk2(m=>mRect(m,35.2,Y(43.2),1.6,1.4)),P.a,{flat:1});cel(x,mk2(m=>mEll(m,36,Y(46.4),1.8,2.2)),P.gem,{glow:1});
+ /* botões de latão */
+ for(const yy of[34,37.4,40.4])cel(x,mk2(m=>mEll(m,32,Y(yy),.9,.9)),P.a,{flat:1});
+ /* luvas de couro */
+ paint(x,mk2(m=>{mRect(m,17.2,Y(46.2),5.8,2.6);mRect(m,41,Y(46.2),5.8,2.6)}),LEATHER,'cloth',48)}
+function medBotas(G){const{x,lL,lR}=G,P=armP('medico');prep('medico');
+ paint(x,mk2(m=>{mRect(m,24.8,47+lL,6.6,9);mEll(m,28,57+lL,4.6,2.6);mRect(m,32.6,47+lR,6.6,9);mEll(m,36,57+lR,4.6,2.6)}),LEATHER,'cloth',49);
+ paint(x,mk2(m=>{mRect(m,24.2,46.4+lL,7.8,2.4);mRect(m,32,46.4+lR,7.8,2.4)}),'#6a4a2e','cloth',50);
+ cel(x,mk2(m=>{mRect(m,26.6,52+lL,3,1.4);mRect(m,34.4,52+lR,3,1.4)}),P.a,{flat:1})}
+function medCab(G){const{x,Y,back}=G,P=armP('medico');prep('medico');
+ /* capuz que cobre a cabeça e o pescoço */
+ paint(x,mk2(m=>{mEll(m,32,Y(18.6),14,11.8);mPoly(m,[[20.4,Y(22)],[43.6,Y(22)],[41,Y(31.6)],[23,Y(31.6)]])}),mixH(P.b,1.12),'cloth',51);
+ if(!back){/* sombra do capuz em volta da máscara */
+  paint(x,mk2(m=>mEll(m,32,Y(20.4),10.4,9.4)),'#0c0a0e','cloth',58);
+  /* máscara de couro claro envelhecido */
+  paint(x,mk2(m=>mEll(m,32,Y(20),8.8,7.6)),BONE,'cloth',52);
+  /* bico longo e levemente curvo, descendo até o peito */
+  const BK=[[26.4,Y(20.6)],[37.6,Y(20.6)],[37,Y(25)],[35.4,Y(30)],[33.8,Y(35)],[32.6,Y(39.4)],[31.6,Y(41.4)],[31,Y(39)],[29.8,Y(34)],[28.4,Y(29)],[27,Y(25)]];
+  paint(x,mk2(m=>mPoly(m,BK)),BONE,'cloth',53);
+  paint(x,mk2(m=>mPoly(m,[[32,Y(22)],[33.4,Y(22)],[33,Y(30)],[32.2,Y(37)],[31.8,Y(37)],[31.6,Y(30)]])),mixH(BONE,.62),'cloth',54);
+  /* costura e tiras de couro */
+  paint(x,mk2(m=>{mRect(m,26.6,Y(23.4),10.8,1.2);mRect(m,28.2,Y(28),7.6,1)}),LEATHER,'cloth',59);
+  for(const yy of[31.4,34.4])cel(x,mk2(m=>mEll(m,32.2,Y(yy),.6,.6)),'#2a2420',{flat:1});
+  /* lentes de vidro vermelho, com brilho sinistro */
+  for(const cx of[27.6,36.4]){cel(x,mk2(m=>mEll(m,cx,Y(18.4),3.2,3)),P.a,{chrome:1});cel(x,mk2(m=>mEll(m,cx,Y(18.4),2.2,2)),'#d02a1e',{glow:1})}
+  cel(x,mk2(m=>mRect(m,30.4,Y(17.8),3.2,1)),P.a,{flat:1})}
+ /* chapéu de aba larga */
+ paint(x,mk2(m=>mPoly(m,[[9,Y(11.6)],[14,Y(8.4)],[24,Y(7)],[40,Y(7)],[50,Y(8.4)],[55,Y(11.6)],[50,Y(13.6)],[40,Y(14.2)],[24,Y(14.2)],[14,Y(13.6)]])),P.b,'cloth',55);
+ paint(x,mk2(m=>mPoly(m,[[23.4,Y(10.6)],[40.6,Y(10.6)],[39.4,Y(-3.4)],[37,Y(-4.6)],[27,Y(-4.6)],[24.6,Y(-3.4)]])),mixH(P.b,1.1),'cloth',56);
+ paint(x,mk2(m=>mRect(m,23.6,Y(7.6),16.8,2.4)),'#4a1418','cloth',57);
+ if(!G.solo)paint(x,mk2(m=>{mEll(m,20,Y(47.5),2.9,2.8);mEll(m,44,Y(47.5),2.9,2.8)}),LEATHER,'cloth',60)}
+
+/* ---------- GEADA ETERNA ---------- */
+const crystal=(cx,by,h,w,tilt=0)=>[[cx-w,by],[cx-w+tilt*.4,by-h*.72],[cx+tilt,by-h],[cx+w+tilt*.4,by-h*.72],[cx+w,by]];
+function geaDorso(G){const{x,Y}=G,P=armP('geada');prep('geada');
+ /* cristais de gelo atrás dos ombros (prismas retos, sem asas) */
+ const C=[[17,Y(34),15,2.2,-3],[13,Y(37),11,1.9,-4.4],[21.6,Y(33),11,1.8,-1.4]];
+ cel(x,mk2(m=>C.forEach(c=>SYM(m,crystal(...c)))),P.a,{chrome:1});
+ cel(x,mk2(m=>C.forEach(([a,b,h,w,t])=>SYM(m,crystal(a,b-1,h*.7,w*.5,t*.7)))),P.gem,{glow:1})}
+function geaPeito(G,id){const{x,Y}=G,P=armP('geada');_peito(G,id);prep('geada');
+ /* cristais nas ombreiras */
+ cel(x,mk2(m=>{SYM(m,crystal(17.6,Y(32),6.4,1.5,-1.6));SYM(m,crystal(20.6,Y(31.4),4.6,1.2,-.6))}),P.gem,{glow:1});
+ /* floco de neve no peito */
+ const fl=mk2(m=>{for(let k=0;k<6;k++){const a=k*Math.PI/3,cx=32,cy=Y(36.4);mPoly(m,[[cx+Math.cos(a+1.57)*.55,cy+Math.sin(a+1.57)*.55],[cx+Math.cos(a)*3.6+Math.cos(a+1.57)*.55,cy+Math.sin(a)*3.6+Math.sin(a+1.57)*.55],[cx+Math.cos(a)*3.6-Math.cos(a+1.57)*.55,cy+Math.sin(a)*3.6-Math.sin(a+1.57)*.55],[cx-Math.cos(a+1.57)*.55,cy-Math.sin(a+1.57)*.55]])}});
+ cel(x,mk2(m=>mEll(m,32,Y(36.4),4.6,4.4)),P.a,{chrome:1});cel(x,fl,'#ffffff',{glow:1})}
+function geaBotas(G,id){const{x,lL,lR}=G,P=armP('geada');_bot(G,id);prep('geada');
+ cel(x,mk2(m=>{mPoly(m,crystal(28,48.6+lL,4.4,1.2,-1.2));mPoly(m,crystal(36,48.6+lR,4.4,1.2,1.2))}),P.gem,{glow:1})}
+function geaCab(G){const{x,Y,back}=G,P=armP('geada');prep('geada');
+ /* tiara: protetores laterais, coroa de cristais e gema de gelo */
+ cel(x,mk2(m=>SYM(m,[[19.4,Y(15.6)],[24,Y(16.4)],[24.2,Y(25)],[21.6,Y(28)],[19.6,Y(24)]])),P.b,{chrome:1});
+ cel(x,mk2(m=>{mPoly(m,crystal(32,Y(12.6),11,2.2));SYM(m,crystal(26.6,Y(13.4),7.6,1.7,-1.4));SYM(m,crystal(22.4,Y(15),5,1.4,-1.6))}),P.a,{chrome:1});
+ cel(x,mk2(m=>{mPoly(m,crystal(32,Y(12),7.6,1.1));SYM(m,crystal(26.6,Y(12.8),5,.8,-1))}),P.gem,{glow:1});
+ cel(x,mk2(m=>mPoly(m,[[20.4,Y(15.8)],[26,Y(12.2)],[32,Y(11.2)],[38,Y(12.2)],[43.6,Y(15.8)],[43.8,Y(18)],[38,Y(15.2)],[32,Y(14.4)],[26,Y(15.2)],[20.2,Y(18)]])),P.b,{chrome:1});
+ if(!back)cel(x,mk2(m=>mPoly(m,[[32,Y(12.6)],[33.6,Y(14.6)],[32,Y(16.8)],[30.4,Y(14.6)]])),P.gem,{glow:1})}
+
+eqPeito=function(G,id){const t=armT(id);if(t==='medico')return medPeito(G);if(t==='geada')return geaPeito(G,id);return _peito(G,id)};
+eqCabeca=function(G,id){const t=armT(id);if(t==='medico')return medCab(G);if(t==='geada')return geaCab(G);return _cab(G,id)};
+eqBotas=function(G,id){const t=armT(id);if(t==='medico')return medBotas(G);if(t==='geada')return geaBotas(G,id);return _bot(G,id)};
+eqDorso=function(G,id){const t=armT(id);if(t==='medico')return medDorso(G);if(t==='geada')return geaDorso(G);return _dor(G,id)};
+/* cabelo some sob o capuz do físico */
+const _sprite=sprite;sprite=function(L,eq,fr,back,solo){const e=normEq(eq);if(e&&IT[e.cabeca]&&IT[e.cabeca].t==='medico'&&L&&L.hair&&L.hair.s!=='raspado')L={...L,hair:{...L.hair,s:'raspado'}};return _sprite(L,eq,fr,back,solo)};
+
 </script>
 </body>
 </html>
