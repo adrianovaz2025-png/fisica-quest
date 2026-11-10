@@ -3403,7 +3403,7 @@ function eHead(B,t,back){const h=el('div','ehead');h.appendChild(eBtn('< VOLTAR'
 /* 1º passo do simulado: escolher a prova */
 const PROVAS=[['enem','ENEM','Exame Nacional do Ensino Médio · provas de 2017 a 2025 · todas as matérias','📘'],
  ['espcex','ESPCEX','Escola Preparatória de Cadetes do Exército · provas de 2025 e 2026','🎖️'],
- ['ifsul','IF SUL DE MINAS','Processo seletivo dos cursos técnicos integrados · provas de 2025 e 2026','🏫']];
+ ['ifsul','IF SUL DE MINAS','Processo seletivo dos cursos técnicos integrados · provas de 2020, 2023, 2024, 2025 e 2026','🏫']];
 function ePrv(B){eHead(B,'PARA QUAL PROVA VOCÊ QUER ESTUDAR?','home');const g=el('div','elist');
  for(const[id,n,d,ic]of PROVAS){const b=eBtn(ic?`${ic} ${n}`:`🔒 ${n} — em breve`,'eopt eprova'+(ic?'':' off'),()=>{if(!ic)return;ES.prova=id;ES.banca=id;ES.scr='mat';if(id==='espcex'||id==='ifsul')loadQX(null,id);renderEnem()});b.appendChild(el('small',null,d));g.appendChild(b)}B.appendChild(g)}
 /* 2º passo: matéria (dentro da prova escolhida) */
@@ -3414,7 +3414,7 @@ function eMat(B){const P=ES.prova||'enem';const MM=P==='espcex'?MAT_ESP:P==='ifs
   if(MM?!MM[id]:(id==='espcex'||id==='ifsul'))continue;
   const n=MM?MM[id]:n0;
   const b=eBtn(qb?`⚡ ${n}`:`🔒 ${n} — em breve`,'eopt'+(qb?'':' off'),()=>{if(!qb)return;ES.mat=id;ES.scr='qtd';if(id==='geral')ES.n=24;else if(ES.n>45||ES.n%12===0)ES.n=10;ES.ano='all';ES.banca=P;if(id==='espcex'||id==='ifsul'){ES.n=10;ES.dia=0}QX=QXS[id]||null;ES.src='enem';loadQX(()=>{if(ES.scr==='qtd')renderEnem()},id);renderEnem()});
-  if(qb){const sub=P==='ifsul'?(id==='ifsul'?'Prova inteira · 25 de Língua Portuguesa e 25 de Matemática':id==='lin'?'Questões de Língua Portuguesa do IF Sul de Minas':'Questões de Matemática do IF Sul de Minas')+' · 2025 e 2026':P==='espcex'?(id==='espcex'?'Prova inteira · 1º dia: Português, Física e Química · 2º dia: Matemática, Geografia, História e Inglês':id==='lin'?'Questões de Português e de Inglês da EsPCEx':id==='hum'?'Questões de Geografia e de História da EsPCEx':'EsPCEx 2025 e 2026')
+  if(qb){const sub=P==='ifsul'?(id==='ifsul'?'Prova inteira · 50 questões (Português, Matemática e, em 2020, Ciências, Geografia e História)':id==='lin'?'Questões de Língua Portuguesa do IF Sul de Minas':'Questões de Matemática do IF Sul de Minas')+' · 2025 e 2026':P==='espcex'?(id==='espcex'?'Prova inteira · 1º dia: Português, Física e Química · 2º dia: Matemática, Geografia, História e Inglês':id==='lin'?'Questões de Português e de Inglês da EsPCEx':id==='hum'?'Questões de Geografia e de História da EsPCEx':'EsPCEx 2025 e 2026')
     :(id==='fis'?'ENEM 2017–2025':id==='geral'?'Todas as matérias do ENEM · de 12 a 180 questões':id==='lin'||id==='hum'?'ENEM 2020–2023 e 2025':'ENEM 2020–2025');b.appendChild(el('small',null,sub))}
   g.appendChild(b)}B.appendChild(g)}
 function eQtd(B){eHead(B,'QUANTIDADE DE QUESTÕES','mat');
