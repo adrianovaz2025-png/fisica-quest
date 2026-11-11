@@ -27,7 +27,8 @@ for pi, p in enumerate(d):
     top = (min(ys) - 3) if ys else 40; bot = (max(ye) + 3) if ye else H - 40
     MID = W / 2
     right = sum(1 for bb, t in body if bb[0] > MID + 5); wide = sum(1 for bb, t in body if bb[0] < MID - 40 and bb[2] > MID + 40)
-    two = right > 8 and wide < 6
+    long = sum(1 for bb, t in body if bb[2] - bb[0] > MID + 20)
+    two = right > 8 and wide < 6 and long == 0
     txt = p.get_text()
     pages.append(dict(W=W, H=H, top=top, bot=bot, two=two, MID=MID, L=body, skip=bool(SKIPPG.search(txt)) and not HDR.search(txt)))
 # âncoras
@@ -47,15 +48,22 @@ for pi, P in enumerate(pages):
         if re.search(r'leitura atenta do texto|Read the (?:following )?text|Leia (?:atentamente )?o texto', t, re.I) and not HDR.search(t):
             anc.append(dict(n=0, share='open', p=pi, col=col, y=bb[1] - 2)); continue
         # formato antigo: número sozinho na margem esquerda (caixinha)
-        if re.match(r'^\s*\d{1,2}\s*$', t) and bb[0] < 60 and not P['two']:
+        if re.match(r'^\s*\d{1,2}\s*$', t) and bb[0] < 60:
             anc.append(dict(n=int(t), p=pi, col=0, y=bb[1], box=1))
+        elif re.match(r'^\s*\d{1,2}\s+[A-ZÀ-Ý“"]', t) and bb[0] < 60:
+            anc.append(dict(n=int(t.split()[0]), p=pi, col=0, y=bb[1], box=1))
 anc.sort(key=lambda a: (a['p'], a['col'], a['y']))
+anc = [a for i, a in enumerate(anc) if not (a.get('share') == 'open' and i and anc[i-1]['n'] and anc[i-1]['p'] == a['p'] and anc[i-1]['col'] == a['col'] and a['y'] - anc[i-1]['y'] < 30)]
 # filtra números soltos fora de sequência (tabelas, etc.)
-clean = []; last = 0
-for a in anc:
-    if a.get('box') and not (last < a['n'] <= last + 4): continue
-    if a['n']: last = a['n']
-    clean.append(a)
+boxes = [a for a in anc if a.get('box')]
+# LIS por número (descarta rótulos de eixo/tabelas fora de sequência)
+best = [1] * len(boxes); prev = [-1] * len(boxes)
+for i, a in enumerate(boxes):
+    for j in range(i):
+        if boxes[j]['n'] < a['n'] <= boxes[j]['n'] + 4 and best[j] + 1 > best[i]: best[i] = best[j] + 1; prev[i] = j
+keep = set(); k = max(range(len(boxes)), key=lambda i: best[i]) if boxes else -1
+while k >= 0: keep.add(id(boxes[k])); k = prev[k]
+clean = [a for a in anc if not a.get('box') or id(a) in keep]
 anc = clean
 def xr(P, col):
     if not P['two']: return (20, P['W'] - 20)
