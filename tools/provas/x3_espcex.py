@@ -5,6 +5,7 @@ from PIL import Image
 pdf, ANO, DIA, OUT = sys.argv[1], int(sys.argv[2]), int(sys.argv[3]), sys.argv[4]
 os.makedirs(OUT, exist_ok=True)
 Z = 2.6
+BOXOFF = int(os.environ.get('BOXOFF', 9))
 d = pymupdf.open(pdf)
 FOOT = re.compile(r'EPCE\d|Confidencial|^\s*P[áa]g\.?\s*\d|Modelo\s+[A-F]\s*$|^\s*\d{1,2}\s*$|Prova de .*Modelo|Provas de ', re.I)
 HDR = re.compile(r'^\s*QUEST[ÃA]O[\s  ]*(\d{1,2})\s*$', re.I)
@@ -20,7 +21,7 @@ for pi, p in enumerate(d):
         for l in b['lines']:
             t = ''.join(s['text'] for s in l['spans'])
             if t.strip(): L.append((l['bbox'], t))
-    body = [(bb, t) for bb, t in L if not ((bb[1] > H - 60 or bb[3] < 60) and FOOT.search(t))]
+    body = [(bb, t) for bb, t in L if not ((bb[1] > H - 60 or bb[3] < 60) and FOOT.search(t) and not (re.fullmatch(r'\s*\d{1,2}\s*', t) and bb[0] < 60))]
     imgs = [b['bbox'] for b in p.get_text('dict')['blocks'] if b['type'] == 1]
     ys = [bb[1] for bb, t in body] + [r[1] for r in imgs]; ye = [bb[3] for bb, t in body] + [r[3] for r in imgs]
     top = (min(ys) - 3) if ys else 40; bot = (max(ye) + 3) if ye else H - 40
@@ -52,7 +53,7 @@ anc.sort(key=lambda a: (a['p'], a['col'], a['y']))
 # filtra números soltos fora de sequência (tabelas, etc.)
 clean = []; last = 0
 for a in anc:
-    if a.get('box') and a['n'] != last + 1: continue
+    if a.get('box') and not (last < a['n'] <= last + 4): continue
     if a['n']: last = a['n']
     clean.append(a)
 anc = clean
@@ -73,12 +74,12 @@ def render(p, r):
 rel = []; SH = {}; OPEN = None
 for i, a in enumerate(anc):
     nx = anc[i + 1] if i + 1 < len(anc) else None
-    p, col, y = a['p'], a['col'], a['y'] - (9 if a.get('box') else 3)
+    p, col, y = a['p'], a['col'], a['y'] - (BOXOFF if a.get('box') else 3)
     segs = []; txt = ''
     while True:
         P = pages[p]; x0, x1 = xr(P, col)
         stop = nx and nx['p'] == p and nx['col'] == col
-        y1 = (nx['y'] - (3 if nx.get('share') else 9)) if stop else P['bot']
+        y1 = (nx['y'] - (3 if nx.get('share') else BOXOFF)) if stop else P['bot']
         r = pymupdf.Rect(x0, max(y, P['top']), x1, y1)
         if r.height > 6:
             tt = d[p].get_text('text', clip=r)
